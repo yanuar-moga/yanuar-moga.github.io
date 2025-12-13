@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Rekap Nilai Per Kelas</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+    body { font-family: "Segoe UI", sans-serif; background: #f5f7fa; margin: 0; padding: 0; }
+    .container { max-width: 1100px; margin: 40px auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0px 4px 20px rgba(0,0,0,0.1); }
+    h2 { text-align: center; font-weight: 600; color: #333; margin-bottom: 20px; }
+    table {
+        width: 100%; border-collapse: collapse; margin-top: 15px;
+        border-radius: 10px; overflow: hidden;
+    }
+    th { background: #0078ff; color: white; padding: 12px; text-align: center; font-weight: 600; }
+    td { background: #ffffff; padding: 10px; text-align: center; border-bottom: 1px solid #eee; }
+    tr:hover td { background: #f1f7ff; }
+
+    .btn {
+        padding: 10px 18px;
+        border: none;
+        border-radius: 8px;
+        background: #0078ff;
+        color: #fff;
+        cursor: pointer;
+        margin: 4px;
+    }
+    .btn:hover { background: #005fcc; }
+
+    .download-buttons {
+        margin-top: 20px;
+        display: none;
+        padding: 15px;
+        background: #eef5ff;
+        border-radius: 12px;
+    }
+    .download-buttons button {
+        margin: 4px;
+        padding: 10px 16px;
+        border: none;
+        border-radius: 8px;
+        background: #0078ff;
+        color: #fff;
+        cursor: pointer;
+    }
+    .download-buttons button:hover { background: #005fcc; }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>📊 Rekap Nilai Per Kelas</h2>
+
+    <div style="margin-bottom: 20px;">
+        <button class="btn" onclick="loadSheet('informatika')">🔄 Load Nilai Informatika</button>
+        <button class="btn" onclick="loadSheet('ips')">🔄 Load Nilai IPS</button>
+    </div>
+
+    <div class="download-buttons" id="downloadArea">
+        <h3>⬇ Download Per Kelas:</h3>
+        <div id="kelasButtons"></div>
+    </div>
+
+    <table>
+        <thead id="thead"></thead>
+        <tbody id="tbody"></tbody>
+    </table>
+
+</div>
+
+<script>
+let rawData = [];
+let headers = [];
+let kelasCol = -1;
+
+const SHEET_IDS = {
+    informatika: "1V4VE4qFv0YCC8wEFKdPMPRvvcyFwcLyIfgE8gdCScyw",
+    ips: "1gvxBUDSkXQ7iCasCw197CAn3eZWXmFISgtIANlEzA20"
+};
+
+// ========================================
+// LOAD DATA GOOGLE SHEET SESUAI MAPEL
+// ========================================
+function loadSheet(mapel) {
+    const sheetId = SHEET_IDS[mapel];
+    const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json`;
+
+    fetch(url)
+        .then(res => res.text())
+        .then(text => {
+            const json = JSON.parse(text.substr(47).slice(0, -2));
+
+            headers = json.table.cols.map(col => col.label?.trim() || "");
+
+            kelasCol = headers.indexOf("Kelas");
+            if (kelasCol === -1) {
+                alert("Kolom 'Kelas' tidak ditemukan!");
+                return;
+            }
+
+            rawData = json.table.rows.map(row =>
+                row.c.map(cell => cell ? String(cell.v).trim() : "")
+            );
+
+            rawData = rawData.filter(r => r.some(v => v !== ""));
+
+            populateTable(headers, rawData);
+
+            showDownloadButtons();
+        })
+        .catch(err => {
+            alert("Gagal memuat data sheet.");
+            console.log(err);
+        });
+}
+
+// ========================================
+// TAMPILKAN TABEL
+// ========================================
+function populateTable(headers, data) {
+    const thead = document.getElementById("thead");
+    const tbody = document.getElementById("tbody");
+
+    thead.innerHTML = "";
+    tbody.innerHTML = "";
+
+    const trh = document.createElement("tr");
+    headers.forEach(h => {
+        const th = document.createElement("th");
+        th.textContent = h;
+        trh.appendChild(th);
+    });
+    thead.appendChild(trh);
+
+    data.forEach(row => {
+        const tr = document.createElement("tr");
+        row.forEach(v => {
+            const td = document.createElement("td");
+            td.textContent = v;
+            tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+    });
+}
+
+// ========================================
+// TAMPILKAN TOMBOL DOWNLOAD 9A–9I
+// ========================================
+function showDownloadButtons() {
+    const kelasList = ["9A","9B","9C","9D","9E","9F","9G","9H","9I"];
+    const container = document.getElementById("kelasButtons");
+
+    container.innerHTML = "";
+    document.getElementById("downloadArea").style.display = "block";
+
+    kelasList.forEach(kelas => {
+        const btn = document.createElement("button");
+        btn.textContent = `Kelas ${kelas}`;
+        btn.onclick = () => downloadByKelas(kelas);
+        container.appendChild(btn);
+    });
+}
+
+// ========================================
+// DOWNLOAD DATA PER KELAS
+// ========================================
+function downloadByKelas(kelas) {
+    const dataKelas = rawData.filter(r => r[kelasCol] === kelas);
+
+    if (dataKelas.length === 0) {
+        alert(`Tidak ada data untuk kelas ${kelas}`);
+        return;
+    }
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet([headers, ...dataKelas]);
+    XLSX.utils.book_append_sheet(wb, ws, kelas);
+
+    XLSX.writeFile(wb, `Rekap_Kelas_${kelas}.xlsx`);
+}
+</script>
+
+</body>
+</html>
