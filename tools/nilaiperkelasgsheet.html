@@ -1,1 +1,190 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Filter Kelas Google Sheet + Download Excel</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
+<style>
+    body { font-family: "Segoe UI", sans-serif; background: #f5f7fa; margin: 0; padding: 0; }
+    .container { max-width: 1100px; margin: 40px auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0px 4px 20px rgba(0,0,0,0.1); }
+    h2 { text-align: center; font-weight: 600; color: #333; margin-bottom: 20px; }
+    label { font-weight: 600; }
+    input, select {
+        padding: 10px 15px; border: 1px solid #ccc; border-radius: 8px;
+        font-size: 15px; width: 260px; background: #fdfdfd;
+    }
+    button {
+        padding: 10px 18px; border: none; border-radius: 8px;
+        background: #0078ff; color: #fff; font-size: 15px;
+        cursor: pointer; transition: 0.2s;
+    }
+    button:hover { background: #005fcc; }
+
+    .controls { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+    table {
+        width: 100%; border-collapse: collapse; margin-top: 15px;
+        border-radius: 10px; overflow: hidden;
+    }
+    th { background: #0078ff; color: white; padding: 12px; text-align: center; font-weight: 600; }
+    td { background: #ffffff; padding: 10px; text-align: center; border-bottom: 1px solid #eee; }
+    tr:hover td { background: #f1f7ff; }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>📊 Rekap Nilai Per Kelas (Google Sheet)</h2>
+
+    <div style="margin-bottom: 20px;">
+        <label>Masukkan ID Google Sheet:</label><br>
+        <input type="text" id="sheetIdInput" placeholder="Masukkan ID Google Sheet">
+        <button onclick="loadSheet()">Load Data</button>
+    </div>
+
+    <div class="controls">
+        <div>
+            <label>Pilih Kelas:</label><br>
+            <select id="kelasFilter" onchange="filterData()">
+                <option value="">— Semua Kelas —</option>
+            </select>
+        </div>
+        <button onclick="downloadExcel()">⬇ Download Excel (Hasil Filter)</button>
+    </div>
+
+    <table>
+        <thead id="thead"></thead>
+        <tbody id="tbody"></tbody>
+    </table>
+
+</div>
+
+<script>
+let rawData = [];
+let filteredData = [];
+let headers = [];
+let kelasCol = -1;
+
+// ========================
+// LOAD DATA GOOGLE SHEET
+// ========================
+function loadSheet() {
+    const sheetId = document.getElementById("sheetIdInput").value.trim();
+    if (!sheetId) { alert("Masukkan ID Google Sheet!"); return; }
+
+    const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json`;
+
+    fetch(url)
+        .then(res => res.text())
+        .then(text => {
+            const json = JSON.parse(text.substr(47).slice(0, -2));
+
+            // Ambil header
+            headers = json.table.cols.map(col => col.label?.trim() || "");
+
+            // CARI KOLOM “Kelas”
+            kelasCol = headers.indexOf("Kelas");
+            if (kelasCol === -1) {
+                alert("Kolom 'Kelas' tidak ditemukan! Pastikan nama header persis 'Kelas'");
+                return;
+            }
+
+            // Ambil data
+            rawData = json.table.rows.map(row =>
+                row.c.map(cell => cell ? String(cell.v).trim() : "")
+            );
+
+            // Hapus baris kosong
+            rawData = rawData.filter(r => r.some(v => v !== ""));
+
+            filteredData = rawData; // awalnya semua tampil
+            populateTable(headers, filteredData);
+            fillKelasOptions(rawData);
+        })
+        .catch(err => {
+            alert("Gagal memuat data.");
+            console.log(err);
+        });
+}
+
+// ========================
+// ISI DROPDOWN KELAS
+// ========================
+function fillKelasOptions(data) {
+    const select = document.getElementById("kelasFilter");
+    select.innerHTML = `<option value="">— Semua Kelas —</option>`;
+
+    const kelasSet = new Set();
+
+    data.forEach(r => {
+        let kelas = r[kelasCol];
+        if (kelas) kelasSet.add(kelas.trim());
+    });
+
+    [...kelasSet].sort().forEach(k => {
+        const opt = document.createElement("option");
+        opt.value = k;
+        opt.textContent = k;
+        select.appendChild(opt);
+    });
+}
+
+// ========================
+// TAMPILKAN TABEL
+// ========================
+function populateTable(headers, data) {
+    const thead = document.getElementById("thead");
+    const tbody = document.getElementById("tbody");
+
+    thead.innerHTML = "";
+    tbody.innerHTML = "";
+
+    // header
+    const trh = document.createElement("tr");
+    headers.forEach(h => {
+        const th = document.createElement("th");
+        th.textContent = h;
+        trh.appendChild(th);
+    });
+    thead.appendChild(trh);
+
+    // body
+    data.forEach(row => {
+        const tr = document.createElement("tr");
+        row.forEach(v => {
+            const td = document.createElement("td");
+            td.textContent = v;
+            tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+    });
+}
+
+// ========================
+// FILTER DATA AKURAT 100%
+// ========================
+function filterData() {
+    const selected = document.getElementById("kelasFilter").value.trim();
+
+    filteredData = selected
+        ? rawData.filter(r => r[kelasCol] === selected)
+        : rawData;
+
+    populateTable(headers, filteredData);
+}
+
+// ========================
+// DOWNLOAD HASIL FILTER
+// ========================
+function downloadExcel() {
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet([headers, ...filteredData]);
+    XLSX.utils.book_append_sheet(wb, ws, "DataKelas");
+    XLSX.writeFile(wb, "Data_Kelas.xlsx");
+}
+</script>
+
+</body>
+</html>
