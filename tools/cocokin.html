@@ -1,1 +1,134 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<title>Rekap Nilai Siswa</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; }
+  table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+  th, td { border: 1px solid #000; padding: 6px; text-align: center; }
+  .hijau { background: #a8f0a5; }
+  .kuning { background: #fff7a1; }
+  .merah { background: #ffb1b1; }
+</style>
+</head>
+<body>
+<h2>Rekap Nilai Siswa<br>Versi 1.0 (Build 14 November 2025) – Dev by MB</h2>
+<img src="asset/logo.jpg" alt="Logo" width="120" />
+<br><br>
+<label>Upload Excel Daftar Siswa:</label>
+<input type="file" id="excelDaftar" accept=".xlsx,.xls" />
+<br><br>
+<label>Upload Excel Respons Siswa:</label>
+<input type="file" id="excelRespons" accept=".xlsx,.xls" />
+<br><br>
+<label>KKM:</label>
+<input type="number" id="kkm" value="78" />
+<br><br>
+<button onclick="prosesData()">PROSES DATA</button>
 
+<div id="output"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+let daftarSiswa = [];
+let responsSiswa = [];
+
+function bacaExcel(file, callback) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { type: 'array' });
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+    callback(json);
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function prosesData() {
+  const fileDaftar = document.getElementById('excelDaftar').files[0];
+  const fileRespons = document.getElementById('excelRespons').files[0];
+
+  if (!fileDaftar || !fileRespons) {
+    alert('Upload kedua file terlebih dahulu');
+    return;
+  }
+
+  bacaExcel(fileDaftar, ds => {
+    daftarSiswa = ds.map(r => ({
+      no: r["A"] || r["no"] || r["No"] || r["NO"],
+      nama: r["B"] || r["nama"] || r["Nama"] || r["NAMA"],
+      score1: r["C"] || ""
+    }));
+
+    bacaExcel(fileRespons, rs => {
+      responsSiswa = rs.map(r => ({
+        nama: r["C"] || r["Nama Lengkap"] || r["nama"] || "",
+        score: r["B"] || 0
+      }));
+
+      gabungkanData();
+    });
+  });
+}
+
+function gabungkanData() {
+  let kkm = parseInt(document.getElementById('kkm').value);
+
+  // Buat map per nama untuk kumpulkan semua score
+  let mapScore = {};
+  responsSiswa.forEach(r => {
+    if (!mapScore[r.nama]) mapScore[r.nama] = [];
+    mapScore[r.nama].push(Number(r.score));
+  });
+
+  // Gabungkan ke daftar siswa
+  daftarSiswa.forEach(s => {
+    let scores = mapScore[s.nama] || [];
+    s.allScores = scores;
+    s.nilaiAkhir = scores.length > 0 ? (scores.reduce((a,b)=>a+b,0) / scores.length).toFixed(2) : "";
+  });
+
+  tampilkanTabel();
+}
+
+function warna(nilai, kkm){
+  if (nilai === "") return "";
+  nilai = Number(nilai);
+  if (nilai > kkm) return "hijau";
+  if (nilai === kkm) return "kuning";
+  return "merah";
+}
+
+function tampilkanTabel(){
+  let kkm = parseInt(document.getElementById('kkm').value);
+  let html = `<table><tr>
+      <th>No</th><th>Nama Siswa</th><th>Nilai Akhir</th>`;
+
+  for(let i=1;i<=6;i++) html += `<th>Score${i}</th>`;
+  html += `</tr>`;
+
+  daftarSiswa.forEach(s => {
+    html += `<tr>`;
+    html += `<td>${s.no}</td>`;
+    html += `<td>${s.nama}</td>`;
+
+    // nilai akhir
+    html += `<td class="${warna(s.nilaiAkhir,kkm)}">${s.nilaiAkhir}</td>`;
+
+    // score1-6
+    for(let i=0;i<6;i++){
+      let val = s.allScores[i] || "";
+      html += `<td class="${warna(val,kkm)}">${val}</td>`;
+    }
+
+    html += `</tr>`;
+  });
+
+  html += `</table>`;
+  document.getElementById('output').innerHTML = html;
+}
+</script>
+</body>
+</html>
