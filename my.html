@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal Aplikasi TIK – SMPN 1 Moga</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    min-height: 100vh;
+    color: #fff;
+}
+
+.header {
+    text-align: center;
+    padding: 30px 15px;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 28px;
+}
+
+.header p {
+    margin-top: 8px;
+    font-size: 15px;
+    opacity: 0.9;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+    padding: 20px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px;
+}
+
+.card {
+    background: #ffffff;
+    color: #333;
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.25);
+}
+
+.card h3 {
+    margin-top: 0;
+    font-size: 18px;
+}
+
+.card p {
+    font-size: 14px;
+    color: #555;
+}
+
+.card a {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 8px 14px;
+    background: #2a5298;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.card a:hover {
+    background: #1e3c72;
+}
+
+.footer {
+    text-align: center;
+    font-size: 13px;
+    opacity: 0.8;
+    margin: 30px 0 15px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <h1>📘 Portal Aplikasi TIK</h1>
+    <p>SMP Negeri 1 Moga • Informatika & Sistem Akademik</p>
+</div>
+
+<div class="container">
+    <div class="grid">
+
+        <div class="card">
+            <h3>🔐 Akun Belajar</h3>
+            <p>Manajemen dan informasi akun belajar siswa.</p>
+            <a href="akunbelajar.html">Buka</a>
+        </div>
+
+        <div class="card">
+            <h3>📊 Analisis Nilai</h3>
+            <p>Analisis hasil belajar dan pencapaian siswa.</p>
+            <a href="analisisnilai.html">Buka</a>
+        </div>
+
+        <div class="card">
+            <h3>🔎 Cocokkan Data</h3>
+            <p>Pencocokan dan validasi data siswa.</p>
+            <a href="cocokin.html">Buka</a>
+        </div>
+
+        <div class="card">
+            <h3>💻 Dashboard Lab 2</h3>
+            <p>Monitoring kondisi perangkat laboratorium.</p>
+            <a href="dashboardlab2.html">Buka</a>
+        </div>
+
+        <div class="card">
+            <h3>📦 Inventaris Lab 2</h3>
+            <p>Data inventaris laptop dan perangkat lab.</p>
+            <a href="inventarislab2.html">Buka</a>
+        </div>
+
+        <div class="card">
+            <h3>📄 Nilai per Kelas</h3>
+            <p>Rekap nilai siswa dari Google Sheet.</p>
+            <a href="nilaiperkelasgsheet.html">Buka</a>
+        </div>
+
+        <div class="card">
+            <h3>⚡ Nilai Kelas (Direct)</h3>
+            <p>Akses langsung nilai tanpa perantara.</p>
+            <a href="nilaiperkelasgsheetdirect.html">Buka</a>
+        </div>
+
+        <div class="card">
+            <h3>🧩 Split Data Dapodik</h3>
+            <p>Pemrosesan dan pemisahan data Dapodik.</p>
+            <a href="splitxldapodik.html">Buka</a>
+        </div>
+
+        <div class="card">
+            <h3>🔄 Sync Nilai GForm</h3>
+            <p>Sinkronisasi nilai dari Google Form.</p>
+            <a href="sync_nilaisiswa_gform.html">Buka</a>
+        </div>
+
+    </div>
+</div>
+
+<div class="footer">
+    © 2025 • Yanuar Bayu Triyono, S.I.Pust. | SMP Negeri 1 Moga
+</div>
+
+</body>
+</html>
