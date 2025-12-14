@@ -1,1 +1,154 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Aplikasi Erapor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <style>
+    body { font-family: Arial, sans-serif; background:#f2f4f8; padding:20px; }
+    .card { max-width:1000px; margin:auto; background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,.1); }
+    select, input[type=file], button { padding:8px; margin-top:8px; }
+    button { background:#1976d2; color:white; border:none; border-radius:6px; cursor:pointer; }
+    button:hover { background:#125ea9; }
+    table { width:100%; border-collapse:collapse; margin-top:15px; font-size:14px; }
+    th, td { border:1px solid #ccc; padding:6px; text-align:center; }
+    th { background:#1976d2; color:white; }
+    .valid { background:#e8f5e9; color:#2e7d32; font-weight:bold; }
+    .invalid { background:#ffebee; color:#c62828; font-weight:bold; }
+    .summary { margin-top:15px; font-weight:bold; }
+    header { text-align:center; margin-bottom:20px; }
+    header img { max-height:80px; margin-bottom:10px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <img src="assets/logo.jpg" alt="Logo">
+  <h1>Aplikasi Erapor</h1>
+  <p>Version 1.0 (Update 14 Desember 2025)</p>
+</header>
+
+<div class="card">
+  <input type="file" id="fileInput" accept=".xlsx,.xlsm">
+
+  <!-- AREA KONTROL (DROPDOWN TIDAK PERNAH HILANG) -->
+  <div id="output"></div>
+
+  <!-- AREA HASIL -->
+  <div id="hasil"></div>
+
+  <button id="downloadBtn" style="display:none">⬇️ Download Excel Hasil</button>
+</div>
+
+<script>
+/* ================= GLOBAL ================= */
+let workbookGlobal = null;
+let hasilData = [];
+let kelasAktif = "";
+
+/* ================= ATURAN TP ================= */
+function cekTP(nilai) {
+  if (nilai <= 78) return "R";
+  if (nilai > 95) return "T";
+  return "";
+}
+
+/* ================= VALIDASI ================= */
+function validasiTP(tp) {
+  return tp.includes("R") && tp.includes("T");
+}
+
+/* ================= LOAD EXCEL (1 KALI) ================= */
+document.getElementById("fileInput").addEventListener("change", e => {
+  const reader = new FileReader();
+  reader.onload = evt => {
+    workbookGlobal = XLSX.read(new Uint8Array(evt.target.result), { type:"array" });
+
+    let html = "<b>Pilih Kelas / Sheet:</b><br>";
+    html += "<select id='sheetSelect' onchange='prosesSheet()'>";
+    workbookGlobal.SheetNames.forEach(s => {
+      html += `<option value="${s}">${s}</option>`;
+    });
+    html += "</select>";
+
+    document.getElementById("output").innerHTML = html;
+    document.getElementById("hasil").innerHTML = "";
+    document.getElementById("downloadBtn").style.display = "none";
+  };
+  reader.readAsArrayBuffer(e.target.files[0]);
+});
+
+/* ================= PROSES SHEET (BISA BERKALI-KALI) ================= */
+function prosesSheet() {
+  kelasAktif = document.getElementById("sheetSelect").value;
+  const sheet = workbookGlobal.Sheets[kelasAktif];
+
+  hasilData = [];
+  let total = 0, valid = 0, invalid = 0;
+
+  let html = `
+  <table>
+    <tr>
+      <th>No</th><th>Nama</th><th>Nilai Rapor</th>
+      <th>TP1</th><th>TP2</th><th>TP3</th><th>TP4</th><th>TP5</th>
+      <th>Validasi</th>
+    </tr>`;
+
+  let no = 1;
+
+  for (let r = 10; r <= 41; r++) {
+    const nama = sheet[`B${r}`]?.v;
+    if (!nama) continue;
+
+    total++;
+    const nilai = sheet[`AH${r}`]?.v || "";
+
+    const tp = [
+      cekTP(sheet[`W${r}`]?.v || 0),
+      cekTP(sheet[`X${r}`]?.v || 0),
+      cekTP(sheet[`Y${r}`]?.v || 0),
+      cekTP(sheet[`Z${r}`]?.v || 0),
+      cekTP(sheet[`AA${r}`]?.v || 0)
+    ];
+
+    const isValid = validasiTP(tp);
+    isValid ? valid++ : invalid++;
+
+    hasilData.push([no, nama, nilai, ...tp, isValid ? "VALID" : "INVALID"]);
+
+    html += `
+    <tr class="${isValid ? "valid" : "invalid"}">
+      <td>${no}</td>
+      <td>${nama}</td>
+      <td>${nilai}</td>
+      ${tp.map(v => `<td>${v}</td>`).join("")}
+      <td>${isValid ? "VALID" : "INVALID"}</td>
+    </tr>`;
+    no++;
+  }
+
+  html += "</table>";
+  html += `<div class="summary">Total: ${total} | VALID: ${valid} | INVALID: ${invalid}</div>`;
+
+  document.getElementById("hasil").innerHTML = html;
+  document.getElementById("downloadBtn").style.display = "inline-block";
+}
+
+/* ================= DOWNLOAD ================= */
+document.getElementById("downloadBtn").addEventListener("click", () => {
+  const ws = XLSX.utils.aoa_to_sheet([
+    ["No","Nama","Nilai Rapor","TP1","TP2","TP3","TP4","TP5","Validasi"],
+    ...hasilData
+  ]);
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Rapor Final");
+  XLSX.writeFile(wb, `rapor_final_${kelasAktif}.xlsx`);
+});
+</script>
+
+</body>
+</html>
 
