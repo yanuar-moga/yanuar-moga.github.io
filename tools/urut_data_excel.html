@@ -93,29 +93,59 @@ function isiDropdown(data, selectId) {
   });
 }
 
-file1.onchange = () => {
-  bacaExcel(file1.files[0], d => {
+document.getElementById('file1').onchange = () => {
+  const f = document.getElementById('file1').files[0];
+  if (!f) return;
+  bacaExcel(f, d => {
     data1 = d;
-    isiDropdown(data1, "kolom1");
+    if (data1.length === 0) {
+      alert('Excel 1 kosong atau format tidak valid');
+      return;
+    }
+    isiDropdown(data1, 'kolom1');
   });
 };
 
-file2.onchange = () => {
-  bacaExcel(file2.files[0], d => {
+document.getElementById('file2').onchange = () => {
+  const f = document.getElementById('file2').files[0];
+  if (!f) return;
+  bacaExcel(f, d => {
     data2 = d;
-    isiDropdown(data2, "kolom2");
+    if (data2.length === 0) {
+      alert('Excel 2 kosong atau format tidak valid');
+      return;
+    }
+    isiDropdown(data2, 'kolom2');
   });
 };
 
 function proses() {
-  const k1 = kolom1.value;
-  const k2 = kolom2.value;
+  if (data1.length === 0 || data2.length === 0) {
+    alert('Harap upload kedua file Excel terlebih dahulu');
+    return;
+  }
 
-  const urutan = data2.map(r => String(r[k2]).toLowerCase().trim());
+  const k1 = document.getElementById('kolom1').value;
+  const k2 = document.getElementById('kolom2').value;
 
-  hasilAkhir = urutan.map(nama =>
-    data1.find(r => String(r[k1]).toLowerCase().trim() === nama)
-  ).filter(Boolean);
+  if (!k1 || !k2) {
+    alert('Kolom acuan belum dipilih');
+    return;
+  }
+
+  const urutan = data2
+    .map(r => r[k2])
+    .filter(v => v !== undefined && v !== null)
+    .map(v => String(v).toLowerCase().trim());
+
+  hasilAkhir = urutan
+    .map(key => data1.find(r => String(r[k1]).toLowerCase().trim() === key))
+    .filter(Boolean);
+
+  if (hasilAkhir.length === 0) {
+    alert('Tidak ada data yang cocok. Periksa kolom acuan.');
+    return;
+  }
 
   tampilkanPreview(hasilAkhir);
 }
