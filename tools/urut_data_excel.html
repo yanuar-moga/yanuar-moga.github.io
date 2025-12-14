@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Aplikasi Urutkan Data Excel</title>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; background:#f4f6f8; margin:0; }
+    header { background:#0f172a; color:white; padding:15px 30px; display:flex; align-items:center; gap:15px; }
+    header img { height:50px; }
+    header h1 { font-size:20px; margin:0; }
+
+    .container { padding:25px; }
+    .card { background:white; padding:20px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.08); margin-bottom:20px; }
+
+    label { font-weight:bold; }
+    select, input[type=file], button {
+      padding:8px;
+      margin-top:8px;
+      margin-bottom:15px;
+      width:100%;
+    }
+
+    button { background:#2563eb; color:white; border:none; border-radius:6px; cursor:pointer; }
+    button:hover { background:#1d4ed8; }
+
+    table { width:100%; border-collapse:collapse; margin-top:15px; }
+    th, td { border:1px solid #ddd; padding:8px; font-size:13px; }
+    th { background:#e5e7eb; }
+
+    .hidden { display:none; }
+  </style>
+</head>
+<body>
+
+<header>
+  <img src="assets/logo.jpg" alt="Logo MB">
+  <h1>Aplikasi Urutkan Data Excel<br><small>by MB</small></h1>
+</header>
+
+<div class="container">
+
+  <div class="card">
+    <h3>1. Upload Excel Data Lengkap</h3>
+    <input type="file" id="file1">
+    <label>Pilih Kolom Acuan:</label>
+    <select id="kolom1"></select>
+  </div>
+
+  <div class="card">
+    <h3>2. Upload Excel Urutan Acuan</h3>
+    <input type="file" id="file2">
+    <label>Pilih Kolom Acuan:</label>
+    <select id="kolom2"></select>
+  </div>
+
+  <div class="card">
+    <button onclick="proses()">Proses & Preview</button>
+  </div>
+
+  <div class="card hidden" id="previewCard">
+    <h3>Preview Hasil</h3>
+    <div style="overflow-x:auto">
+      <table id="previewTable"></table>
+    </div>
+    <br>
+    <button onclick="downloadExcel()">Download Excel</button>
+  </div>
+
+</div>
+
+<script>
+let data1 = [], data2 = [], hasilAkhir = [];
+
+function bacaExcel(file, callback) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    const wb = XLSX.read(e.target.result, { type: 'binary' });
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    callback(XLSX.utils.sheet_to_json(ws));
+  };
+  reader.readAsBinaryString(file);
+}
+
+function isiDropdown(data, selectId) {
+  const select = document.getElementById(selectId);
+  select.innerHTML = "";
+  Object.keys(data[0]).forEach(k => {
+    const o = document.createElement("option");
+    o.value = k;
+    o.textContent = k;
+    select.appendChild(o);
+  });
+}
+
+file1.onchange = () => {
+  bacaExcel(file1.files[0], d => {
+    data1 = d;
+    isiDropdown(data1, "kolom1");
+  });
+};
+
+file2.onchange = () => {
+  bacaExcel(file2.files[0], d => {
+    data2 = d;
+    isiDropdown(data2, "kolom2");
+  });
+};
+
+function proses() {
+  const k1 = kolom1.value;
+  const k2 = kolom2.value;
+
+  const urutan = data2.map(r => String(r[k2]).toLowerCase().trim());
+
+  hasilAkhir = urutan.map(nama =>
+    data1.find(r => String(r[k1]).toLowerCase().trim() === nama)
+  ).filter(Boolean);
+
+  tampilkanPreview(hasilAkhir);
+}
+
+function tampilkanPreview(data) {
+  const table = document.getElementById("previewTable");
+  table.innerHTML = "";
+
+  const header = document.createElement("tr");
+  Object.keys(data[0]).forEach(k => {
+    const th = document.createElement("th");
+    th.textContent = k;
+    header.appendChild(th);
+  });
+  table.appendChild(header);
+
+  data.forEach(row => {
+    const tr = document.createElement("tr");
+    Object.values(row).forEach(v => {
+      const td = document.createElement("td");
+      td.textContent = v;
+      tr.appendChild(td);
+    });
+    table.appendChild(tr);
+  });
+
+  previewCard.classList.remove("hidden");
+}
+
+function downloadExcel() {
+  const ws = XLSX.utils.json_to_sheet(hasilAkhir);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Hasil");
+  XLSX.writeFile(wb, "hasil_urut_data.xlsx");
+}
+</script>
+
+</body>
+</html>
