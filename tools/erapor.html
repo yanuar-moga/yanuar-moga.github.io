@@ -29,7 +29,7 @@
 </header>
 
 <div class="card">
-  <input type="file" id="fileInput" accept=".xlsx" />
+  <input type="file" id="fileInput" accept=".xlsx,.xlsm" />
   <div id="output"></div>
   <button id="downloadBtn" style="display:none">⬇️ Download Excel Hasil</button>
 </div>
@@ -40,8 +40,8 @@ let hasilData = [];
 let kelasAktif = '';
 
 function cekTP(nilai) {
-  if (nilai < 80) return 'R';
-  if (nilai > 97) return 'T';
+  if (nilai <= 78) return 'R';
+  if (nilai > 95) return 'T';
   return '';
 }
 
@@ -55,9 +55,9 @@ document.getElementById('fileInput').addEventListener('change', e => {
   reader.onload = evt => {
     workbookGlobal = XLSX.read(new Uint8Array(evt.target.result), { type:'array' });
     let html = '<b>Pilih Kelas / Sheet:</b><br>';
-    html += '<select id="sheetSelect">';
+    html += '<select id="sheetSelect" onchange="prosesSheet()">';
     workbookGlobal.SheetNames.forEach(s => html += `<option value="${s}">${s}</option>`);
-    html += '</select><br><button onclick="prosesSheet()">Proses Data</button>';
+    html += '</select>';
     document.getElementById('output').innerHTML = html;
     document.getElementById('downloadBtn').style.display = 'none';
   };
