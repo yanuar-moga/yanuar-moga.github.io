@@ -2,73 +2,31 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <title>Aplikasi Pengolah Nilai Rapor Final</title>
+  <title>Aplikasi Rapor Final – Multi Kelas</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f2f4f8;
-      padding: 20px;
-    }
-    h1 {
-      text-align: center;
-    }
-    .card {
-      max-width: 900px;
-      margin: auto;
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    input[type=file] {
-      margin-bottom: 15px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-      font-size: 14px;
-    }
-    table, th, td {
-      border: 1px solid #ccc;
-    }
-    th, td {
-      padding: 6px;
-      text-align: center;
-    }
-    th {
-      background: #1976d2;
-      color: white;
-    }
-    .invalid {
-      background: #ffebee;
-      color: #c62828;
-      font-weight: bold;
-    }
-    .valid {
-      background: #e8f5e9;
-      color: #2e7d32;
-      font-weight: bold;
-    }
-    button {
-      margin-top: 15px;
-      padding: 10px 16px;
-      background: #1976d2;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #125ea9;
-    }
+    body { font-family: Arial, sans-serif; background:#f2f4f8; padding:20px; }
+    h1 { text-align:center; }
+    .card { max-width:1000px; margin:auto; background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,.1); }
+    select, input[type=file], button { padding:8px; margin-top:8px; }
+    button { background:#1976d2; color:white; border:none; border-radius:6px; cursor:pointer; }
+    button:hover { background:#125ea9; }
+    table { width:100%; border-collapse:collapse; margin-top:15px; font-size:14px; }
+    th, td { border:1px solid #ccc; padding:6px; text-align:center; }
+    th { background:#1976d2; color:white; }
+    .valid { background:#e8f5e9; color:#2e7d32; font-weight:bold; }
+    .invalid { background:#ffebee; color:#c62828; font-weight:bold; }
+    .summary { margin-top:15px; font-weight:bold; }
   </style>
 </head>
 <body>
 
-<h1>📊 Aplikasi Rapor Final</h1>
+<header style="text-align:center;margin-bottom:20px">
+  <img src="assets/logo.jpg" alt="Logo" style="max-height:80px;margin-bottom:10px">
+  <h1>Aplikasi Erapor</h1>
+  <p>Version 1.0 (Update 14 Desember 2025)</p>
+</header>
 
 <div class="card">
   <input type="file" id="fileInput" accept=".xlsx" />
@@ -77,76 +35,83 @@
 </div>
 
 <script>
+let workbookGlobal = null;
 let hasilData = [];
+let kelasAktif = '';
 
 function cekTP(nilai) {
-  if (nilai < 80) return "R";
-  if (nilai > 97) return "T";
-  return "";
+  if (nilai < 80) return 'R';
+  if (nilai > 97) return 'T';
+  return '';
 }
 
-document.getElementById('fileInput').addEventListener('change', function(e) {
-  const file = e.target.files[0];
+// RUMUS LOGIKA WAJIB ADA MINIMAL 1 R DAN 1 T
+function validasiTP(tpArray) {
+  return tpArray.includes('R') && tpArray.includes('T');
+}
+
+document.getElementById('fileInput').addEventListener('change', e => {
   const reader = new FileReader();
-
-  reader.onload = function(evt) {
-    const data = new Uint8Array(evt.target.result);
-    const workbook = XLSX.read(data, { type: 'array' });
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-
-    hasilData = [];
-
-    let html = '<table><tr>' +
-      '<th>No</th><th>Nama</th><th>Nilai Rapor</th>' +
-      '<th>TP1</th><th>TP2</th><th>TP3</th><th>TP4</th><th>TP5</th><th>Validasi</th></tr>';
-
-    let no = 1;
-    for (let row = 10; row <= 41; row++) {
-      const nama = sheet[`B${row}`]?.v || '';
-      if (!nama) continue;
-
-      const nilaiRapor = sheet[`AH${row}`]?.v || '';
-
-      const tp1 = cekTP(sheet[`W${row}`]?.v || 0);
-      const tp2 = cekTP(sheet[`X${row}`]?.v || 0);
-      const tp3 = cekTP(sheet[`Y${row}`]?.v || 0);
-      const tp4 = cekTP(sheet[`Z${row}`]?.v || 0);
-      const tp5 = cekTP(sheet[`AA${row}`]?.v || 0);
-
-      const tpArr = [tp1, tp2, tp3, tp4, tp5];
-      const validasi = (tpArr.includes('R') && tpArr.includes('T')) ? 'VALID' : 'INVALID';
-
-      hasilData.push([
-        no, nama, nilaiRapor,
-        tp1, tp2, tp3, tp4, tp5, validasi
-      ]);
-
-      html += `<tr class="${validasi === 'VALID' ? 'valid' : 'invalid'}">` +
-        `<td>${no}</td><td>${nama}</td><td>${nilaiRapor}</td>` +
-        `<td>${tp1}</td><td>${tp2}</td><td>${tp3}</td><td>${tp4}</td><td>${tp5}</td>` +
-        `<td>${validasi}</td></tr>`;
-
-      no++;
-    }
-
-    html += '</table>';
+  reader.onload = evt => {
+    workbookGlobal = XLSX.read(new Uint8Array(evt.target.result), { type:'array' });
+    let html = '<b>Pilih Kelas / Sheet:</b><br>';
+    html += '<select id="sheetSelect">';
+    workbookGlobal.SheetNames.forEach(s => html += `<option value="${s}">${s}</option>`);
+    html += '</select><br><button onclick="prosesSheet()">Proses Data</button>';
     document.getElementById('output').innerHTML = html;
-    document.getElementById('downloadBtn').style.display = 'inline-block';
+    document.getElementById('downloadBtn').style.display = 'none';
   };
-
-  reader.readAsArrayBuffer(file);
+  reader.readAsArrayBuffer(e.target.files[0]);
 });
 
-document.getElementById('downloadBtn').addEventListener('click', function() {
+function prosesSheet() {
+  kelasAktif = document.getElementById('sheetSelect').value;
+  const sheet = workbookGlobal.Sheets[kelasAktif];
+  hasilData = [];
+
+  let total=0, valid=0, invalid=0;
+  let html = '<table><tr><th>No</th><th>Nama</th><th>Nilai Rapor</th><th>TP1</th><th>TP2</th><th>TP3</th><th>TP4</th><th>TP5</th><th>Validasi</th></tr>';
+
+  let no=1;
+  for(let r=10;r<=41;r++){
+    const nama = sheet[`B${r}`]?.v;
+    if(!nama) continue;
+    total++;
+
+    const nilai = sheet[`AH${r}`]?.v || '';
+    const tp = [
+      cekTP(sheet[`W${r}`]?.v||0),
+      cekTP(sheet[`X${r}`]?.v||0),
+      cekTP(sheet[`Y${r}`]?.v||0),
+      cekTP(sheet[`Z${r}`]?.v||0),
+      cekTP(sheet[`AA${r}`]?.v||0)
+    ];
+
+    const isValid = validasiTP(tp);
+    isValid ? valid++ : invalid++;
+
+    hasilData.push([no,nama,nilai,...tp,isValid?'VALID':'INVALID']);
+
+    html += `<tr class="${isValid?'valid':'invalid'}"><td>${no}</td><td>${nama}</td><td>${nilai}</td>`+
+            tp.map(x=>`<td>${x}</td>`).join('')+
+            `<td>${isValid?'VALID':'INVALID'}</td></tr>`;
+    no++;
+  }
+  html += '</table>';
+  html += `<div class="summary">Total: ${total} | VALID: ${valid} | INVALID: ${invalid}</div>`;
+
+  document.getElementById('output').innerHTML = html;
+  document.getElementById('downloadBtn').style.display = 'inline-block';
+}
+
+document.getElementById('downloadBtn').addEventListener('click',()=>{
   const ws = XLSX.utils.aoa_to_sheet([
     ['No','Nama','Nilai Rapor','TP1','TP2','TP3','TP4','TP5','Validasi'],
     ...hasilData
   ]);
-
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Rapor Final');
-
-  XLSX.writeFile(wb, 'rapor_final.xlsx');
+  XLSX.writeFile(wb, `rapor_final_${kelasAktif}.xlsx`);
 });
 </script>
 
