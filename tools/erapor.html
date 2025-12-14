@@ -1,153 +1,199 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <title>Aplikasi Erapor</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+import pandas as pd
+import tkinter as tk
+from tkinter import filedialog, messagebox
 
-  <style>
-    body { font-family: Arial, sans-serif; background:#f2f4f8; padding:20px; }
-    .card { max-width:1000px; margin:auto; background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,.1); }
-    select, input[type=file], button { padding:8px; margin-top:8px; }
-    button { background:#1976d2; color:white; border:none; border-radius:6px; cursor:pointer; }
-    button:hover { background:#125ea9; }
-    table { width:100%; border-collapse:collapse; margin-top:15px; font-size:14px; }
-    th, td { border:1px solid #ccc; padding:6px; text-align:center; }
-    th { background:#1976d2; color:white; }
-    .valid { background:#e8f5e9; color:#2e7d32; font-weight:bold; }
-    .invalid { background:#ffebee; color:#c62828; font-weight:bold; }
-    .summary { margin-top:15px; font-weight:bold; }
-    header { text-align:center; margin-bottom:20px; }
-    header img { max-height:80px; margin-bottom:10px; }
-  </style>
-</head>
-<body>
+# =====================================================
+# FUNGSI AUTO-DETECT KOLOM KUNCI
+# =====================================================
+def detect_key_column(df):
+    """
+    Mendeteksi kolom kunci secara otomatis.
+    Prioritas:
+    1. NISN
+    2. No Induk / No_Induk
+    3. ID
+    4. Nama
+    """
+    priority_keywords = [
+        "nisn",
+        "no_induk",
+        "no induk",
+        "id",
+        "nama"
+    ]
 
-<header>
-  <img src="assets/logo.jpg" alt="Logo">
-  <h1>Aplikasi Erapor</h1>
-  <p>Version 1.0 (Update 14 Desember 2025)</p>
-</header>
+    # 1. Deteksi dari nama header
+    for col in df.columns:
+        col_lower = col.lower()
+        for key in priority_keywords:
+            if key in col_lower:
+                return col
 
-<div class="card">
-  <input type="file" id="fileInput" accept=".xlsx,.xlsm">
+    # 2. Fallback: kolom dengan teks terbanyak
+    best_col = df.columns[0]
+    best_score = 0
 
-  <!-- AREA KONTROL (DROPDOWN TIDAK PERNAH HILANG) -->
-  <div id="output"></div>
+    for col in df.columns:
+        try:
+            score = df[col].astype(str).apply(lambda x: x.isalpha()).sum()
+            if score > best_score:
+                best_score = score
+                best_col = col
+        except:
+            pass
 
-  <!-- AREA HASIL -->
-  <div id="hasil"></div>
+    return best_col
 
-  <button id="downloadBtn" style="display:none">⬇️ Download Excel Hasil</button>
-</div>
 
-<script>
-/* ================= GLOBAL ================= */
-let workbookGlobal = null;
-let hasilData = [];
-let kelasAktif = "";
+# =====================================================
+# APLIKASI GUI
+# =====================================================
+class ExcelSorterApp:
+    def __init__(self, root):
+        self.root = root
+        root.title("Aplikasi Urutkan Data Excel - by MB")
+        root.geometry("500x380")
+        root.resizable(False, False)
 
-/* ================= ATURAN TP ================= */
-function cekTP(nilai) {
-  if (nilai <= 78) return "R";
-  if (nilai > 95) return "T";
-  return "";
-}
+        self.file_data = None
+        self.file_order = None
 
-/* ================= VALIDASI ================= */
-function validasiTP(tp) {
-  return tp.includes("R") && tp.includes("T");
-}
+        tk.Label(
+            root,
+            text="Aplikasi Urutkan Data Excel",
+            font=("Arial", 14, "bold")
+        ).pack(pady=10)
 
-/* ================= LOAD EXCEL (1 KALI) ================= */
-document.getElementById("fileInput").addEventListener("change", e => {
-  const reader = new FileReader();
-  reader.onload = evt => {
-    workbookGlobal = XLSX.read(new Uint8Array(evt.target.result), { type:"array" });
+        tk.Label(
+            root,
+            text="by MB",
+            font=("Arial", 9)
+        ).pack(pady=(0, 15))
 
-    let html = "<b>Pilih Kelas / Sheet:</b><br>";
-    html += "<select id='sheetSelect' onchange='prosesSheet()'>";
-    workbookGlobal.SheetNames.forEach(s => {
-      html += `<option value="${s}">${s}</option>`;
-    });
-    html += "</select>";
+        # =====================
+        # PILIH FILE DATA
+        # =====================
+        tk.Button(
+            root,
+            text="Pilih Excel Data Lengkap",
+            width=30,
+            command=self.load_data
+        ).pack(pady=5)
 
-    document.getElementById("output").innerHTML = html;
-    document.getElementById("hasil").innerHTML = "";
-    document.getElementById("downloadBtn").style.display = "none";
-  };
-  reader.readAsArrayBuffer(e.target.files[0]);
-});
+        self.lbl_data = tk.Label(root, text="Belum dipilih", fg="gray")
+        self.lbl_data.pack()
 
-/* ================= PROSES SHEET (BISA BERKALI-KALI) ================= */
-function prosesSheet() {
-  kelasAktif = document.getElementById("sheetSelect").value;
-  const sheet = workbookGlobal.Sheets[kelasAktif];
+        # =====================
+        # PILIH FILE URUTAN
+        # =====================
+        tk.Button(
+            root,
+            text="Pilih Excel Urutan",
+            width=30,
+            command=self.load_order
+        ).pack(pady=15)
 
-  hasilData = [];
-  let total = 0, valid = 0, invalid = 0;
+        self.lbl_order = tk.Label(root, text="Belum dipilih", fg="gray")
+        self.lbl_order.pack()
 
-  let html = `
-  <table>
-    <tr>
-      <th>No</th><th>Nama</th><th>Nilai Rapor</th>
-      <th>TP1</th><th>TP2</th><th>TP3</th><th>TP4</th><th>TP5</th>
-      <th>Validasi</th>
-    </tr>`;
+        # =====================
+        # PROSES
+        # =====================
+        tk.Button(
+            root,
+            text="Proses & Simpan",
+            width=30,
+            bg="#2563eb",
+            fg="white",
+            command=self.process
+        ).pack(pady=25)
 
-  let no = 1;
+    def load_data(self):
+        self.file_data = filedialog.askopenfilename(
+            filetypes=[("Excel Files", "*.xlsx *.xls")]
+        )
+        if self.file_data:
+            self.lbl_data.config(
+                text=self.file_data.split("/")[-1],
+                fg="black"
+            )
 
-  for (let r = 10; r <= 41; r++) {
-    const nama = sheet[`B${r}`]?.v;
-    if (!nama) continue;
+    def load_order(self):
+        self.file_order = filedialog.askopenfilename(
+            filetypes=[("Excel Files", "*.xlsx *.xls")]
+        )
+        if self.file_order:
+            self.lbl_order.config(
+                text=self.file_order.split("/")[-1],
+                fg="black"
+            )
 
-    total++;
-    const nilai = sheet[`AH${r}`]?.v || "";
+    def process(self):
+        if not self.file_data or not self.file_order:
+            messagebox.showerror(
+                "Error",
+                "Harap pilih kedua file Excel terlebih dahulu."
+            )
+            return
 
-    const tp = [
-      cekTP(sheet[`W${r}`]?.v || 0),
-      cekTP(sheet[`X${r}`]?.v || 0),
-      cekTP(sheet[`Y${r}`]?.v || 0),
-      cekTP(sheet[`Z${r}`]?.v || 0),
-      cekTP(sheet[`AA${r}`]?.v || 0)
-    ];
+        try:
+            # Baca file
+            df_data = pd.read_excel(self.file_data)
+            df_order = pd.read_excel(self.file_order)
 
-    const isValid = validasiTP(tp);
-    isValid ? valid++ : invalid++;
+            # Deteksi kolom kunci
+            key_data = detect_key_column(df_data)
+            key_order = detect_key_column(df_order)
 
-    hasilData.push([no, nama, nilai, ...tp, isValid ? "VALID" : "INVALID"]);
+            # Normalisasi data
+            df_data[key_data] = (
+                df_data[key_data]
+                .astype(str)
+                .str.strip()
+                .str.lower()
+            )
 
-    html += `
-    <tr class="${isValid ? "valid" : "invalid"}">
-      <td>${no}</td>
-      <td>${nama}</td>
-      <td>${nilai}</td>
-      ${tp.map(v => `<td>${v}</td>`).join("")}
-      <td>${isValid ? "VALID" : "INVALID"}</td>
-    </tr>`;
-    no++;
-  }
+            df_order[key_order] = (
+                df_order[key_order]
+                .astype(str)
+                .str.strip()
+                .str.lower()
+            )
 
-  html += "</table>";
-  html += `<div class="summary">Total: ${total} | VALID: ${valid} | INVALID: ${invalid}</div>`;
+            # Urutkan sesuai Excel urutan
+            df_result = df_order[[key_order]].merge(
+                df_data,
+                left_on=key_order,
+                right_on=key_data,
+                how="left"
+            )
 
-  document.getElementById("hasil").innerHTML = html;
-  document.getElementById("downloadBtn").style.display = "inline-block";
-}
+            # Simpan hasil
+            save_path = filedialog.asksaveasfilename(
+                defaultextension=".xlsx",
+                filetypes=[("Excel Files", "*.xlsx")],
+                initialfile="hasil_urut_siswa.xlsx"
+            )
 
-/* ================= DOWNLOAD ================= */
-document.getElementById("downloadBtn").addEventListener("click", () => {
-  const ws = XLSX.utils.aoa_to_sheet([
-    ["No","Nama","Nilai Rapor","TP1","TP2","TP3","TP4","TP5","Validasi"],
-    ...hasilData
-  ]);
+            if save_path:
+                df_result.to_excel(save_path, index=False)
 
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Rapor Final");
-  XLSX.writeFile(wb, `rapor_final_${kelasAktif}.xlsx`);
-});
-</script>
+                messagebox.showinfo(
+                    "Sukses",
+                    f"Data berhasil diurutkan!\n\n"
+                    f"Kolom acuan terdeteksi:\n"
+                    f"- Data Lengkap : {key_data}\n"
+                    f"- Data Urutan  : {key_order}"
+                )
 
-</body>
-</html>
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
+
+
+# =====================================================
+# JALANKAN APLIKASI
+# =====================================================
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = ExcelSorterApp(root)
+    root.mainloop()
