@@ -31,49 +31,56 @@
 </header>
 
 <div class="card">
-  <input type="file" id="fileInput" accept=".xlsx,.xlsm" />
+  <input type="file" id="fileInput" accept=".xlsx,.xlsm">
+
+  <!-- AREA KONTROL (DROPDOWN TIDAK PERNAH HILANG) -->
   <div id="output"></div>
+
+  <!-- AREA HASIL -->
+  <div id="hasil"></div>
+
   <button id="downloadBtn" style="display:none">⬇️ Download Excel Hasil</button>
 </div>
 
 <script>
-/* ================== VARIABEL GLOBAL ================== */
+/* ================= GLOBAL ================= */
 let workbookGlobal = null;
 let hasilData = [];
 let kelasAktif = "";
 
-/* ================== ATURAN TP ================== */
+/* ================= ATURAN TP ================= */
 function cekTP(nilai) {
   if (nilai <= 78) return "R";
   if (nilai > 95) return "T";
   return "";
 }
 
-/* ================== VALIDASI TP ================== */
-function validasiTP(tpArray) {
-  return tpArray.includes("R") && tpArray.includes("T");
+/* ================= VALIDASI ================= */
+function validasiTP(tp) {
+  return tp.includes("R") && tp.includes("T");
 }
 
-/* ================== LOAD FILE EXCEL (1 KALI) ================== */
+/* ================= LOAD EXCEL (1 KALI) ================= */
 document.getElementById("fileInput").addEventListener("change", e => {
   const reader = new FileReader();
   reader.onload = evt => {
-    workbookGlobal = XLSX.read(new Uint8Array(evt.target.result), { type: "array" });
+    workbookGlobal = XLSX.read(new Uint8Array(evt.target.result), { type:"array" });
 
     let html = "<b>Pilih Kelas / Sheet:</b><br>";
     html += "<select id='sheetSelect' onchange='prosesSheet()'>";
-    workbookGlobal.SheetNames.forEach(n => {
-      html += `<option value="${n}">${n}</option>`;
+    workbookGlobal.SheetNames.forEach(s => {
+      html += `<option value="${s}">${s}</option>`;
     });
     html += "</select>";
 
     document.getElementById("output").innerHTML = html;
+    document.getElementById("hasil").innerHTML = "";
     document.getElementById("downloadBtn").style.display = "none";
   };
   reader.readAsArrayBuffer(e.target.files[0]);
 });
 
-/* ================== PROSES SHEET (BISA DIPANGGIL BERKALI-KALI) ================== */
+/* ================= PROSES SHEET (BISA BERKALI-KALI) ================= */
 function prosesSheet() {
   kelasAktif = document.getElementById("sheetSelect").value;
   const sheet = workbookGlobal.Sheets[kelasAktif];
@@ -96,8 +103,7 @@ function prosesSheet() {
     if (!nama) continue;
 
     total++;
-
-    const nilaiRapor = sheet[`AH${r}`]?.v || "";
+    const nilai = sheet[`AH${r}`]?.v || "";
 
     const tp = [
       cekTP(sheet[`W${r}`]?.v || 0),
@@ -110,13 +116,13 @@ function prosesSheet() {
     const isValid = validasiTP(tp);
     isValid ? valid++ : invalid++;
 
-    hasilData.push([no, nama, nilaiRapor, ...tp, isValid ? "VALID" : "INVALID"]);
+    hasilData.push([no, nama, nilai, ...tp, isValid ? "VALID" : "INVALID"]);
 
     html += `
     <tr class="${isValid ? "valid" : "invalid"}">
       <td>${no}</td>
       <td>${nama}</td>
-      <td>${nilaiRapor}</td>
+      <td>${nilai}</td>
       ${tp.map(v => `<td>${v}</td>`).join("")}
       <td>${isValid ? "VALID" : "INVALID"}</td>
     </tr>`;
@@ -126,11 +132,11 @@ function prosesSheet() {
   html += "</table>";
   html += `<div class="summary">Total: ${total} | VALID: ${valid} | INVALID: ${invalid}</div>`;
 
-  document.getElementById("output").innerHTML = html;
+  document.getElementById("hasil").innerHTML = html;
   document.getElementById("downloadBtn").style.display = "inline-block";
 }
 
-/* ================== DOWNLOAD HASIL ================== */
+/* ================= DOWNLOAD ================= */
 document.getElementById("downloadBtn").addEventListener("click", () => {
   const ws = XLSX.utils.aoa_to_sheet([
     ["No","Nama","Nilai Rapor","TP1","TP2","TP3","TP4","TP5","Validasi"],
