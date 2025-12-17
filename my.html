@@ -5,7 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tools Aplikasi</title>
 
+<!-- XLSX LIB (siap dipakai jika nanti dibutuhkan) -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
 <style>
+/* HEADER ATAS */
 body {
     margin: 0;
     font-family: "Segoe UI", Arial, sans-serif;
@@ -14,22 +18,51 @@ body {
     color: #fff;
 }
 
+.top-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: #2563eb;
+    padding: 15px 20px;
+    border-radius: 0 0 15px 15px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+}
+
+.top-header img {
+    height: 50px;
+    width: 50px;
+    border-radius: 10px;
+    background: #fff;
+}
+
+.top-header h1 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.top-header p {
+    margin: 0;
+    font-size: 12px;
+    color: #e0e7ff;
+}
+
+/* JUDUL TENGAH */
 .header {
     text-align: center;
-    padding: 30px 15px;
+    padding: 25px 15px 10px;
 }
 
-.header h1 {
+.header h2 {
     margin: 0;
-    font-size: 28px;
+    font-size: 26px;
 }
 
-.header p {
-    margin-top: 8px;
-    font-size: 15px;
+.header span {
+    font-size: 14px;
     opacity: 0.9;
 }
 
+/* GRID TOOLS */
 .container {
     max-width: 900px;
     margin: auto;
@@ -70,7 +103,7 @@ body {
     display: inline-block;
     margin-top: 12px;
     padding: 8px 14px;
-    background: #2a5298;
+    background: #2563eb;
     color: #fff;
     text-decoration: none;
     border-radius: 6px;
@@ -78,13 +111,14 @@ body {
 }
 
 .card a:hover {
-    background: #1e3c72;
+    background: #1d4ed8;
 }
 
+/* FOOTER */
 .footer {
     text-align: center;
     font-size: 13px;
-    opacity: 0.8;
+    opacity: 0.85;
     margin: 30px 0 15px;
 }
 </style>
@@ -92,11 +126,22 @@ body {
 
 <body>
 
+<!-- HEADER ATAS -->
+<header class="top-header">
+  <img src="assets/logo.jpg" alt="Logo">
+  <div>
+    <h1>Tools Aplikasi Sekolah</h1>
+    <p>Versi 1.0 (Build 13 Desember 2025) · Dev by MB</p>
+  </div>
+</header>
+
+<!-- JUDUL HALAMAN -->
 <div class="header">
-    <h1>Tools Aplikasi</h1>
-    <p>Version 1.0 Build 13 Desember 2025</p>
+    <h2>Dashboard Tools</h2>
+    <span>Pusat Akses Aplikasi Pendukung Pembelajaran</span>
 </div>
 
+<!-- GRID MENU -->
 <div class="container">
     <div class="grid">
 
@@ -154,7 +199,6 @@ body {
             <a href="tools/sync_nilaisiswa_gform.html">Buka</a>
         </div>
 
-        <!-- MENU BARU -->
         <div class="card">
             <h3>📝 e-Rapor</h3>
             <p>Akses dan pengelolaan e-Rapor siswa.</p>
@@ -171,7 +215,7 @@ body {
 </div>
 
 <div class="footer">
-   © 2025 MB All Rights Reserved
+   © 2025 MB · All Rights Reserved
 </div>
 
 </body>
