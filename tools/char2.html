@@ -105,11 +105,11 @@ th{
 }
 tr{page-break-inside:avoid}
 
-/* ===== LIST DALAM TABEL (REVISI FINAL – RAPIH SEJAJAR) ===== */
+/* ===== LIST DALAM TABEL (RAPIH SEJAJAR) ===== */
 td ul, td ol{
   margin:0;
-  padding-left:22px;            /* ruang angka seperti Word */
-  list-style-position:outside; /* PENTING: bikin teks sejajar */
+  padding-left:22px;
+  list-style-position:outside;
 }
 td li{
   line-height:1.45;
@@ -189,6 +189,7 @@ document.getElementById("excelFile").addEventListener("change",function(){
 
     let html=`<table>
     <tr>
+      <th style="width:40px">No</th>
       <th>Nama</th>
       <th>Perkembangan</th>
       <th>Kekurangan</th>
@@ -196,6 +197,8 @@ document.getElementById("excelFile").addEventListener("change",function(){
       <th>Informasi untuk Orang Tua</th>
       <th>Profil Pelajar Pancasila</th>
     </tr>`;
+
+    let no = 1;
 
     for(let i=7;i<=38;i++){
       if(!sh[i]||!sh[i][1])continue;
@@ -208,6 +211,7 @@ document.getElementById("excelFile").addEventListener("change",function(){
 
       html+=`
       <tr>
+        <td style="text-align:center">${no++}</td>
         <td><b>${sh[i][1]}</b></td>
         <td><span class="badge ${k.c}">${k.t}</span><br>Rata-rata ${avg.toFixed(1)}</td>
         <td>
@@ -238,7 +242,7 @@ document.getElementById("excelFile").addEventListener("change",function(){
 
 function downloadPDF(){
   html2pdf().from(document.getElementById("pdfArea")).set({
-    filename:"Laporan_Perkembangan_Siswa_7H.pdf",
+    filename:"Laporan_Perkembangan_Siswa.pdf",
     html2canvas:{scale:1.6,useCORS:true},
     jsPDF:{format:"a4",orientation:"landscape"},
     pagebreak:{mode:["avoid-all","css","legacy"]}
