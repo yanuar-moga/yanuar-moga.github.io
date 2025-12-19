@@ -9,7 +9,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-<!-- ===== STYLE HEADER MODERN ===== -->
 <style>
 body {
   font-family: "Poppins", Arial, sans-serif;
@@ -40,7 +39,6 @@ header p {
   opacity: 0.85;
 }
 
-/* ===== KONTEN ===== */
 .container{
   max-width:1400px;
   margin:25px auto;
@@ -62,13 +60,11 @@ button{
 }
 button:hover{background:#155a8a}
 
-/* ===== AREA PDF (AUTO MARGIN) ===== */
 #pdfArea{
   padding:1.5cm;
   box-sizing:border-box;
 }
 
-/* ===== KOP PDF ===== */
 .kop{
   display:flex;
   align-items:center;
@@ -108,6 +104,16 @@ th{
   text-align:center;
 }
 tr{page-break-inside:avoid}
+
+/* ===== LIST DALAM TABEL (RAPIH TANPA UBAH TAMPILAN) ===== */
+td ul, td ol{
+  margin:0;
+  padding-left:18px;
+  list-style-position:inside;
+}
+td li{
+  line-height:1.45;
+}
 
 /* ===== BADGE ===== */
 .badge{
@@ -167,11 +173,12 @@ function kategoriNilai(avg){
 
 function mapPancasila(avg,alpa,eks){
   return `
-  • Beriman & Berakhlak Mulia: ${alpa===0?"Sangat Baik":"Perlu Pembinaan"}<br>
-  • Mandiri: ${avg>=80?"Mandiri":"Perlu Pendampingan"}<br>
-  • Gotong Royong: ${eks?"Aktif":"Perlu Penguatan"}<br>
-  • Bernalar Kritis: ${avg>=85?"Sangat Baik":"Perlu Latihan"}
-  `;
+  <ul>
+    <li>Beriman & Berakhlak Mulia: ${alpa===0?"Sangat Baik":"Perlu Pembinaan"}</li>
+    <li>Mandiri: ${avg>=80?"Mandiri":"Perlu Pendampingan"}</li>
+    <li>Gotong Royong: ${eks?"Aktif":"Perlu Penguatan"}</li>
+    <li>Bernalar Kritis: ${avg>=85?"Sangat Baik":"Perlu Latihan"}</li>
+  </ul>`;
 }
 
 document.getElementById("excelFile").addEventListener("change",function(){
@@ -213,9 +220,11 @@ document.getElementById("excelFile").addEventListener("change",function(){
           dan dukungan kegiatan positif sesuai minat.
         </td>
         <td>
-          1. Perkembangan ${k.t.toLowerCase()} di sekolah.<br>
-          2. Orang tua dapat mendampingi belajar rutin di rumah.<br>
-          3. Disarankan mengikuti kegiatan literasi dan ekstrakurikuler.
+          <ol>
+            <li>Perkembangan ${k.t.toLowerCase()} di sekolah.</li>
+            <li>Orang tua dapat mendampingi belajar rutin di rumah.</li>
+            <li>Disarankan mengikuti kegiatan literasi dan ekstrakurikuler.</li>
+          </ol>
         </td>
         <td>${mapPancasila(avg,alpa,eks)}</td>
       </tr>`;
