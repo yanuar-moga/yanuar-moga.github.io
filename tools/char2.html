@@ -2,238 +2,199 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Laporan Perkembangan Siswa</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
-/* ===== GLOBAL ===== */
 body{
-    font-family:"Segoe UI",sans-serif;
+    font-family: Arial, sans-serif;
     background:#eef2f7;
     margin:0;
+    padding:20px;
 }
 .container{
-    max-width:1400px;
+    max-width:1200px;
     margin:auto;
-    padding:20px;
-}
-.card{
     background:#fff;
-    border-radius:10px;
     padding:20px;
-    box-shadow:0 4px 12px rgba(0,0,0,.12);
+    border-radius:10px;
+    box-shadow:0 2px 10px rgba(0,0,0,.1);
 }
-h1{
-    text-align:center;
-    color:#2c3e50;
-    margin-bottom:15px;
+h2,h3{
+    margin:10px 0;
+}
+input[type=file],button{
+    padding:8px 12px;
+    margin:5px 0;
 }
 button{
-    padding:10px 16px;
-    border:none;
-    background:#3498db;
+    background:#0d6efd;
     color:#fff;
-    border-radius:6px;
+    border:none;
+    border-radius:5px;
     cursor:pointer;
 }
-button:hover{background:#2980b9}
-
-/* ===== AREA PDF (AUTO MARGIN) ===== */
-#pdfArea{
-    padding:1.5cm;           /* INI KUNCI AUTO MARGIN */
-    box-sizing:border-box;
+button:hover{
+    background:#084298;
 }
-
-/* ===== KOP ===== */
-.kop{
-    display:flex;
-    align-items:center;
-    border-bottom:3px solid #000;
-    padding-bottom:10px;
-    margin-bottom:15px;
-}
-.kop img{
-    width:90px;
-    margin-right:15px;
-}
-.kop-text{
-    width:100%;
-    text-align:center;
-    line-height:1.3;
-}
-.kop-text div{
-    font-size:14px;
-    font-weight:bold;
-}
-.kop-text .judul{font-size:16px}
-.kop-text .alamat{
-    font-size:12px;
-    font-weight:normal;
-}
-
-/* ===== TABEL ===== */
 table{
     width:100%;
     border-collapse:collapse;
-    font-size:13px;
-    table-layout:fixed;
+    margin-top:15px;
 }
 th,td{
-    border:1px solid #333;
+    border:1px solid #ccc;
     padding:8px;
     vertical-align:top;
-    word-wrap:break-word;
-    white-space:normal;
 }
 th{
-    background:#34495e;
-    color:#fff;
-    text-align:center;
+    background:#f1f1f1;
 }
-
-/* Lebar kolom stabil */
-th:nth-child(1),td:nth-child(1){width:14%}
-th:nth-child(2),td:nth-child(2){width:12%}
-th:nth-child(3),td:nth-child(3){width:10%}
-th:nth-child(4),td:nth-child(4){width:18%}
-th:nth-child(5),td:nth-child(5){width:22%}
-th:nth-child(6),td:nth-child(6){width:24%}
-
-/* Badge */
 .badge{
-    padding:4px 8px;
-    border-radius:6px;
-    font-size:11px;
-    display:inline-block;
+    padding:3px 8px;
+    border-radius:4px;
+    color:#fff;
+    font-size:12px;
 }
-.good{background:#2ecc71;color:#fff}
-.mid{background:#f1c40f;color:#000}
-.low{background:#e74c3c;color:#fff}
+.good{background:#198754;}
+.warn{background:#ffc107;color:#000;}
+.bad{background:#dc3545;}
 
-/* Hindari tabel terpotong halaman */
-tr{page-break-inside:avoid}
+#pdfArea{
+    padding:1.5cm;
+    box-sizing:border-box;
+}
+.kop{
+    text-align:center;
+    border-bottom:3px solid #000;
+    padding-bottom:10px;
+    margin-bottom:20px;
+}
+.kop img{
+    width:80px;
+    position:absolute;
+    left:40px;
+    top:40px;
+}
 </style>
 </head>
 
 <body>
 <div class="container">
-<div class="card">
+    <h2>📊 Aplikasi Analisis Perkembangan Siswa</h2>
 
-<h1>📊 Analisis Perkembangan Siswa</h1>
+    <input type="file" id="excelFile" accept=".xlsx,.xls">
+    <br>
+    <button onclick="processExcel()">Proses Data</button>
+    <button onclick="downloadPDF()">Download PDF</button>
 
-<input type="file" id="excelFile">
-<button onclick="downloadPDF()">⬇ Download PDF</button>
-
-<div id="pdfArea">
-
-<div class="kop">
-    <img src="assets/logo.png">
-    <div class="kop-text">
-        <div>PEMERINTAH KABUPATEN PEMALANG</div>
-        <div>DINAS PENDIDIKAN DAN KEBUDAYAAN</div>
-        <div>PANITIA ASESMEN SUMATIF AKHIR SEMESTER</div>
-        <div class="judul">SMP NEGERI 1 MOGA</div>
-        <div>TAHUN AJARAN 2025/2026</div>
-        <div class="alamat">
-            Alamat: Jalan Simpang Tiga Telepon (0284) 583367 Pemalang 52354
+    <div id="pdfArea">
+        <div class="kop">
+            <img src="assets/logo.png">
+            <h3>PEMERINTAH KABUPATEN PEMALANG</h3>
+            <strong>DINAS PENDIDIKAN DAN KEBUDAYAAN</strong><br>
+            PANITIA ASESMEN SUMATIF AKHIR SEMESTER<br>
+            <strong>SMP NEGERI 1 MOGA</strong><br>
+            TAHUN AJARAN 2025/2026<br>
+            <small>Alamat: Jalan Simpang Tiga Telp (0284) 583367 Pemalang 52354</small>
         </div>
+
+        <table id="resultTable">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Nama Siswa</th>
+                    <th>Karakter</th>
+                    <th>Kekurangan</th>
+                    <th>Perbaikan</th>
+                    <th>Profil Pancasila</th>
+                    <th>Jawaban untuk Orang Tua</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
     </div>
 </div>
 
-<div id="hasil"></div>
-
-</div>
-</div>
-</div>
-
 <script>
-function kategoriNilai(avg){
-    if(avg>=85) return {t:"Sangat Baik",c:"good"};
-    if(avg>=75) return {t:"Baik",c:"mid"};
-    return {t:"Perlu Pendampingan",c:"low"};
-}
+function processExcel(){
+    const file = document.getElementById("excelFile").files[0];
+    if(!file) return alert("Pilih file Excel terlebih dahulu");
 
-function mapPancasila(avg,alpa,eks){
-    return `
-    • Beriman & Berakhlak Mulia: ${alpa===0?"Sangat baik":"Perlu pembinaan"}<br>
-    • Mandiri: ${avg>=80?"Mandiri":"Perlu pendampingan"}<br>
-    • Gotong Royong: ${eks?"Aktif":"Perlu penguatan"}<br>
-    • Bernalar Kritis: ${avg>=85?"Sangat baik":"Perlu latihan"}
-    `;
-}
+    const reader = new FileReader();
+    reader.onload = function(e){
+        const wb = XLSX.read(e.target.result,{type:"binary"});
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const data = XLSX.utils.sheet_to_json(ws,{header:1});
 
-document.getElementById("excelFile").addEventListener("change",function(){
-    const reader=new FileReader();
-    reader.onload=e=>{
-        const wb=XLSX.read(new Uint8Array(e.target.result),{type:"array"});
-        const sh=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1});
-
-        let html=`
-        <table>
-        <tr>
-            <th>Nama</th>
-            <th>Perkembangan</th>
-            <th>Kekurangan</th>
-            <th>Saran</th>
-            <th>Perkembangan Ananda di Sekolah</th>
-            <th>Profil Pelajar Pancasila</th>
-        </tr>`;
+        const tbody = document.querySelector("#resultTable tbody");
+        tbody.innerHTML="";
 
         for(let i=7;i<=38;i++){
-            if(!sh[i]||!sh[i][1])continue;
+            if(!data[i] || !data[i][1]) continue;
 
-            let nilai=sh[i].slice(4,15).filter(n=>typeof n==="number");
-            let avg=nilai.reduce((a,b)=>a+b,0)/nilai.length||0;
-            let alpa=sh[i][17]||0;
-            let eks=sh[i].slice(18,25).filter(x=>x&&x!=="-").length>=2;
-            let k=kategoriNilai(avg);
+            const nama = data[i][1];
+            const nilaiMapel = data[i].slice(4,15).filter(n=>!isNaN(n));
+            const sakit = data[i][15]||0;
+            const izin = data[i][16]||0;
+            const alpa = data[i][17]||0;
+            const ekskul = data[i].slice(18,25).filter(e=>e);
 
-            html+=`
+            const rata = nilaiMapel.reduce((a,b)=>a+b,0)/nilaiMapel.length;
+
+            let karakter = rata>=85 ? "Sangat Baik" : rata>=75 ? "Baik" : "Perlu Bimbingan";
+
+            let kekurangan=[];
+            let alasan=[];
+
+            if(alpa>=3 || (sakit+izin+alpa)>=6){
+                kekurangan.push("Disiplin");
+                alasan.push("Penilaian disiplin didasarkan pada jumlah ketidakhadiran siswa (sakit, izin, dan alpa).");
+            }
+
+            if(Math.max(...nilaiMapel)-Math.min(...nilaiMapel)>=15 || ekskul.length>0){
+                kekurangan.push("Minat & Bakat");
+                alasan.push("Penilaian minat dan bakat didasarkan pada perbedaan capaian nilai mata pelajaran serta keikutsertaan dalam kegiatan ekstrakurikuler.");
+            }
+
+            let perbaikan = kekurangan.includes("Disiplin")
+                ? "Meningkatkan kedisiplinan hadir dan tanggung jawab belajar."
+                : "Mengembangkan potensi sesuai minat dan bakat siswa.";
+
+            let pancasila = "Beriman, Mandiri, Gotong Royong";
+
+            let jawaban = `
+<b>Perkembangan:</b> Anak menunjukkan perkembangan ${karakter.toLowerCase()} di sekolah.<br>
+<b>Dukungan Orang Tua:</b> Dampingi belajar rutin dan berikan motivasi positif.<br>
+<b>Program Tambahan:</b> Disarankan mengikuti kegiatan penguatan akademik dan ekstrakurikuler.
+            `;
+
+            tbody.innerHTML+=`
             <tr>
-                <td><b>${sh[i][1]}</b></td>
-                <td><span class="badge ${k.c}">${k.t}</span><br>Rata-rata ${avg.toFixed(1)}</td>
-                <td>
-                    ${avg<75?"Akademik<br>":""}
-                    ${alpa>3?"Disiplin<br>":""}
-                    ${!eks?"Minat bakat":""}
-                </td>
-                <td>Pendampingan belajar, pembiasaan disiplin, dukungan kegiatan positif</td>
-                <td>
-                    1. Perkembangan ${k.t.toLowerCase()}<br>
-                    2. Pendampingan belajar di rumah<br>
-                    3. Ekstrakurikuler & literasi
-                </td>
-                <td>${mapPancasila(avg,alpa,eks)}</td>
+                <td>${i-6}</td>
+                <td>${nama}</td>
+                <td>${karakter}</td>
+                <td>${kekurangan.join(", ") || "-"}</td>
+                <td>${perbaikan}<br><small>${alasan.join("<br>")}</small></td>
+                <td>${pancasila}</td>
+                <td>${jawaban}</td>
             </tr>`;
         }
-
-        html+=`</table>`;
-        document.getElementById("hasil").innerHTML=html;
     };
-    reader.readAsArrayBuffer(this.files[0]);
-});
+    reader.readAsBinaryString(file);
+}
 
 function downloadPDF(){
-    html2pdf().from(document.getElementById("pdfArea")).set({
-        filename:"Laporan_Perkembangan_Siswa_7H.pdf",
-        html2canvas:{
-            scale:1.6,
-            useCORS:true
-        },
-        jsPDF:{
-            unit:"mm",
-            format:"a4",
-            orientation:"landscape"
-        },
-        pagebreak:{
-            mode:["avoid-all","css","legacy"]
-        }
-    }).save();
+    html2pdf().set({
+        filename:"Laporan_Perkembangan_Siswa.pdf",
+        html2canvas:{scale:1.6,useCORS:true},
+        jsPDF:{format:"a4",orientation:"landscape"},
+        pagebreak:{mode:['avoid-all','css','legacy']}
+    }).from(document.getElementById("pdfArea")).save();
 }
 </script>
-
 </body>
 </html>
