@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Data Karakter Siswa SMPN 1 Moga</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background:#f5f5f5;
+  padding:20px;
+}
+.container {
+  max-width:600px;
+  margin:auto;
+  background:#fff;
+  padding:20px;
+  border-radius:8px;
+}
+input, button {
+  padding:10px;
+  width:100%;
+  margin-top:10px;
+}
+button {
+  background:#2e7d32;
+  color:#fff;
+  border:none;
+  cursor:pointer;
+}
+button:hover {
+  background:#1b5e20;
+}
+.result {
+  margin-top:20px;
+  padding:15px;
+  border:1px solid #ddd;
+  border-radius:6px;
+}
+.label {
+  font-weight:bold;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+<h2>🔍 Cek Karakter Siswa</h2>
+<p>Masukkan <b>NIS</b> atau <b>Nama Siswa</b></p>
+
+<input type="text" id="keyword" placeholder="Contoh: 12345 atau Ahmad">
+<button onclick="cariData()">Cari Data</button>
+
+<div id="hasil" class="result"></div>
+</div>
+
+<script>
+// GANTI dengan link CSV hasil publish
+const sheetURL = "https://docs.google.com/spreadsheets/d/1odDemPMafwvHY_C0fDF_Ev3x02xKiJz9KPYQddBKHaE/pub?output=csv";
+
+async function cariData() {
+  const key = document.getElementById("keyword").value.toLowerCase();
+  const hasil = document.getElementById("hasil");
+
+  hasil.innerHTML = "⏳ Mencari data...";
+
+  const response = await fetch(sheetURL);
+  const text = await response.text();
+  const rows = text.split("\n").map(r => r.split(","));
+
+  let ketemu = false;
+
+  for (let i = 1; i < rows.length; i++) {
+    const nis = rows[i][0]?.toLowerCase();
+    const nama = rows[i][1]?.toLowerCase();
+
+    if (nis.includes(key) || nama.includes(key)) {
+      hasil.innerHTML = `
+        <p><span class="label">Nama:</span> ${rows[i][1]}</p>
+        <p><span class="label">Kelas:</span> ${rows[i][2]}</p>
+        <p><span class="label">Akademik:</span> ${rows[i][3]}</p>
+        <p><span class="label">Disiplin:</span> ${rows[i][4]}</p>
+        <p><span class="label">Sikap:</span> ${rows[i][5]}</p>
+        <p><span class="label">Sosial:</span> ${rows[i][6]}</p>
+        <p><span class="label">Motivasi:</span> ${rows[i][7]}</p>
+        <p><span class="label">Kategori:</span> <b>${rows[i][8]}</b></p>
+      `;
+      ketemu = true;
+      break;
+    }
+  }
+
+  if (!ketemu) {
+    hasil.innerHTML = "❌ Data tidak ditemukan";
+  }
+}
+</script>
+
+</body>
+</html>
