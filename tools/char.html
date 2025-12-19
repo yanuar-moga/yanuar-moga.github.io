@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Aplikasi Penilaian Karakter Siswa</title>
+<title>Analisis Karakter & Perkembangan Siswa</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- LIBRARY -->
@@ -11,44 +11,73 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
 
 <style>
-body {
-  font-family: Arial, sans-serif;
-  background: #eef2f7;
-  padding: 20px;
+body{
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: linear-gradient(135deg,#e3f2fd,#fce4ec);
+  padding:20px;
 }
-.card {
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  max-width: 1400px;
-  margin: auto;
+.card{
+  background:#fff;
+  border-radius:12px;
+  padding:20px;
+  max-width:1600px;
+  margin:auto;
+  box-shadow:0 8px 25px rgba(0,0,0,.12);
 }
-h2 {
-  margin-top: 0;
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:15px;
 }
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
+.header h2{
+  margin:0;
+  color:#0d47a1;
 }
-th, td {
-  border: 1px solid #ccc;
-  padding: 6px;
-  vertical-align: top;
+.upload{
+  margin-bottom:15px;
 }
-th {
-  background: #1565c0;
-  color: #fff;
+.upload input{
+  padding:8px;
 }
-button {
-  padding: 6px 10px;
-  cursor: pointer;
+button{
+  padding:7px 12px;
+  border:none;
+  border-radius:6px;
+  background:#1976d2;
+  color:#fff;
+  cursor:pointer;
 }
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
+button:hover{
+  background:#0d47a1;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
+th,td{
+  border:1px solid #ddd;
+  padding:8px;
+  vertical-align:top;
+}
+th{
+  background:#1976d2;
+  color:#fff;
+  text-align:center;
+}
+.badge{
+  padding:3px 8px;
+  border-radius:12px;
+  font-size:12px;
+  color:#fff;
+}
+.good{background:#2e7d32;}
+.mid{background:#f9a825;}
+.low{background:#c62828;}
+.small{
+  font-size:12px;
+  line-height:1.4;
 }
 </style>
 </head>
@@ -57,11 +86,13 @@ button {
 
 <div class="card">
   <div class="header">
-    <h2>📘 Penilaian Karakter Siswa</h2>
-    <button onclick="downloadPDFAll()">⬇ Download PDF Semua</button>
+    <h2>📘 Analisis Karakter & Perkembangan Siswa</h2>
+    <button onclick="downloadPDFAll()">⬇ Download PDF Rekap</button>
   </div>
 
-  <input type="file" id="fileInput" accept=".xlsx,.xls">
+  <div class="upload">
+    <input type="file" id="fileInput" accept=".xlsx,.xls">
+  </div>
 
   <table id="tabel">
     <thead>
@@ -69,11 +100,14 @@ button {
         <th>No</th>
         <th>Nama</th>
         <th>NISN</th>
-        <th>Rata Nilai</th>
-        <th>Skor Karakter</th>
+        <th>Rata<br>Nilai</th>
+        <th>Skor<br>Karakter</th>
         <th>Deskripsi Karakter</th>
         <th>Kekurangan</th>
         <th>Perbaikan</th>
+        <th>Perkembangan Anak</th>
+        <th>Dukungan Orang Tua</th>
+        <th>Program Tambahan</th>
         <th>PDF</th>
       </tr>
     </thead>
@@ -84,177 +118,148 @@ button {
 <script>
 let dataPDF = [];
 
-/* ==========================
-   LOAD EXCEL
-========================== */
 document.getElementById("fileInput").addEventListener("change", loadExcel);
 
-function loadExcel(e) {
+function loadExcel(e){
   const reader = new FileReader();
-  reader.onload = evt => {
-    const workbook = XLSX.read(new Uint8Array(evt.target.result), { type: "array" });
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-
-    const rows = XLSX.utils.sheet_to_json(sheet, {
-      header: 1,
-      range: "A8:Y39"
-    });
+  reader.onload = evt=>{
+    const wb = XLSX.read(new Uint8Array(evt.target.result),{type:"array"});
+    const sheet = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(sheet,{header:1,range:"A8:Y39"});
 
     const tbody = document.querySelector("#tabel tbody");
-    tbody.innerHTML = "";
-    dataPDF = [];
+    tbody.innerHTML="";
+    dataPDF=[];
 
-    rows.forEach((row, i) => {
-      if (!row[1]) return;
+    rows.forEach((row,i)=>{
+      if(!row[1]) return;
 
       const hasil = nilaiKarakterFinal(row);
+      const alpa = Number(row[17])||0;
+      let aktifEkskul=0;
+      for(let j=18;j<=24;j++){ if(row[j]) aktifEkskul++; }
+
+      const jawaban = jawabOrangTua(hasil,alpa,aktifEkskul);
 
       dataPDF.push([
-        i + 1,
-        row[1],
-        row[2],
-        hasil.rata,
-        hasil.skor,
-        hasil.karakter,
-        hasil.kekurangan,
-        hasil.perbaikan
+        i+1,row[1],row[2],hasil.rata,hasil.skor,
+        hasil.karakter,hasil.kekurangan,hasil.perbaikan,
+        jawaban.perkembangan,jawaban.dukungan,jawaban.program
       ]);
 
-      tbody.innerHTML += `
-        <tr>
-          <td>${i + 1}</td>
-          <td>${row[1]}</td>
-          <td>${row[2]}</td>
-          <td>${hasil.rata}</td>
-          <td>${hasil.skor}</td>
-          <td>${hasil.karakter}</td>
-          <td>${hasil.kekurangan}</td>
-          <td>${hasil.perbaikan}</td>
-          <td><button onclick="downloadPDFSingle(${i})">PDF</button></td>
-        </tr>
-      `;
+      tbody.innerHTML+=`
+      <tr>
+        <td>${i+1}</td>
+        <td><strong>${row[1]}</strong></td>
+        <td>${row[2]}</td>
+        <td align="center">${hasil.rata}</td>
+        <td align="center">
+          <span class="badge ${hasil.skor>=80?'good':hasil.skor>=70?'mid':'low'}">${hasil.skor}</span>
+        </td>
+        <td class="small">${hasil.karakter}</td>
+        <td class="small">${hasil.kekurangan}</td>
+        <td class="small">${hasil.perbaikan}</td>
+        <td class="small">${jawaban.perkembangan}</td>
+        <td class="small">${jawaban.dukungan}</td>
+        <td class="small">${jawaban.program}</td>
+        <td align="center"><button onclick="downloadPDFSingle(${i})">PDF</button></td>
+      </tr>`;
     });
   };
   reader.readAsArrayBuffer(e.target.files[0]);
 }
 
-/* ==========================
-   FUNGSI PENILAIAN FINAL
-========================== */
-function nilaiKarakterFinal(row) {
-
-  /* --- AKADEMIK (E–O) --- */
-  let total = 0, count = 0;
-  for (let i = 4; i <= 14; i++) {
-    if (!isNaN(row[i])) {
-      total += Number(row[i]);
-      count++;
-    }
+/* ===== PENILAIAN KARAKTER ===== */
+function nilaiKarakterFinal(row){
+  let total=0,count=0;
+  for(let i=4;i<=14;i++){
+    if(!isNaN(row[i])){ total+=Number(row[i]); count++; }
   }
-  const rata = count ? (total / count).toFixed(2) : 0;
+  const rata = count?(total/count).toFixed(2):0;
+  let skorAk = rata>=90?100:rata>=80?85:rata>=70?75:60;
 
-  let skorAkademik =
-    rata >= 90 ? 100 :
-    rata >= 80 ? 85 :
-    rata >= 70 ? 75 : 60;
+  const alpa = Number(row[17])||0;
+  let skorHad = alpa===0?100:alpa<=2?85:alpa<=4?75:60;
 
-  /* --- KEHADIRAN (P,Q,R) --- */
-  const sakit = Number(row[15]) || 0;
-  const izin  = Number(row[16]) || 0;
-  const alpa  = Number(row[17]) || 0;
+  let aktifEks=0;
+  for(let i=18;i<=24;i++){ if(row[i]) aktifEks++; }
+  let skorEks = aktifEks>=2?100:aktifEks===1?80:60;
 
-  let skorHadir =
-    alpa === 0 ? 100 :
-    alpa <= 2 ? 85 :
-    alpa <= 4 ? 75 : 60;
+  const skor = Math.round(0.5*skorAk+0.3*skorHad+0.2*skorEks);
 
-  /* --- EKSTRAKURIKULER (S–Y) --- */
-  let aktifEkskul = 0;
-  for (let i = 18; i <= 24; i++) {
-    if (row[i]) aktifEkskul++;
-  }
+  let karakter = skor>=90?
+    "Menunjukkan sikap sangat baik, disiplin, dan bertanggung jawab.":
+    skor>=80?
+    "Menunjukkan sikap baik dan tanggung jawab dalam pembelajaran.":
+    skor>=70?
+    "Menunjukkan sikap cukup baik namun perlu peningkatan konsistensi.":
+    "Memerlukan pembinaan lebih lanjut.";
 
-  let skorEkskul =
-    aktifEkskul >= 2 ? 100 :
-    aktifEkskul === 1 ? 80 : 60;
+  let kekurangan = alpa>3?
+    "Kedisiplinan dan kehadiran.":
+    aktifEks===0?
+    "Keaktifan dan pengembangan minat.":
+    "Konsistensi belajar.";
 
-  /* --- SKOR KARAKTER AKHIR --- */
-  const skorAkhir = Math.round(
-    (0.5 * skorAkademik) +
-    (0.3 * skorHadir) +
-    (0.2 * skorEkskul)
-  );
-
-  /* --- DESKRIPSI --- */
-  let karakter = "";
-  if (skorAkhir >= 90)
-    karakter = "Menunjukkan sikap sangat baik, bertanggung jawab, disiplin, dan aktif dalam kegiatan sekolah.";
-  else if (skorAkhir >= 80)
-    karakter = "Menunjukkan sikap baik, cukup disiplin, dan bertanggung jawab dalam pembelajaran.";
-  else if (skorAkhir >= 70)
-    karakter = "Menunjukkan sikap cukup baik, namun masih perlu peningkatan konsistensi.";
-  else
-    karakter = "Memerlukan pembinaan lebih lanjut dalam kedisiplinan dan tanggung jawab belajar.";
-
-  let kekurangan =
-    alpa > 3
-      ? "Kedisiplinan dan kehadiran."
-      : aktifEkskul === 0
-      ? "Keaktifan dan pengembangan minat."
-      : "Konsistensi belajar.";
-
-  let perbaikan =
-    "Perlu pendampingan belajar, peningkatan disiplin, dan keaktifan dalam kegiatan sekolah.";
-
-  return {
-    rata: rata,
-    skor: skorAkhir,
-    karakter: karakter,
-    kekurangan: kekurangan,
-    perbaikan: perbaikan
+  return{
+    rata,skor,
+    karakter,
+    kekurangan,
+    perbaikan:"Pendampingan belajar, pembiasaan disiplin, dan dukungan keaktifan sekolah."
   };
 }
 
-/* ==========================
-   PDF PER SISWA
-========================== */
-function downloadPDFSingle(index) {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  const d = dataPDF[index];
+/* ===== JAWAB ORANG TUA ===== */
+function jawabOrangTua(hasil,alpa,aktifEks){
+  let perkembangan =
+    hasil.skor>=90?"Perkembangan anak sangat baik secara akademik, disiplin, dan sosial.":
+    hasil.skor>=80?"Perkembangan anak baik dan stabil dalam pembelajaran.":
+    hasil.skor>=70?"Perkembangan anak cukup, masih perlu peningkatan konsistensi.":
+    "Anak masih memerlukan pendampingan lebih lanjut.";
 
-  doc.text("DESKRIPSI KARAKTER SISWA", 14, 15);
-  doc.autoTable({
-    startY: 25,
-    body: [
-      ["Nama", d[1]],
-      ["NISN", d[2]],
-      ["Rata-rata Nilai", d[3]],
-      ["Skor Karakter", d[4]],
-      ["Deskripsi", d[5]],
-      ["Kekurangan", d[6]],
-      ["Perbaikan", d[7]]
-    ]
-  });
+  let dukungan =
+    hasil.skor<70?
+    "Orang tua disarankan mendampingi belajar rutin dan menjalin komunikasi dengan wali kelas.":
+    alpa>3?
+    "Orang tua dapat membantu membangun kebiasaan disiplin di rumah.":
+    "Orang tua dapat terus memberikan motivasi dan perhatian.";
 
-  doc.save(d[1] + ".pdf");
+  let program =
+    aktifEks===0?
+    "Disarankan mengikuti kegiatan ekstrakurikuler sesuai minat dan bakat.":
+    hasil.skor>=85?
+    "Dapat diarahkan ke program pengayaan atau lomba.":
+    "Dapat mengikuti pendampingan belajar tambahan.";
+
+  return{perkembangan,dukungan,program};
 }
 
-/* ==========================
-   PDF SEMUA SISWA
-========================== */
-function downloadPDFAll() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF("l");
+/* ===== PDF ===== */
+function downloadPDFSingle(i){
+  const {jsPDF}=window.jspdf;
+  const d=dataPDF[i];
+  const doc=new jsPDF();
+  doc.text("LAPORAN PERKEMBANGAN SISWA",14,15);
+  doc.autoTable({startY:25,body:[
+    ["Nama",d[1]],["NISN",d[2]],["Rata Nilai",d[3]],
+    ["Skor Karakter",d[4]],["Deskripsi",d[5]],
+    ["Kekurangan",d[6]],["Perbaikan",d[7]],
+    ["Perkembangan",d[8]],["Dukungan Orang Tua",d[9]],
+    ["Program Tambahan",d[10]]
+  ]});
+  doc.save(d[1]+".pdf");
+}
 
-  doc.text("REKAP PENILAIAN KARAKTER SISWA", 14, 15);
+function downloadPDFAll(){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF("l");
+  doc.text("REKAP PERKEMBANGAN SISWA",14,15);
   doc.autoTable({
-    startY: 25,
-    head: [["No","Nama","NISN","Rata","Skor","Karakter","Kekurangan","Perbaikan"]],
-    body: dataPDF
+    startY:25,
+    head:[["No","Nama","NISN","Rata","Skor","Karakter","Kekurangan","Perbaikan","Perkembangan","Dukungan","Program"]],
+    body:dataPDF
   });
-
-  doc.save("Rekap_Karakter_Siswa.pdf");
+  doc.save("Rekap_Perkembangan_Siswa.pdf");
 }
 </script>
 
