@@ -2,98 +2,142 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Data Karakter Siswa SMPN 1 Moga</title>
+<title>Analisis Karakter Siswa</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
 <style>
 body {
   font-family: Arial, sans-serif;
-  background:#f5f5f5;
-  padding:20px;
+  background: #eef2f7;
+  padding: 20px;
 }
-.container {
-  max-width:600px;
-  margin:auto;
-  background:#fff;
-  padding:20px;
-  border-radius:8px;
+.card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 1200px;
+  margin: auto;
 }
-input, button {
-  padding:10px;
-  width:100%;
-  margin-top:10px;
+h2 { margin-top: 0; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
 }
-button {
-  background:#2e7d32;
-  color:#fff;
-  border:none;
-  cursor:pointer;
+th, td {
+  border: 1px solid #ccc;
+  padding: 6px;
+  font-size: 13px;
 }
-button:hover {
-  background:#1b5e20;
+th {
+  background: #2c7be5;
+  color: #fff;
 }
-.result {
-  margin-top:20px;
-  padding:15px;
-  border:1px solid #ddd;
-  border-radius:6px;
-}
-.label {
-  font-weight:bold;
-}
+.good { background: #d4edda; }
+.mid { background: #fff3cd; }
+.low { background: #f8d7da; }
 </style>
 </head>
+
 <body>
+<div class="card">
+  <h2>📊 Analisis Karakter Siswa (Excel)</h2>
+  <input type="file" id="fileInput" accept=".xlsx,.xls">
 
-<div class="container">
-<h2>🔍 Cek Karakter Siswa</h2>
-<p>Masukkan <b>NIS</b> atau <b>Nama Siswa</b></p>
-
-<input type="text" id="keyword" placeholder="Contoh: 12345 atau Ahmad">
-<button onclick="cariData()">Cari Data</button>
-
-<div id="hasil" class="result"></div>
+  <table id="result">
+    <thead>
+      <tr>
+        <th>No</th>
+        <th>Nama Siswa</th>
+        <th>Nilai</th>
+        <th>Karakter</th>
+        <th>Kekurangan</th>
+        <th>Perbaikan</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 </div>
 
 <script>
-// GANTI dengan link CSV hasil publish
-const sheetURL = "https://docs.google.com/spreadsheets/d/1odDemPMafwvHY_C0fDF_Ev3x02xKiJz9KPYQddBKHaE/pub?output=csv";
+document.getElementById("fileInput").addEventListener("change", handleFile);
 
-async function cariData() {
-  const key = document.getElementById("keyword").value.toLowerCase();
-  const hasil = document.getElementById("hasil");
+function handleFile(e) {
+  const file = e.target.files[0];
+  const reader = new FileReader();
 
-  hasil.innerHTML = "⏳ Mencari data...";
+  reader.onload = function(evt) {
+    const data = new Uint8Array(evt.target.result);
+    const workbook = XLSX.read(data, { type: 'array' });
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
 
-  const response = await fetch(sheetURL);
-  const text = await response.text();
-  const rows = text.split("\n").map(r => r.split(","));
+    // Ambil range A8:Y39
+    const rows = XLSX.utils.sheet_to_json(sheet, {
+      header: 1,
+      range: "A8:Y39"
+    });
 
-  let ketemu = false;
+    const tbody = document.querySelector("#result tbody");
+    tbody.innerHTML = "";
 
-  for (let i = 1; i < rows.length; i++) {
-    const nis = rows[i][0]?.toLowerCase();
-    const nama = rows[i][1]?.toLowerCase();
+    rows.forEach((row, i) => {
+      if (!row[1]) return;
 
-    if (nis.includes(key) || nama.includes(key)) {
-      hasil.innerHTML = `
-        <p><span class="label">Nama:</span> ${rows[i][1]}</p>
-        <p><span class="label">Kelas:</span> ${rows[i][2]}</p>
-        <p><span class="label">Akademik:</span> ${rows[i][3]}</p>
-        <p><span class="label">Disiplin:</span> ${rows[i][4]}</p>
-        <p><span class="label">Sikap:</span> ${rows[i][5]}</p>
-        <p><span class="label">Sosial:</span> ${rows[i][6]}</p>
-        <p><span class="label">Motivasi:</span> ${rows[i][7]}</p>
-        <p><span class="label">Kategori:</span> <b>${rows[i][8]}</b></p>
+      const nilai = parseFloat(row[2]) || 0;
+      const analisis = analisaNilai(nilai);
+
+      const tr = document.createElement("tr");
+      tr.className = analisis.class;
+
+      tr.innerHTML = `
+        <td>${row[0] || i+1}</td>
+        <td>${row[1]}</td>
+        <td>${nilai}</td>
+        <td>${analisis.karakter}</td>
+        <td>${analisis.kekurangan}</td>
+        <td>${analisis.perbaikan}</td>
       `;
-      ketemu = true;
-      break;
-    }
-  }
+      tbody.appendChild(tr);
+    });
+  };
 
-  if (!ketemu) {
-    hasil.innerHTML = "❌ Data tidak ditemukan";
-  }
+  reader.readAsArrayBuffer(file);
+}
+
+function analisaNilai(n) {
+  if (n >= 90) return {
+    karakter: "Sangat Baik & Mandiri",
+    kekurangan: "Kurang kolaborasi",
+    perbaikan: "Latih kerja tim",
+    class: "good"
+  };
+  if (n >= 80) return {
+    karakter: "Baik & Bertanggung Jawab",
+    kekurangan: "Percaya diri",
+    perbaikan: "Lebih aktif berdiskusi",
+    class: "good"
+  };
+  if (n >= 70) return {
+    karakter: "Cukup",
+    kekurangan: "Konsistensi",
+    perbaikan: "Jadwal belajar rutin",
+    class: "mid"
+  };
+  if (n >= 60) return {
+    karakter: "Kurang",
+    kekurangan: "Motivasi belajar",
+    perbaikan: "Pendampingan guru",
+    class: "mid"
+  };
+  return {
+    karakter: "Perlu Pembinaan",
+    kekurangan: "Disiplin & pemahaman",
+    perbaikan: "Bimbingan intensif",
+    class: "low"
+  };
 }
 </script>
-
 </body>
 </html>
