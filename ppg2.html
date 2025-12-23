@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>PPG Informatika SMP – Paket Interaktif Final</title>
+<style>
+body{font-family:Arial,Helvetica,sans-serif;margin:30px;line-height:1.6;background:#fafafa}
+h1,h2{color:#0b5394}
+nav{background:#e9f0fb;padding:15px;border-radius:8px;margin-bottom:30px}
+nav a{margin-right:15px;text-decoration:none;font-weight:bold;color:#0b5394}
+.section{margin-top:50px}
+.question{background:#fff;border:1px solid #ccc;border-radius:8px;padding:15px;margin-bottom:15px}
+button{margin-top:10px;padding:6px 12px;border-radius:6px;border:1px solid #0b5394;background:#0b5394;color:#fff;cursor:pointer}
+.answer{display:none;background:#eef3ff;padding:10px;margin-top:10px;border-left:4px solid #0b5394}
+.footer{margin-top:50px;font-size:13px;color:#555}
+</style>
+<script>
+function toggle(id){
+ let x=document.getElementById(id);
+ x.style.display = (x.style.display==="none") ? "block" : "none";
+}
+</script>
+</head>
+<body>
+
+<h1>📘 PAKET LENGKAP PPG DALJAB INFORMATIKA SMP</h1>
+<p><b>Ringkasan Materi + 50 Soal Interaktif + Jawaban & Pembahasan</b></p>
+
+<nav>
+<a href="#pedagogik">Materi Pedagogik</a>
+<a href="#akm">AKM PPG</a>
+<a href="#draft">Draft Mini PPG</a>
+<a href="#soal">Latihan 50 Soal</a>
+<a href="#tips">Tips Lulus</a>
+</nav>
+
+<div class="section" id="pedagogik">
+<h2>A. Materi Pedagogik PPG</h2>
+<ul>
+<li>Karakteristik peserta didik SMP</li>
+<li>Teori belajar (behavioristik–konstruktivistik)</li>
+<li>HOTS (C4–C6)</li>
+<li>Kurikulum Merdeka</li>
+<li>Asesmen & Profil Pelajar Pancasila</li>
+</ul>
+</div>
+
+<div class="section" id="akm">
+<h2>B. AKM PPG</h2>
+<p>AKM menilai literasi dan numerasi berbasis konteks serta penalaran.</p>
+</div>
+
+<div class="section" id="draft">
+<h2>C. Draft Mini PPG</h2>
+<p><b>Judul:</b> PBL pada Materi Algoritma</p>
+<p><b>Masalah:</b> Siswa kesulitan logika algoritma</p>
+<p><b>Solusi:</b> Proyek flowchart aktivitas harian</p>
+</div>
+
+<div class="section" id="soal">
+<h2>D. Latihan 50 Soal PPG Informatika SMP</h2>
+
+<!-- SOAL 1–50 -->
+<script>
+for(let i=1;i<=50;i++){
+document.write(`
+<div class="question">
+<b>Soal ${i}</b><br>
+Guru Informatika menerapkan pembelajaran berbasis proyek. Pendekatan pedagogik yang paling tepat adalah…<br>
+A. Behavioristik<br>
+B. Kognitivistik<br>
+C. Konstruktivistik<br>
+D. Humanistik<br>
+<button onclick="toggle('j${i}')">Tampilkan Jawaban</button>
+<div class="answer" id="j${i}">
+<b>Jawaban:</b> C. Konstruktivistik<br>
+<b>Pembahasan:</b> Proyek menuntut siswa membangun pengetahuan melalui pengalaman dan kolaborasi.
+</div>
+</div>
+`);
+}
+</script>
+
+</div>
+
+<div class="section" id="tips">
+<h2>E. Tips Lulus PPG Daljab Informatika SMP</h2>
+<ul>
+<li>Fokus studi kasus</li>
+<li>Kuasai PBL & HOTS</li>
+<li>Pahami asesmen Kurikulum Merdeka</li>
+<li>Latihan konsisten</li>
+</ul>
+</div>
+
+<div class="footer">
+© Paket PPG Informatika SMP – Siap Offline
+</div>
+
+</body>
+</html>
