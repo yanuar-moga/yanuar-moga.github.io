@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Inventaris Lab 2</title>
+
+<style>
+body{
+    margin:0;
+    font-family: 'Segoe UI', Calibri, sans-serif;
+    background:#f4f7fb;
+}
+
+/* ================= HEADER ================= */
+.top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #2563eb;
+    padding: 14px 20px;
+    border-radius: 0 0 16px 16px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+    color: #fff;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.top-header img {
+    height: 48px;
+    width: 48px;
+    border-radius: 10px;
+    background: #fff;
+    padding: 4px;
+}
+
+.header-text h1 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.header-text p {
+    margin: 0;
+    font-size: 12px;
+    color: #e0e7ff;
+}
+
+.badge {
+    background: rgba(255,255,255,0.15);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+/* ================= SUMMARY ================= */
+.summary-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px,1fr));
+    gap: 14px;
+    margin: 20px;
+}
+
+.summary-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.summary-card .icon { font-size: 28px; }
+.summary-card .value { font-size: 26px; font-weight: bold; }
+.summary-card .label { font-size: 13px; color:#6b7280; }
+
+.total{border-left:6px solid #2563eb}
+.normal{border-left:6px solid #16a34a}
+.ringan{border-left:6px solid #facc15}
+.berat{border-left:6px solid #dc2626}
+.windows{border-left:6px solid #0284c7}
+.chromebook{border-left:6px solid #0d9488}
+
+/* ================= MAP ================= */
+.map-wrapper{
+    background:#fff;
+    margin:20px;
+    padding:20px;
+    border-radius:16px;
+    box-shadow:0 4px 10px rgba(0,0,0,.1);
+}
+
+.map-title{
+    font-size:18px;
+    font-weight:600;
+    color:#2563eb;
+    margin-bottom:12px;
+}
+
+#mapGrid{
+    display:grid;
+    grid-template-columns: repeat(11, 1fr);
+    gap:8px;
+}
+
+.meja{
+    height:45px;
+    border-radius:8px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-weight:600;
+    cursor:pointer;
+}
+
+.meja.normal{background:#16a34a;color:#fff}
+.meja.ringan{background:#facc15}
+.meja.berat{background:#dc2626;color:#fff}
+.meja.kosong{background:transparent;cursor:default}
+
+/* ================= DETAIL ================= */
+#detailBox{
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    width:320px;
+    background:#fff;
+    border-radius:14px;
+    padding:16px;
+    box-shadow:0 6px 16px rgba(0,0,0,.25);
+    display:none;
+}
+
+#detailBox h3{
+    margin-top:0;
+    color:#2563eb;
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header class="top-header">
+  <div class="header-left">
+    <img src="assets/logo.jpg">
+    <div class="header-text">
+      <h1>Dashboard Inventaris Laptop</h1>
+      <p>Lab Komputer 2 · Live Google Sheet</p>
+    </div>
+  </div>
+  <span class="badge">v1.0</span>
+</header>
+
+<!-- SUMMARY -->
+<section class="summary-section">
+  <div class="summary-card total"><div class="icon">💻</div><div><div class="value" id="total">0</div><div class="label">Total Laptop</div></div></div>
+  <div class="summary-card normal"><div class="icon">✅</div><div><div class="value" id="normal">0</div><div class="label">Normal</div></div></div>
+  <div class="summary-card ringan"><div class="icon">⚠️</div><div><div class="value" id="ringan">0</div><div class="label">Rusak Ringan</div></div></div>
+  <div class="summary-card berat"><div class="icon">❌</div><div><div class="value" id="berat">0</div><div class="label">Rusak Berat</div></div></div>
+  <div class="summary-card windows"><div class="icon">🪟</div><div><div class="value" id="windows">0</div><div class="label">Windows</div></div></div>
+  <div class="summary-card chromebook"><div class="icon">🌐</div><div><div class="value" id="chrome">0</div><div class="label">Chromebook</div></div></div>
+</section>
+
+<!-- MAP -->
+<div class="map-wrapper">
+  <div class="map-title">📍 Denah Meja Lab</div>
+  <div id="mapGrid"></div>
+</div>
+
+<!-- DETAIL -->
+<div id="detailBox"></div>
+
+<script>
+const SHEET_ID = "14Trwaf9K__WczN1hARNDSeL0knx5KCxA";
+let INV = [];
+let MAP = [];
+
+/* LOAD SHEET */
+async function loadSheet(sheet){
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${sheet}`;
+  const res = await fetch(url);
+  const text = await res.text();
+  const json = JSON.parse(text.substring(47).slice(0,-2));
+  const headers = json.table.cols.map(c=>c.label);
+  return json.table.rows.map(r=>{
+    let o={};
+    r.c.forEach((c,i)=>o[headers[i]]=c?c.v:"");
+    return o;
+  });
+}
+
+async function init(){
+  INV = await loadSheet("INV");
+  MAP = await loadSheet("MAP");
+  updateSummary();
+  renderMap();
+}
+init();
+
+/* SUMMARY */
+function updateSummary(){
+  total.innerText = INV.length;
+  normal.innerText = INV.filter(x=>x.Kondisi==="Normal").length;
+  ringan.innerText = INV.filter(x=>(x.Kondisi||"").includes("Ringan")).length;
+  berat.innerText = INV.filter(x=>(x.Kondisi||"").includes("Berat")).length;
+  windows.innerText = INV.filter(x=>(x.OS||"").includes("Windows")).length;
+  chrome.innerText = INV.filter(x=>(x.OS||"").includes("Chrome")).length;
+}
+
+/* MAP */
+function renderMap(){
+  const grid=document.getElementById("mapGrid");
+  grid.innerHTML="";
+  MAP.forEach(m=>{
+    const d=document.createElement("div");
+    const item=INV.find(i=>i["NO MEJA"]==m["NO MEJA"]);
+    let cls="kosong";
+    if(item){
+      if(item.Kondisi==="Normal")cls="normal";
+      else if(item.Kondisi.includes("Ringan"))cls="ringan";
+      else if(item.Kondisi.includes("Berat"))cls="berat";
+    }
+    d.className=`meja ${cls}`;
+    d.textContent=m["NO MEJA"];
+    if(item)d.onclick=()=>showDetail(item);
+    grid.appendChild(d);
+  });
+}
+
+/* DETAIL */
+function showDetail(item){
+  const box=document.getElementById("detailBox");
+  box.style.display="block";
+  box.innerHTML=`
+    <h3>Meja ${item["NO MEJA"]}</h3>
+    <b>Inventaris:</b> ${item["No Inventaris"]}<br>
+    <b>Tipe:</b> ${item["Merek / Tipe"]}<br>
+    <b>OS:</b> ${item.OS}<br>
+    <b>Kondisi:</b> ${item.Kondisi}<br>
+    <b>Keterangan:</b> ${item.Keterangan || "-"}
+  `;
+}
+</script>
+
+</body>
+</html>
