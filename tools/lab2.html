@@ -127,16 +127,24 @@ body{
 <script>
 let INV = [];
 
-/* LOAD GOOGLE SHEETS */
+/* ================================
+   LOAD GOOGLE SHEET : SHEET = INV
+   ================================ */
 async function loadGSheet(){
-    const url = "https://docs.google.com/spreadsheets/d/14Trwaf9K__WczN1hARNDSeL0knx5KCxA/gviz/tq?tqx=out:json";
+    const url =
+    "https://docs.google.com/spreadsheets/d/14Trwaf9K__WczN1hARNDSeL0knx5KCxA/gviz/tq?sheet=INV&tqx=out:json";
+
     const res = await fetch(url);
     const text = await res.text();
-    const json = JSON.parse(text.substring(47).slice(0,-2));
 
+    // Jika error, ini akan terlihat di console
+    console.log(text);
+
+    const json = JSON.parse(text.substring(47).slice(0,-2));
     const headers = json.table.cols.map(c => c.label);
+
     INV = json.table.rows.map(r=>{
-        let obj={};
+        let obj = {};
         r.c.forEach((cell,i)=>{
             obj[headers[i]] = cell ? cell.v : "";
         });
@@ -185,20 +193,21 @@ function renderMap(){
     rows.forEach(r=>{
         r.forEach(no=>{
             const d=document.createElement("div");
-            if(no===""){d.className="meja kosong";grid.appendChild(d);return;}
+            if(no===""){ d.className="meja kosong"; grid.appendChild(d); return; }
 
             const item=INV.find(x=>Number(x["NO MEJA"])===Number(no));
             let cls="kosong";
+
             if(item){
                 const k=(item.Kondisi||"").toLowerCase();
-                if(k==="normal")cls="normal";
-                else if(k.includes("ringan"))cls="ringan";
-                else if(k.includes("berat"))cls="berat";
+                if(k==="normal") cls="normal";
+                else if(k.includes("ringan")) cls="ringan";
+                else if(k.includes("berat")) cls="berat";
             }
 
             d.className=`meja ${cls}`;
             d.textContent=no;
-            if(item)d.onclick=()=>showDetail(no);
+            if(item) d.onclick=()=>showDetail(no);
             grid.appendChild(d);
         });
     });
@@ -220,15 +229,15 @@ function showDetail(no){
 
     if(tipe.includes("axio")){
         img="https://yanuar-moga.github.io/escape/assets/AXIO_L19B.png";
-    }else if(tipe.includes("chrome")){
+    } else if(tipe.includes("chrome")){
         img="https://yanuar-moga.github.io/escape/assets/LENOVO_IDEAPAD_110_14LBR.png";
     }
 
     box.innerHTML=`
         <h3>Detail Meja ${no}</h3>
-        ${img?`<div style="text-align:center">
+        ${img ? `<div style="text-align:center">
             <img class="fade-img" src="${img}" width="160">
-        </div>`:""}
+        </div>` : ""}
 
         <b>No Inventaris:</b> ${item["No Inventaris"]}<br>
         <b>Merek / Tipe:</b> ${item["Merek / Tipe"]}<br>
