@@ -6,33 +6,129 @@
 <title>Dashboard Inventaris Laptop Lab 2</title>
 
 <style>
-body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:#f1f5f9;}
-.top-header{display:flex;gap:15px;align-items:center;background:#2563eb;padding:15px 20px;color:#fff;border-radius:0 0 15px 15px;}
-.top-header img{height:50px;width:50px;border-radius:10px;background:#fff;}
+body{
+    margin:0;
+    font-family:"Segoe UI",Arial,sans-serif;
+    background:#f1f5f9;
+}
+
+/* HEADER */
+.top-header{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    background:#2563eb;
+    padding:15px 20px;
+    color:#fff;
+    border-radius:0 0 15px 15px;
+}
+.top-header img{
+    height:50px;width:50px;
+    border-radius:10px;
+    background:#fff;
+}
 .top-header h1{margin:0;font-size:20px;}
 .top-header p{margin:0;font-size:12px;color:#e0e7ff;}
-.container{padding:20px;max-width:1300px;margin:auto;}
-.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:15px;margin-bottom:20px;}
-.card{background:#fff;padding:15px;border-radius:14px;box-shadow:0 4px 10px rgba(0,0,0,.08);}
+
+.container{
+    padding:20px;
+    max-width:1300px;
+    margin:auto;
+}
+
+/* SUMMARY */
+.summary{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:15px;
+    margin-bottom:20px;
+}
+.card{
+    background:#fff;
+    padding:15px;
+    border-radius:14px;
+    box-shadow:0 4px 10px rgba(0,0,0,.08);
+}
 .card h3{margin:0;font-size:14px;color:#64748b;}
 .card span{font-size:28px;font-weight:700;}
-.main{display:grid;grid-template-columns:1fr 360px;gap:20px;}
-@media(max-width:768px){.main{grid-template-columns:1fr;}}
-.map-box{background:#fff;padding:20px;border-radius:16px;box-shadow:0 4px 10px rgba(0,0,0,.1);}
-.map-grid{display:grid;grid-template-columns:repeat(11,55px);gap:8px;}
-.meja{width:55px;height:55px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:600;cursor:pointer;}
+
+/* MAIN GRID */
+.main{
+    display:grid;
+    grid-template-columns:1fr 360px;
+    gap:20px;
+}
+@media(max-width:768px){
+    .main{grid-template-columns:1fr;}
+}
+
+/* MAP */
+.map-box{
+    background:#fff;
+    padding:20px;
+    border-radius:16px;
+    box-shadow:0 4px 10px rgba(0,0,0,.1);
+}
+.map-grid{
+    display:grid;
+    grid-template-columns:repeat(11,55px);
+    gap:8px;
+}
+.meja{
+    width:55px;height:55px;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:600;
+    cursor:pointer;
+}
 .normal{background:#22c55e;color:#fff;}
 .ringan{background:#facc15;}
 .berat{background:#ef4444;color:#fff;}
 .kosong{visibility:hidden;}
-.peripheral-info{margin-top:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;}
-.info-card{background:#f8fafc;padding:15px;border-radius:12px;border-left:6px solid #2563eb;}
-.info-card h4{margin:0 0 5px;font-size:14px;color:#1e293b;}
-.info-card span{font-size:13px;color:#475569;}
-.detail{background:#fff;padding:20px;border-radius:16px;box-shadow:0 4px 10px rgba(0,0,0,.1);}
-.detail img{width:100%;max-width:220px;display:block;margin:10px auto;}
-.detail h3{margin-top:0;border-left:6px solid #2563eb;padding-left:10px;}
-.detail small{color:#64748b;}
+
+/* INFO PERANGKAT */
+.peripheral-info{
+    margin-top:20px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:15px;
+}
+.info-card{
+    background:#f8fafc;
+    padding:15px;
+    border-radius:12px;
+    border-left:6px solid #2563eb;
+}
+
+/* DETAIL */
+.detail{
+    background:#fff;
+    padding:20px;
+    border-radius:16px;
+    box-shadow:0 4px 10px rgba(0,0,0,.1);
+}
+.detail img{
+    width:100%;
+    max-width:220px;
+    display:block;
+    margin:10px auto;
+}
+
+/* TABLE LOG */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{border:1px solid #e5e7eb;padding:6px}
+th{background:#f1f5f9}
+textarea{width:100%;height:70px}
+button{
+  background:#2563eb;
+  color:white;
+  border:none;
+  padding:8px 12px;
+  border-radius:6px;
+  cursor:pointer;
+}
 </style>
 </head>
 
@@ -63,16 +159,28 @@ body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:#f1f5f9;}
 
 <div class="peripheral-info">
   <div class="info-card">
-    <h4>🖱 Mouse</h4>
-    <span>Tersedia: <b id="mouseAda">0</b></span><br>
-    <span>Kebutuhan: <b id="mouseNeed">0</b></span>
+    🖱 Mouse tersedia: <b id="mouseAda">0</b><br>
+    Mouse kurang: <b id="mouseNeed">0</b>
   </div>
   <div class="info-card">
-    <h4>⌨ Keyboard</h4>
-    <span>Tersedia: <b id="keyboardAda">0</b></span><br>
-    <span>Kebutuhan: <b id="keyboardNeed">0</b></span>
+    ⌨ Keyboard tersedia: <b id="keyboardAda">0</b><br>
+    Keyboard kurang: <b id="keyboardNeed">0</b>
   </div>
 </div>
+
+<!-- LIVE LOG -->
+<div class="map-box" style="margin-top:20px">
+<h3>📝 Catatan Terbaru</h3>
+<table>
+<thead>
+<tr>
+<th>Tanggal</th><th>No Meja</th><th>No Inventaris</th><th>Tipe</th><th>Catatan</th>
+</tr>
+</thead>
+<tbody id="logTable"></tbody>
+</table>
+</div>
+
 </div>
 
 <div class="detail" id="detailBox">
@@ -83,14 +191,12 @@ body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:#f1f5f9;}
 </div>
 
 <script>
-/* ===== KONFIGURASI FINAL ===== */
-const SHEET_ID = "1QJkDbPf0x1vIyq-htJXrsZiLoRd6oghgBFouQHlZpM0";
-const INV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=INV`;
-const GAS_URL = "https://script.google.com/macros/s/AKfycbwVMfHVBWjbgyLX3yUjFFKhebLLO0iTEEiGaY4_Q8Wx3LZUnvYNs8AbJ4W_4h1BVCCI/exec";
+const SHEET_ID="1QJkDbPf0x1vIyq-htJXrsZiLoRd6oghgBFouQHlZpM0";
+const GAS_URL="https://script.google.com/macros/s/AKfycbwVMfHVBWjbgyLX3yUjFFKhebLLO0iTEEiGaY4_Q8Wx3LZUnvYNs8AbJ4W_4h1BVCCI/exec";
+const INV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=INV`;
 
-let INV=[], LOGS=[];
+let INV=[];
 
-/* DENAH SESUAI MAP */
 const DENAH=[
  [22,21,20,19,18,17,"",4,3,2,1],
  [28,27,26,25,24,23,"",8,7,6,5],
@@ -98,18 +204,14 @@ const DENAH=[
  [40,39,38,37,36,35,"",16,15,14,13]
 ];
 
-Promise.all([
- fetch(INV_URL).then(r=>r.text()),
- fetch(GAS_URL).then(r=>r.json()).catch(()=>[])
-]).then(([t,l])=>{
+fetch(INV_URL).then(r=>r.text()).then(t=>{
  const j=JSON.parse(t.substring(47,t.length-2));
  const h=j.table.cols.map(c=>c.label);
- INV=j.table.rows.map(r=>{
-  let o={}; r.c.forEach((c,i)=>o[h[i]]=c?c.v:""); return o;
- });
- LOGS=l||[];
- renderSummary(); renderMap(); renderPeripheral();
+ INV=j.table.rows.map(r=>{let o={};r.c.forEach((c,i)=>o[h[i]]=c?c.v:"");return o;});
+ renderSummary();renderMap();renderPeripheral();
 });
+
+fetch(GAS_URL).then(r=>r.json()).then(renderLog);
 
 function renderSummary(){
  total.textContent=INV.length;
@@ -120,73 +222,58 @@ function renderSummary(){
 
 function renderPeripheral(){
  const t=INV.length;
- const m=INV.filter(i=>(i.Mouse||"").toLowerCase()==="ada").length;
- const k=INV.filter(i=>(i.Keyboard||"").toLowerCase()==="ada").length;
- mouseAda.textContent=m; mouseNeed.textContent=t-m;
- keyboardAda.textContent=k; keyboardNeed.textContent=t-k;
+ mouseAda.textContent=INV.filter(i=>(i.Mouse||"").toLowerCase()==="ada").length;
+ keyboardAda.textContent=INV.filter(i=>(i.Keyboard||"").toLowerCase()==="ada").length;
+ mouseNeed.textContent=t-mouseAda.textContent;
+ keyboardNeed.textContent=t-keyboardAda.textContent;
 }
 
 function renderMap(){
- mapGrid.innerHTML="";
- DENAH.forEach(r=>{
-  r.forEach(n=>{
-   const d=document.createElement("div");
-   if(n===""){d.className="meja kosong";mapGrid.appendChild(d);return;}
-   const i=INV.find(x=>String(x["NO MEJA"])===String(n));
-   let c="normal";
-   if(i){
-    if(i.Kondisi==="Rusak Ringan")c="ringan";
-    if(i.Kondisi==="Rusak Berat")c="berat";
-   }
-   d.className=`meja ${c}`;
-   d.textContent=n;
-   if(i)d.onclick=()=>showDetail(i);
-   mapGrid.appendChild(d);
-  });
+ const g=mapGrid;
+ DENAH.flat().forEach(n=>{
+  const d=document.createElement("div");
+  if(n===""){d.className="meja kosong";g.appendChild(d);return;}
+  const i=INV.find(x=>String(x["NO MEJA"])===String(n));
+  let c="normal";
+  if(i?.Kondisi==="Rusak Ringan")c="ringan";
+  if(i?.Kondisi==="Rusak Berat")c="berat";
+  d.className=`meja ${c}`; d.textContent=n;
+  if(i)d.onclick=()=>showDetail(i);
+  g.appendChild(d);
  });
 }
 
 function showDetail(i){
- const tipe=(i["Merek / Tipe"]||"").toLowerCase();
- let img="https://yanuar-moga.github.io/escape/assets/LENOVO_IDEAPAD_110_14LBR.png";
- if(tipe.includes("axio")) img="https://yanuar-moga.github.io/escape/assets/AXIO_L19B.png";
-
- const logs=LOGS.filter(l=>String(l["No Meja"])===String(i["NO MEJA"]));
-
  detailBox.innerHTML=`
- <h3>Detail Nomor Meja ${i["NO MEJA"]}</h3>
- <img src="${img}">
- <b>No Inventaris:</b> ${i["No Inventaris"]||"-"}<br>
- <b>Merek / Tipe:</b> ${i["Merek / Tipe"]||"-"}<br>
- <b>Processor:</b> ${i.Processor||"-"}<br>
- <b>RAM:</b> ${i.RAM||"-"}<br>
- <b>Storage:</b> ${i.Storage||"-"}<br>
- <b>Layar:</b> ${i.Layar||"-"}<br>
- <b>OS:</b> ${i.OS||"-"}<br><br>
- <b>Kondisi:</b> ${i.Kondisi||"-"}<br>
- <b>Keterangan:</b> ${i.Keterangan||"-"}<br><br>
+ <h3>Detail Meja ${i["NO MEJA"]}</h3>
+ <b>No Inventaris:</b> ${i["No Inventaris"]}<br>
+ <b>Tipe:</b> ${i["Merek / Tipe"]}<br><br>
 
- <hr>
- <b>📝 Catatan Admin</b>
- <textarea id="catatan" style="width:100%;height:70px"></textarea>
- <button onclick="saveLog('${i["NO MEJA"]}','${i["No Inventaris"]}','${i["Merek / Tipe"]}')">Simpan Catatan</button>
-
- <hr>
- <b>📜 Riwayat Catatan</b>
- ${logs.length?logs.map(l=>`
- <div style="font-size:12px;background:#f1f5f9;padding:6px;margin:5px 0">
-  <b>${new Date(l.Timestamp).toLocaleString()}</b><br>${l.Catatan}
- </div>`).join(""):"<small>Belum ada catatan</small>"}
- `;
+ <textarea id="catatan" placeholder="Tulis catatan..."></textarea>
+ <button onclick="saveLog('${i["NO MEJA"]}','${i["No Inventaris"]}','${i["Merek / Tipe"]}')">
+ Simpan Catatan</button>`;
 }
 
 function saveLog(noMeja,noInv,merek){
  const catatan=document.getElementById("catatan").value;
- if(!catatan)return alert("Catatan kosong");
  fetch(GAS_URL,{
   method:"POST",
   body:JSON.stringify({noMeja,noInventaris:noInv,merek,catatan})
- }).then(()=>{alert("Catatan tersimpan");location.reload();});
+ }).then(()=>location.reload());
+}
+
+function renderLog(logs){
+ const tb=document.getElementById("logTable");
+ tb.innerHTML="";
+ logs.reverse().slice(0,20).forEach(l=>{
+  tb.innerHTML+=`<tr>
+  <td>${l.TANGGAL}</td>
+  <td>${l["NO MEJA"]}</td>
+  <td>${l["NO INVENTARIS"]}</td>
+  <td>${l.TIPE}</td>
+  <td>${l.CATATAN}</td>
+  </tr>`;
+ });
 }
 </script>
 
