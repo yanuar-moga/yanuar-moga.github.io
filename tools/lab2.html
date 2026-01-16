@@ -13,15 +13,14 @@ body{
 }
 
 /* HEADER */
-.top-header {
+.top-header{
     display:flex;
     align-items:center;
     gap:15px;
     background:#2563eb;
     padding:15px 20px;
-    border-radius:0 0 15px 15px;
-    box-shadow:0 3px 8px rgba(0,0,0,0.3);
     color:#fff;
+    border-radius:0 0 15px 15px;
 }
 .top-header img{
     height:50px;width:50px;
@@ -33,7 +32,7 @@ body{
 
 .container{
     padding:20px;
-    max-width:1200px;
+    max-width:1300px;
     margin:auto;
 }
 
@@ -42,7 +41,7 @@ body{
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
     gap:15px;
-    margin-bottom:25px;
+    margin-bottom:20px;
 }
 .card{
     background:#fff;
@@ -52,6 +51,16 @@ body{
 }
 .card h3{margin:0;font-size:14px;color:#64748b;}
 .card span{font-size:28px;font-weight:700;}
+
+/* MAIN GRID */
+.main{
+    display:grid;
+    grid-template-columns:1fr 360px;
+    gap:20px;
+}
+@media(max-width:768px){
+    .main{grid-template-columns:1fr;}
+}
 
 /* MAP */
 .map-box{
@@ -65,7 +74,6 @@ body{
     grid-template-columns:repeat(11,55px);
     gap:8px;
 }
-
 .meja{
     width:55px;height:55px;
     border-radius:10px;
@@ -74,47 +82,31 @@ body{
     justify-content:center;
     font-weight:600;
     cursor:pointer;
-    box-shadow:0 3px 6px rgba(0,0,0,.15);
 }
 .normal{background:#22c55e;color:#fff;}
 .ringan{background:#facc15;}
 .berat{background:#ef4444;color:#fff;}
 .kosong{visibility:hidden;}
 
-.meja-guru{
-    grid-column:8/12;
-    background:#38bdf8;
-    color:#fff;
-    text-align:center;
-    padding:10px;
-    border-radius:10px;
-    font-weight:600;
-}
-
-/* MODAL */
-.modal{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.5);
-    display:none;
-    align-items:center;
-    justify-content:center;
-}
-.modal-box{
+/* DETAIL */
+.detail{
     background:#fff;
     padding:20px;
-    border-radius:14px;
-    width:300px;
+    border-radius:16px;
+    box-shadow:0 4px 10px rgba(0,0,0,.1);
 }
-.modal-box button{
-    margin-top:10px;
-    padding:8px 12px;
-    border:none;
-    background:#2563eb;
-    color:#fff;
-    border-radius:8px;
-    cursor:pointer;
+.detail img{
+    width:100%;
+    max-width:220px;
+    display:block;
+    margin:10px auto;
 }
+.detail h3{
+    margin-top:0;
+    border-left:6px solid #2563eb;
+    padding-left:10px;
+}
+.detail small{color:#64748b;}
 </style>
 </head>
 
@@ -132,11 +124,13 @@ body{
 
 <!-- SUMMARY -->
 <div class="summary">
-    <div class="card"><h3>Total Laptop</h3><span id="total">0</span></div>
-    <div class="card"><h3>Normal</h3><span id="normal">0</span></div>
-    <div class="card"><h3>Rusak Ringan</h3><span id="ringan">0</span></div>
-    <div class="card"><h3>Rusak Berat</h3><span id="berat">0</span></div>
+  <div class="card"><h3>Total Laptop</h3><span id="total">0</span></div>
+  <div class="card"><h3>Normal</h3><span id="normal">0</span></div>
+  <div class="card"><h3>Rusak Ringan</h3><span id="ringan">0</span></div>
+  <div class="card"><h3>Rusak Berat</h3><span id="berat">0</span></div>
 </div>
+
+<div class="main">
 
 <!-- MAP -->
 <div class="map-box">
@@ -144,14 +138,12 @@ body{
 <div class="map-grid" id="mapGrid"></div>
 </div>
 
+<!-- DETAIL -->
+<div class="detail" id="detailBox">
+<small>Klik nomor meja untuk melihat detail</small>
 </div>
 
-<!-- MODAL -->
-<div class="modal" id="modal">
-  <div class="modal-box">
-    <div id="modalContent"></div>
-    <button onclick="modal.style.display='none'">Tutup</button>
-  </div>
+</div>
 </div>
 
 <script>
@@ -160,7 +152,7 @@ const INV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=ou
 
 let INV=[];
 
-/* DENAH SESUAI GAMBAR */
+/* DENAH SESUAI MAP */
 const DENAH=[
  [22,21,20,19,18,17,"",4,3,2,1],
  [28,27,26,25,24,23,"",8,7,6,5],
@@ -199,20 +191,30 @@ function renderMap(){
    }
    d.className=`meja ${c}`;
    d.textContent=n;
-   if(i)d.onclick=()=>show(i);
+   if(i)d.onclick=()=>showDetail(i);
    g.appendChild(d);
   });
  });
 }
 
-function show(i){
- modalContent.innerHTML=`
- <b>No Meja:</b> ${i["NO MEJA"]}<br>
- <b>Barang:</b> ${i["NAMA BARANG"]||"-"}<br>
- <b>Kondisi:</b> ${i.Kondisi}<br>
+function showDetail(i){
+ const tipe=(i["Merek / Tipe"]||"").toLowerCase();
+ let img="https://yanuar-moga.github.io/escape/assets/LENOVO_IDEAPAD_110_14LBR.png";
+ if(tipe.includes("axio")) img="https://yanuar-moga.github.io/escape/assets/AXIO_L19B.png";
+
+ detailBox.innerHTML=`
+ <h3>Detail Nomor Meja ${i["NO MEJA"]}</h3>
+ <img src="${img}">
+ <b>No Inventaris:</b> ${i["No Inventaris"]||"-"}<br>
+ <b>Merek / Tipe:</b> ${i["Merek / Tipe"]||"-"}<br>
+ <b>Processor:</b> ${i.Processor||"-"}<br>
+ <b>RAM:</b> ${i.RAM||"-"}<br>
+ <b>Storage:</b> ${i.Storage||"-"}<br>
+ <b>Layar:</b> ${i.Layar||"-"}<br>
+ <b>OS:</b> ${i.OS||"-"}<br><br>
+ <b>Kondisi:</b> ${i.Kondisi||"-"}<br>
  <b>Keterangan:</b> ${i.Keterangan||"-"}
  `;
- modal.style.display="flex";
 }
 </script>
 
