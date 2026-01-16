@@ -55,22 +55,16 @@ body{
 
     backdrop-filter:blur(6px);
 }
-
-/* Gradient bergerak pelan */
 @keyframes gradientFlow{
     0%{background-position:0% 50%}
     50%{background-position:100% 50%}
     100%{background-position:0% 50%}
 }
-
-/* Floating halus */
 @keyframes floating{
     0%{transform:translateY(0)}
     50%{transform:translateY(-4px)}
     100%{transform:translateY(0)}
 }
-
-/* Light streak mahal */
 .top-header::before{
     content:"";
     position:absolute;
@@ -87,12 +81,10 @@ body{
     animation:lightSweep 3.5s ease-out 1;
     pointer-events:none;
 }
-
 @keyframes lightSweep{
     from{left:-60%}
     to{left:120%}
 }
-
 .top-header img{
     width:56px;
     height:56px;
@@ -102,29 +94,15 @@ body{
     box-shadow:
         0 12px 30px rgba(0,0,0,.45),
         inset 0 0 0 1px rgba(255,255,255,.8);
-    transition:.35s;
 }
-.top-header img:hover{
-    transform:scale(1.06) rotate(-2deg);
-}
+.top-header h1{margin:0;font-size:20px;font-weight:600}
+.top-header p{margin:2px 0 0;font-size:12px;opacity:.9}
 
-.top-header h1{
-    margin:0;
-    font-size:20px;
-    font-weight:600;
-    letter-spacing:.5px;
-    text-shadow:0 2px 6px rgba(0,0,0,.45);
-}
-.top-header p{
-    margin:2px 0 0;
-    font-size:12px;
-    opacity:.9;
-}
-
-/* ================= KODE ASLI TETAP ================= */
+/* ================= ORIGINAL ================= */
 .header{text-align:center;padding:35px 15px 15px}
 .header h2{margin:0;font-size:30px}
 .header span{font-size:14px;opacity:.85}
+
 .menu{
     display:flex;justify-content:center;flex-wrap:wrap;
     gap:12px;margin:20px auto 10px;
@@ -138,9 +116,11 @@ body{
 .menu button.active{
     background:linear-gradient(135deg,#22c55e,#16a34a);
 }
+
 .container{max-width:1100px;margin:auto;padding:25px}
 .section{display:none}
 .section.active{display:block}
+
 .grid{
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
@@ -182,6 +162,7 @@ body{
     <button onclick="showSection('siswa',this)">👥 Data Siswa</button>
     <button onclick="showSection('gsheet',this)">📄 Google Sheet</button>
     <button onclick="showSection('lab',this)">💻 Laboratorium</button>
+    <button onclick="showSection('guru',this)">👨‍🏫 Aplikasi Guru</button>
 </div>
 
 <div class="container">
@@ -258,6 +239,19 @@ body{
 <h3>📦 Inventaris Lab</h3>
 <p>Data inventaris laboratorium.</p>
 <a href="tools/inventarislab2.html" target="_blank" rel="noopener">Buka Aplikasi</a>
+</div>
+</div>
+</div>
+
+<!-- ================= APLIKASI GURU ================= -->
+<div id="guru" class="section">
+<div class="grid">
+<div class="card">
+<h3>👨‍🏫 Aplikasi Guru Wali</h3>
+<p>Aplikasi pendukung tugas guru wali kelas.</p>
+<a href="https://yanuar-moga.github.io/guruwali/" target="_blank" rel="noopener">
+Buka Aplikasi
+</a>
 </div>
 </div>
 </div>
