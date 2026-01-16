@@ -274,18 +274,34 @@ function showDetail(i){
 }
 
 function saveLog(noMeja,noInv,merek){
- const catatan=document.getElementById("catatan").value.trim();
- if(!catatan){ alert("Catatan kosong"); return; }
+  const catatan = document.getElementById("catatan").value.trim();
+  if(!catatan){
+    alert("Catatan kosong");
+    return;
+  }
 
- fetch(GAS_URL,{
-  method:"POST",
-  headers:{ "Content-Type":"application/json" },
-  body:JSON.stringify({ noMeja,noInventaris:noInv,merek,catatan })
- })
- .then(r=>r.json())
- .then(()=>{ fetch(GAS_URL).then(r=>r.json()).then(renderLog); })
- .catch(()=>alert("Gagal koneksi"));
+  const data = new URLSearchParams();
+  data.append("noMeja", noMeja);
+  data.append("noInventaris", noInv);
+  data.append("merek", merek);
+  data.append("catatan", catatan);
+
+  fetch(GAS_URL,{
+    method:"POST",
+    body:data
+  })
+  .then(r=>r.text())
+  .then(()=>{
+    alert("Catatan tersimpan");
+    document.getElementById("catatan").value="";
+    fetch(GAS_URL).then(r=>r.json()).then(renderLog);
+  })
+  .catch(err=>{
+    alert("Gagal koneksi");
+    console.error(err);
+  });
 }
+
 
 function renderLog(logs){
  logTable.innerHTML="";
