@@ -292,13 +292,19 @@ function saveLog(noMeja,noInv,merek){
  .then(res=>{
    if(res.status==="ok"){
      alert("Catatan tersimpan");
+     document.getElementById("catatan").value="";
      fetch(GAS_URL).then(r=>r.json()).then(renderLog);
-   }else{
+   } else {
      alert("Gagal menyimpan");
-     console.error(res);
+     console.log(res);
    }
+ })
+ .catch(err=>{
+   alert("Error koneksi");
+   console.error(err);
  });
 }
+
 
 </script>
 
