@@ -88,6 +88,29 @@ body{
 .berat{background:#ef4444;color:#fff;}
 .kosong{visibility:hidden;}
 
+/* INFO PERANGKAT */
+.peripheral-info{
+    margin-top:20px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:15px;
+}
+.info-card{
+    background:#f8fafc;
+    padding:15px;
+    border-radius:12px;
+    border-left:6px solid #2563eb;
+}
+.info-card h4{
+    margin:0 0 5px 0;
+    font-size:14px;
+    color:#1e293b;
+}
+.info-card span{
+    font-size:13px;
+    color:#475569;
+}
+
 /* DETAIL */
 .detail{
     background:#fff;
@@ -136,6 +159,20 @@ body{
 <div class="map-box">
 <h3>Denah Meja Laptop</h3>
 <div class="map-grid" id="mapGrid"></div>
+
+<!-- INFO MOUSE & KEYBOARD -->
+<div class="peripheral-info">
+  <div class="info-card">
+    <h4>🖱 Mouse</h4>
+    <span>Tersedia: <b id="mouseAda">0</b></span><br>
+    <span>Kebutuhan: <b id="mouseNeed">0</b></span>
+  </div>
+  <div class="info-card">
+    <h4>⌨ Keyboard</h4>
+    <span>Tersedia: <b id="keyboardAda">0</b></span><br>
+    <span>Kebutuhan: <b id="keyboardNeed">0</b></span>
+  </div>
+</div>
 </div>
 
 <!-- DETAIL -->
@@ -152,7 +189,6 @@ const INV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=ou
 
 let INV=[];
 
-/* DENAH SESUAI MAP */
 const DENAH=[
  [22,21,20,19,18,17,"",4,3,2,1],
  [28,27,26,25,24,23,"",8,7,6,5],
@@ -168,6 +204,7 @@ fetch(INV_URL).then(r=>r.text()).then(t=>{
  });
  renderSummary();
  renderMap();
+ renderPeripheral();
 });
 
 function renderSummary(){
@@ -175,6 +212,19 @@ function renderSummary(){
  normal.textContent=INV.filter(i=>i.Kondisi==="Normal").length;
  ringan.textContent=INV.filter(i=>i.Kondisi==="Rusak Ringan").length;
  berat.textContent=INV.filter(i=>i.Kondisi==="Rusak Berat").length;
+}
+
+function renderPeripheral(){
+ const totalLaptop=INV.length;
+
+ const mouseAdaCount=INV.filter(i=>(i.Mouse||"").toLowerCase()==="ada").length;
+ const keyboardAdaCount=INV.filter(i=>(i.Keyboard||"").toLowerCase()==="ada").length;
+
+ mouseAda.textContent=mouseAdaCount;
+ mouseNeed.textContent=totalLaptop-mouseAdaCount;
+
+ keyboardAda.textContent=keyboardAdaCount;
+ keyboardNeed.textContent=totalLaptop-keyboardAdaCount;
 }
 
 function renderMap(){
