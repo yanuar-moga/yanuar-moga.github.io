@@ -203,11 +203,15 @@ const DENAH=[
  [40,39,38,37,36,35,"",16,15,14,13]
 ];
 
-fetch(INV_URL).then(r=>r.text()).then(t=>{
+fetch(INV_URL)
+.then(r=>r.text())
+.then(t=>{
  const j=JSON.parse(t.substring(47,t.length-2));
  const h=j.table.cols.map(c=>c.label);
- INV=j.table.rows.map(r=>{let o={};r.c.forEach((c,i)=>o[h[i]]=c?c.v:"");return o;});
- renderSummary();renderMap();renderPeripheral();
+ INV=j.table.rows.map(r=>{
+   let o={}; r.c.forEach((c,i)=>o[h[i]]=c?c.v:""); return o;
+ });
+ renderSummary(); renderMap(); renderPeripheral();
 });
 
 fetch(GAS_URL).then(r=>r.json()).then(renderLog);
@@ -271,41 +275,31 @@ function showDetail(i){
 
 function saveLog(noMeja,noInv,merek){
  const catatan=document.getElementById("catatan").value.trim();
- if(!catatan){
-   alert("Catatan kosong");
-   return;
- }
+ if(!catatan){ alert("Catatan kosong"); return; }
 
  fetch(GAS_URL,{
   method:"POST",
-  headers:{
-    "Content-Type":"application/json"
-  },
-  body: JSON.stringify({
-    noMeja:noMeja,
-    noInventaris:noInv,
-    merek:merek,
-    catatan:catatan
-  })
+  headers:{ "Content-Type":"application/json" },
+  body:JSON.stringify({ noMeja,noInventaris:noInv,merek,catatan })
  })
  .then(r=>r.json())
- .then(res=>{
-   if(res.status==="ok"){
-     alert("Catatan tersimpan");
-     document.getElementById("catatan").value="";
-     fetch(GAS_URL).then(r=>r.json()).then(renderLog);
-   } else {
-     alert("Gagal menyimpan");
-     console.log(res);
-   }
- })
- .catch(err=>{
-   alert("Error koneksi");
-   console.error(err);
- });
+ .then(()=>{ fetch(GAS_URL).then(r=>r.json()).then(renderLog); })
+ .catch(()=>alert("Gagal koneksi"));
 }
 
-
+function renderLog(logs){
+ logTable.innerHTML="";
+ logs.reverse().slice(0,20).forEach(l=>{
+  logTable.innerHTML+=`
+  <tr>
+   <td>${l.TANGGAL}</td>
+   <td>${l["NO MEJA"]}</td>
+   <td>${l["NO INVENTARIS"]}</td>
+   <td>${l.TIPE}</td>
+   <td>${l.CATATAN}</td>
+  </tr>`;
+ });
+}
 </script>
 
 </body>
