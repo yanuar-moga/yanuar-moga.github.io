@@ -155,6 +155,28 @@ button{
   border-radius:6px;
   cursor:pointer;
 }
+
+/* ========================================================= */
+/* 🔧 FIX RESMI TANPA MENGHAPUS KODE LAMA */
+/* (HANYA DITAMBAHKAN DI BAWAH) */
+/* ========================================================= */
+
+/* Boleh scroll HANYA di dalam denah, bukan halaman */
+.map-box{
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Pastikan denah tidak mengecil/terpotong di HP */
+.map-grid{
+    min-width: 720px; /* menjaga layout tetap utuh */
+}
+
+/* Pastikan container tidak memotong map */
+.container{
+    overflow-x: visible;
+}
+
 </style>
 </head>
 
