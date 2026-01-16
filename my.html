@@ -25,20 +25,103 @@ body{
       linear-gradient(rgba(10,15,35,.75),rgba(10,15,35,.75)),
       url("assets/bg.png") center/cover no-repeat fixed;
 }
+
+/* ================= PREMIUM FLOATING HEADER ================= */
 .top-header{
+    position:relative;
+    max-width:1200px;
+    margin:22px auto 0;
     display:flex;
     align-items:center;
     gap:16px;
-    padding:18px 24px;
-    background:linear-gradient(135deg,var(--primary),var(--accent));
-    box-shadow:0 8px 25px rgba(0,0,0,.45);
+    padding:20px 28px;
+    border-radius:26px;
+    overflow:hidden;
+
+    background:linear-gradient(
+        120deg,
+        var(--primary),
+        var(--accent),
+        var(--secondary)
+    );
+    background-size:300% 300%;
+    animation:
+        gradientFlow 18s ease infinite,
+        floating 6s ease-in-out infinite;
+
+    box-shadow:
+        0 25px 55px rgba(0,0,0,.6),
+        inset 0 1px 0 rgba(255,255,255,.3);
+
+    backdrop-filter:blur(6px);
 }
+
+/* Gradient bergerak pelan */
+@keyframes gradientFlow{
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
+}
+
+/* Floating halus */
+@keyframes floating{
+    0%{transform:translateY(0)}
+    50%{transform:translateY(-4px)}
+    100%{transform:translateY(0)}
+}
+
+/* Light streak mahal */
+.top-header::before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:-60%;
+    width:50%;
+    height:100%;
+    background:linear-gradient(
+        120deg,
+        transparent,
+        rgba(255,255,255,.45),
+        transparent
+    );
+    animation:lightSweep 3.5s ease-out 1;
+    pointer-events:none;
+}
+
+@keyframes lightSweep{
+    from{left:-60%}
+    to{left:120%}
+}
+
 .top-header img{
-    width:56px;height:56px;border-radius:14px;
-    background:#fff;padding:6px;
+    width:56px;
+    height:56px;
+    border-radius:16px;
+    background:#fff;
+    padding:6px;
+    box-shadow:
+        0 12px 30px rgba(0,0,0,.45),
+        inset 0 0 0 1px rgba(255,255,255,.8);
+    transition:.35s;
 }
-.top-header h1{margin:0;font-size:20px}
-.top-header p{margin:2px 0 0;font-size:12px;opacity:.9}
+.top-header img:hover{
+    transform:scale(1.06) rotate(-2deg);
+}
+
+.top-header h1{
+    margin:0;
+    font-size:20px;
+    font-weight:600;
+    letter-spacing:.5px;
+    text-shadow:0 2px 6px rgba(0,0,0,.45);
+}
+.top-header p{
+    margin:2px 0 0;
+    font-size:12px;
+    opacity:.9;
+}
+
+/* ================= KODE ASLI TETAP ================= */
 .header{text-align:center;padding:35px 15px 15px}
 .header h2{margin:0;font-size:30px}
 .header span{font-size:14px;opacity:.85}
@@ -103,7 +186,6 @@ body{
 
 <div class="container">
 
-<!-- PENILAIAN -->
 <div id="rapor" class="section active">
 <div class="grid">
 <div class="card">
@@ -126,7 +208,6 @@ body{
 </div>
 </div>
 
-<!-- DATA SISWA -->
 <div id="siswa" class="section">
 <div class="grid">
 <div class="card">
@@ -149,7 +230,6 @@ body{
 </div>
 </div>
 
-<!-- GOOGLE SHEET -->
 <div id="gsheet" class="section">
 <div class="grid">
 <div class="card">
@@ -172,7 +252,6 @@ body{
 </div>
 </div>
 
-<!-- LAB -->
 <div id="lab" class="section">
 <div class="grid">
 <div class="card">
