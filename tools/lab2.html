@@ -2,104 +2,145 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Dashboard Inventaris Lab Komputer 2</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Inventaris Laptop Lab 2</title>
 
 <style>
 body{
-    font-family: Calibri, sans-serif;
-    background:#f4f7fb;
     margin:0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background:#f1f5f9;
+    color:#1e293b;
 }
 
-/* ===== HEADER ===== */
+/* ================= HEADER ================= */
 .top-header {
-    display:flex;
-    align-items:center;
-    gap:15px;
-    background:#2563eb;
-    padding:15px 20px;
-    border-radius:0 0 15px 15px;
-    box-shadow:0 3px 8px rgba(0,0,0,.3);
-    color:white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #2563eb;
+    padding: 14px 20px;
+    border-radius: 0 0 16px 16px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+    color: #fff;
 }
-.top-header img{
-    height:50px;width:50px;
-    border-radius:10px;
-    background:white;
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
 }
-.top-header h1{margin:0;font-size:20px;}
-.top-header p{margin:0;font-size:12px;color:#e0e7ff;}
+.top-header img {
+    height: 48px;
+    width: 48px;
+    border-radius: 10px;
+    background: #fff;
+    padding: 4px;
+}
+.header-text h1 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+.header-text p {
+    margin: 0;
+    font-size: 12px;
+    color: #e0e7ff;
+}
+.badge {
+    background: rgba(255,255,255,0.15);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+}
 
-/* ===== SUMMARY ===== */
-.summary-section{
+/* ================= LAYOUT ================= */
+.container{
+    padding:20px;
+    max-width:1200px;
+    margin:auto;
+}
+
+/* ================= SUMMARY ================= */
+.summary{
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-    gap:14px;
-    margin:20px;
+    gap:15px;
+    margin-bottom:25px;
 }
-.summary-card{
-    background:white;
+.card{
+    background:#fff;
+    padding:15px;
     border-radius:14px;
-    padding:16px;
-    display:flex;
-    align-items:center;
-    gap:14px;
     box-shadow:0 4px 10px rgba(0,0,0,.08);
 }
-.summary-card .icon{font-size:30px;}
-.summary-card .value{font-size:26px;font-weight:bold;}
-.summary-card .label{font-size:13px;color:#6b7280;}
-.summary-card.total{border-left:6px solid #2563eb;}
-.summary-card.normal{border-left:6px solid #16a34a;}
-.summary-card.ringan{border-left:6px solid #facc15;}
-.summary-card.berat{border-left:6px solid #dc2626;}
-.summary-card.windows{border-left:6px solid #0284c7;}
-.summary-card.chromebook{border-left:6px solid #0d9488;}
+.card h3{
+    margin:0;
+    font-size:14px;
+    color:#64748b;
+}
+.card span{
+    font-size:28px;
+    font-weight:700;
+}
 
-/* ===== MAP ===== */
-h2{margin:20px;color:#2563eb;}
-#mapGrid{
+/* ================= MAP ================= */
+.map-wrapper{
+    background:#fff;
+    padding:20px;
+    border-radius:16px;
+    box-shadow:0 4px 10px rgba(0,0,0,.1);
+}
+.map-title{
+    font-weight:600;
+    margin-bottom:10px;
+}
+.map-grid{
     display:grid;
-    gap:6px;
-    margin:0 20px 30px;
+    gap:8px;
+    justify-content:start;
 }
-.meja{
-    height:45px;
-    border-radius:6px;
-    font-weight:bold;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    cursor:pointer;
-}
-.normal{background:#28a745;color:white;}
-.ringan{background:#ffc107;color:black;}
-.berat{background:#dc3545;color:white;}
-.kosong{background:transparent;cursor:default;}
 
-/* ===== DETAIL ===== */
-#detailBox{
-    background:white;
-    width:380px;
-    padding:18px;
-    border-radius:8px;
-    box-shadow:0 3px 8px rgba(0,0,0,.25);
+/* meja */
+.meja{
+    width:55px;
+    height:55px;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:600;
+    cursor:pointer;
+    box-shadow:0 3px 6px rgba(0,0,0,.15);
+}
+.normal{ background:#22c55e; color:#fff; }
+.ringan{ background:#facc15; }
+.berat{ background:#ef4444; color:#fff; }
+.kosong{ visibility:hidden; }
+
+/* ================= MODAL ================= */
+.modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.5);
     display:none;
-    margin:0 20px 30px;
+    align-items:center;
+    justify-content:center;
 }
-#detailBox h3{
-    margin-top:0;
-    color:#2563eb;
-    border-left:6px solid #facc15;
-    padding-left:8px;
+.modal-box{
+    background:#fff;
+    padding:20px;
+    border-radius:14px;
+    width:300px;
 }
-.fade-img{
-    animation:fadeIn .8s ease forwards;
-    opacity:0;
-}
-@keyframes fadeIn{
-    from{opacity:0;transform:scale(.95)}
-    to{opacity:1;transform:scale(1)}
+.modal-box h3{ margin-top:0; }
+.modal-box button{
+    margin-top:10px;
+    padding:8px 12px;
+    border:none;
+    background:#2563eb;
+    color:#fff;
+    border-radius:8px;
+    cursor:pointer;
 }
 </style>
 </head>
@@ -107,108 +148,123 @@ h2{margin:20px;color:#2563eb;}
 <body>
 
 <header class="top-header">
+  <div class="header-left">
     <img src="assets/logo.jpg">
-    <div>
-        <h1>Dashboard Inventaris Lab Komputer 2</h1>
-        <p>Versi 1.0 · Data Google Sheet</p>
+    <div class="header-text">
+      <h1>Dashboard Inventaris Laptop</h1>
+      <p>Lab Komputer 2 · Google Sheet</p>
     </div>
+  </div>
+  <span class="badge">v1.0</span>
 </header>
 
-<section class="summary-section">
-    <div class="summary-card total"><div class="icon">💻</div><div><div id="totalLaptop" class="value">0</div><div class="label">Total Laptop</div></div></div>
-    <div class="summary-card normal"><div class="icon">✅</div><div><div id="normalCount" class="value">0</div><div class="label">Normal</div></div></div>
-    <div class="summary-card ringan"><div class="icon">⚠️</div><div><div id="ringanCount" class="value">0</div><div class="label">Rusak Ringan</div></div></div>
-    <div class="summary-card berat"><div class="icon">❌</div><div><div id="beratCount" class="value">0</div><div class="label">Rusak Berat</div></div></div>
-    <div class="summary-card windows"><div class="icon">🪟</div><div><div id="windowsCount" class="value">0</div><div class="label">Windows</div></div></div>
-    <div class="summary-card chromebook"><div class="icon">🌐</div><div><div id="chromebookCount" class="value">0</div><div class="label">Chromebook</div></div></div>
-</section>
+<div class="container">
 
-<h2>📍 Denah Meja Lab</h2>
-<div id="mapGrid"></div>
-<div id="detailBox"></div>
+<!-- SUMMARY -->
+<div class="summary">
+    <div class="card"><h3>Total Laptop</h3><span id="tTotal">0</span></div>
+    <div class="card"><h3>Kondisi Normal</h3><span id="tNormal">0</span></div>
+    <div class="card"><h3>Rusak Ringan</h3><span id="tRingan">0</span></div>
+    <div class="card"><h3>Rusak Berat</h3><span id="tBerat">0</span></div>
+</div>
+
+<!-- MAP -->
+<div class="map-wrapper">
+    <div class="map-title">Denah Meja Laptop Lab 2</div>
+    <div class="map-grid" id="mapGrid"></div>
+</div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <h3>Detail Laptop</h3>
+    <div id="modalContent"></div>
+    <button onclick="closeModal()">Tutup</button>
+  </div>
+</div>
 
 <script>
 const SHEET_ID = "14Trwaf9K__WczN1hARNDSeL0knx5KCxA";
+const INV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=INV`;
+const MAP_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=MAP`;
+
 let INV=[], MAP=[];
 
-async function loadSheet(sheet){
-    const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${sheet}&tqx=out:json`;
-    const res=await fetch(url);
-    const txt=await res.text();
-    const json=JSON.parse(txt.substring(47).slice(0,-2));
-    const headers=json.table.cols.map(c=>c.label);
+/* ================= LOAD DATA ================= */
+fetch(INV_URL).then(r=>r.text()).then(t=>{
+    INV = parseGVIZ(t);
+    renderSummary();
+});
+
+fetch(MAP_URL).then(r=>r.text()).then(t=>{
+    MAP = parseGVIZ(t);
+    renderMap();
+});
+
+/* ================= FUNCTIONS ================= */
+function parseGVIZ(txt){
+    const json = JSON.parse(txt.substring(47, txt.length-2));
+    const cols = json.table.cols.map(c=>c.label);
     return json.table.rows.map(r=>{
         let o={};
-        r.c.forEach((c,i)=>o[headers[i]]=c?c.v:"");
+        r.c.forEach((v,i)=>o[cols[i]]=v?v.v:"");
         return o;
     });
 }
 
-async function init(){
-    INV=await loadSheet("INV");
-    MAP=await loadSheet("MAP");
-    updateSummary();
-    renderMap();
-}
-init();
-
-function updateSummary(){
-    totalLaptop.textContent=INV.length;
-    normalCount.textContent=INV.filter(x=>(x.Kondisi||"").toLowerCase()=="normal").length;
-    ringanCount.textContent=INV.filter(x=>(x.Kondisi||"").toLowerCase().includes("ringan")).length;
-    beratCount.textContent=INV.filter(x=>(x.Kondisi||"").toLowerCase().includes("berat")).length;
-    windowsCount.textContent=INV.filter(x=>(x.OS||"").toLowerCase().includes("windows")).length;
-    chromebookCount.textContent=INV.filter(x=>(x.OS||"").toLowerCase().includes("chrome")).length;
+function renderSummary(){
+    document.getElementById("tTotal").textContent = INV.length;
+    document.getElementById("tNormal").textContent = INV.filter(i=>i.Kondisi==="Normal").length;
+    document.getElementById("tRingan").textContent = INV.filter(i=>i.Kondisi==="Rusak Ringan").length;
+    document.getElementById("tBerat").textContent = INV.filter(i=>i.Kondisi==="Rusak Berat").length;
 }
 
 function renderMap(){
-    const grid=document.getElementById("mapGrid");
+    const grid = document.getElementById("mapGrid");
     grid.innerHTML="";
-    const maxRow=Math.max(...MAP.map(m=>+m.ROW));
-    const maxCol=Math.max(...MAP.map(m=>+m.COL));
-    grid.style.gridTemplateColumns=`repeat(${maxCol},55px)`;
 
-    for(let r=1;r<=maxRow;r++){
-        for(let c=1;c<=maxCol;c++){
-            const m=MAP.find(x=>x.ROW==r && x.COL==c);
-            const d=document.createElement("div");
-            if(!m || !m["NO MEJA"]){d.className="meja kosong";grid.appendChild(d);continue;}
-            const inv=INV.find(i=>i["NO MEJA"]==m["NO MEJA"]);
+    const rows = MAP.map(r=>Object.values(r));
+    const maxCol = Math.max(...rows.map(r=>r.length));
+    grid.style.gridTemplateColumns = `repeat(${maxCol},55px)`;
+
+    rows.forEach(row=>{
+        row.forEach(cell=>{
+            if(!cell){
+                const d=document.createElement("div");
+                d.className="meja kosong";
+                grid.appendChild(d);
+                return;
+            }
+
+            const inv = INV.find(i=>String(i["NO MEJA"])===String(cell));
             let cls="normal";
             if(inv){
-                const k=(inv.Kondisi||"").toLowerCase();
-                if(k.includes("ringan"))cls="ringan";
-                else if(k.includes("berat"))cls="berat";
+                if(inv.Kondisi==="Rusak Ringan") cls="ringan";
+                if(inv.Kondisi==="Rusak Berat") cls="berat";
             }
+
+            const d=document.createElement("div");
             d.className=`meja ${cls}`;
-            d.textContent=m["NO MEJA"];
-            if(inv)d.onclick=()=>showDetail(inv);
+            d.textContent=cell;
+            if(inv) d.onclick=()=>showDetail(inv);
             grid.appendChild(d);
-        }
-    }
+        });
+    });
 }
 
-function showDetail(item){
-    const box=document.getElementById("detailBox");
-    let img="";
-    const tipe=(item["Merek / Tipe"]||"").toLowerCase();
-    if(tipe.includes("axio")) img="https://yanuar-moga.github.io/escape/assets/AXIO_L19B.png";
-    else if(tipe.includes("chrome")) img="https://yanuar-moga.github.io/escape/assets/LENOVO_IDEAPAD_110_14LBR.png";
-
-    box.style.display="block";
-    box.innerHTML=`
-    <h3>Meja ${item["NO MEJA"]}</h3>
-    ${img?`<div style="text-align:center"><img class="fade-img" src="${img}" width="160"></div>`:""}
-    <b>No Inventaris:</b> ${item["No Inventaris"]}<br>
-    <b>Merek / Tipe:</b> ${item["Merek / Tipe"]}<br>
-    <b>Processor:</b> ${item.Processor}<br>
-    <b>RAM:</b> ${item.RAM}<br>
-    <b>Storage:</b> ${item.Storage}<br>
-    <b>Layar:</b> ${item.Layar}<br>
-    <b>OS:</b> ${item.OS}<br><br>
-    <b>Kondisi:</b> ${item.Kondisi}<br>
-    <b>Keterangan:</b> ${item.Keterangan}<br>
-    <b>Tindak Lanjut:</b> ${item["Tindak Lanjut"]}<br>`;
+function showDetail(inv){
+    document.getElementById("modalContent").innerHTML=`
+        <b>No Meja:</b> ${inv["NO MEJA"]}<br>
+        <b>Inventaris:</b> ${inv["NAMA BARANG"]||"-"}<br>
+        <b>Kondisi:</b> ${inv.Kondisi}<br>
+        <b>Keterangan:</b> ${inv.Keterangan||"-"}
+    `;
+    document.getElementById("modal").style.display="flex";
+}
+function closeModal(){
+    document.getElementById("modal").style.display="none";
 }
 </script>
 
