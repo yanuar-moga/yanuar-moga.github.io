@@ -271,26 +271,35 @@ function showDetail(i){
 
 function saveLog(noMeja,noInv,merek){
  const catatan=document.getElementById("catatan").value.trim();
- if(!catatan){alert("Catatan kosong");return;}
+ if(!catatan){
+   alert("Catatan kosong");
+   return;
+ }
+
  fetch(GAS_URL,{
   method:"POST",
-  body:JSON.stringify({noMeja,noInventaris:noInv,merek,catatan})
- }).then(()=>fetch(GAS_URL).then(r=>r.json()).then(renderLog));
-}
-
-function renderLog(logs){
- logTable.innerHTML="";
- logs.slice().reverse().slice(0,20).forEach(l=>{
-  logTable.innerHTML+=`
-   <tr>
-    <td>${l.TANGGAL}</td>
-    <td>${l["NO MEJA"]}</td>
-    <td>${l["NO INVENTARIS"]}</td>
-    <td>${l.TIPE}</td>
-    <td>${l.CATATAN}</td>
-   </tr>`;
+  headers:{
+    "Content-Type":"application/json"
+  },
+  body: JSON.stringify({
+    noMeja:noMeja,
+    noInventaris:noInv,
+    merek:merek,
+    catatan:catatan
+  })
+ })
+ .then(r=>r.json())
+ .then(res=>{
+   if(res.status==="ok"){
+     alert("Catatan tersimpan");
+     fetch(GAS_URL).then(r=>r.json()).then(renderLog);
+   }else{
+     alert("Gagal menyimpan");
+     console.error(res);
+   }
  });
 }
+
 </script>
 
 </body>
