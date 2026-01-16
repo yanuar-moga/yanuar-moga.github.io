@@ -244,15 +244,43 @@ function renderMap(){
 }
 
 function showDetail(i){
- detailBox.innerHTML=`
- <h3>Detail Meja ${i["NO MEJA"]}</h3>
- <b>No Inventaris:</b> ${i["No Inventaris"]}<br>
- <b>Tipe:</b> ${i["Merek / Tipe"]}<br><br>
 
- <textarea id="catatan" placeholder="Tulis catatan..."></textarea>
- <button onclick="saveLog('${i["NO MEJA"]}','${i["No Inventaris"]}','${i["Merek / Tipe"]}')">
- Simpan Catatan</button>`;
+  const tipe = (i["Merek / Tipe"] || "").toLowerCase();
+
+  let img = "https://yanuar-moga.github.io/escape/assets/LENOVO_IDEAPAD_110_14LBR.png";
+
+  if (tipe.includes("axio") || tipe.includes("chrome")) {
+    img = "https://yanuar-moga.github.io/escape/assets/AXIO_L19B.png";
+  }
+
+  detailBox.innerHTML = `
+    <h3>Detail Meja ${i["NO MEJA"]}</h3>
+
+    <img src="${img}" style="margin-bottom:15px">
+
+    <b>No Inventaris:</b> ${i["No Inventaris"] || "-"}<br>
+    <b>Merek / Tipe:</b> ${i["Merek / Tipe"] || "-"}<br>
+    <b>Processor:</b> ${i.Processor || "-"}<br>
+    <b>RAM:</b> ${i.RAM || "-"}<br>
+    <b>Storage:</b> ${i.Storage || "-"}<br>
+    <b>Layar:</b> ${i.Layar || "-"}<br>
+    <b>OS:</b> ${i.OS || "-"}<br><br>
+
+    <b>Kondisi:</b> ${i.Kondisi || "-"}<br>
+    <b>Keterangan:</b> ${i.Keterangan || "-"}<br><br>
+
+    <hr>
+
+    <b>📝 Catatan Guru / Admin</b><br>
+    <textarea id="catatan" placeholder="Tulis catatan..."></textarea>
+    <button onclick="saveLog(
+      '${i["NO MEJA"]}',
+      '${i["No Inventaris"]}',
+      '${i["Merek / Tipe"]}'
+    )">Simpan Catatan</button>
+  `;
 }
+
 
 function saveLog(noMeja,noInv,merek){
  const catatan=document.getElementById("catatan").value;
