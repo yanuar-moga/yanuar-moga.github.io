@@ -6,107 +6,23 @@
 <title>Dashboard Inventaris Lab 2</title>
 
 <style>
-body{
-  margin:0;
-  font-family:Calibri, sans-serif;
-  background:#f4f7fb;
-}
-
-/* HEADER */
-.top-header{
-  display:flex;
-  gap:15px;
-  align-items:center;
-  background:#2563eb;
-  padding:15px 20px;
-  color:white;
-}
-.top-header img{
-  width:50px;
-  height:50px;
-  border-radius:10px;
-  background:white;
-}
-.top-header h1{margin:0;font-size:20px;}
-.top-header p{margin:0;font-size:12px;color:#e0e7ff}
-
-/* SUMMARY */
-.cards{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-  gap:12px;
-  padding:15px;
-}
-.card{
-  background:white;
-  padding:12px;
-  border-radius:10px;
-  border-left:5px solid #2563eb;
-  box-shadow:0 3px 8px rgba(0,0,0,.15);
-}
-
-/* MAP */
-.container{
-  display:flex;
-  flex-wrap:wrap;
-  gap:20px;
-  padding:15px;
-}
-#map{
-  display:grid;
-  grid-template-columns:repeat(11,55px);
-  gap:6px;
-}
-.meja{
-  height:45px;
-  border-radius:6px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-weight:bold;
-  cursor:pointer;
-}
-.normal{background:#16a34a;color:white}
+body{margin:0;font-family:Calibri;background:#f4f7fb}
+.top-header{display:flex;gap:15px;align-items:center;background:#2563eb;padding:15px;color:#fff}
+.top-header img{width:50px;height:50px;border-radius:10px;background:#fff}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;padding:15px}
+.card{background:#fff;padding:12px;border-radius:10px;border-left:5px solid #2563eb;box-shadow:0 3px 8px rgba(0,0,0,.15)}
+.container{display:flex;flex-wrap:wrap;gap:20px;padding:15px}
+#map{display:grid;grid-template-columns:repeat(11,55px);gap:6px}
+.meja{height:45px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:bold;cursor:pointer}
+.normal{background:#16a34a;color:#fff}
 .ringan{background:#facc15}
-.berat{background:#dc2626;color:white}
+.berat{background:#dc2626;color:#fff}
 .empty{background:transparent}
-
-/* DETAIL */
-#detail{
-  flex:1;
-  min-width:280px;
-  background:white;
-  border-radius:10px;
-  padding:15px;
-  box-shadow:0 3px 10px rgba(0,0,0,.25);
-}
-#detail img{
-  width:150px;
-  display:block;
-  margin:auto;
-}
-textarea{
-  width:100%;
-  margin-top:8px;
-}
-button{
-  margin-top:8px;
-  background:#2563eb;
-  color:white;
-  border:none;
-  padding:8px 12px;
-  border-radius:6px;
-  cursor:pointer;
-}
-
-/* FOOT INFO */
-.info{
-  background:white;
-  margin:15px;
-  padding:12px;
-  border-radius:10px;
-  box-shadow:0 3px 8px rgba(0,0,0,.15);
-}
+#detail{flex:1;min-width:280px;background:#fff;border-radius:10px;padding:15px;box-shadow:0 3px 10px rgba(0,0,0,.25)}
+#detail img{width:150px;display:block;margin:auto}
+textarea{width:100%;margin-top:6px}
+button{margin-top:6px;background:#2563eb;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer}
+.info{background:#fff;margin:15px;padding:12px;border-radius:10px;box-shadow:0 3px 8px rgba(0,0,0,.15)}
 </style>
 </head>
 
@@ -115,16 +31,16 @@ button{
 <header class="top-header">
   <img src="assets/logo.jpg">
   <div>
-    <h1>Inventaris Lab Komputer 2</h1>
-    <p>Dashboard Monitoring · Guru Lab</p>
+    <h2>Inventaris Lab Komputer 2</h2>
+    <small>Dashboard Guru Lab</small>
   </div>
 </header>
 
 <section class="cards">
-  <div class="card">Total: <b id="total">-</b></div>
-  <div class="card">Normal: <b id="normal">-</b></div>
-  <div class="card">Rusak Ringan: <b id="ringan">-</b></div>
-  <div class="card">Rusak Berat: <b id="berat">-</b></div>
+  <div class="card">Total <b id="total">-</b></div>
+  <div class="card">Normal <b id="normal">-</b></div>
+  <div class="card">Rusak Ringan <b id="ringan">-</b></div>
+  <div class="card">Rusak Berat <b id="berat">-</b></div>
 </section>
 
 <section class="container">
@@ -141,98 +57,96 @@ button{
 </section>
 
 <script>
-const SS_ID = "1QJkDbPf0x1vIyq-htJXrsZiLoRd6oghgBFouQHlZpM0";
-const GAS_URL = "https://script.google.com/macros/s/AKfycbwVMfHVBWjbgyLX3yUjFFKhebLLO0iTEEiGaY4_Q8Wx3LZUnvYNs8AbJ4W_4h1BVCCI/exec";
+const SHEET_ID="1QJkDbPf0x1vIyq-htJXrsZiLoRd6oghgBFouQHlZpM0";
+const INV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=INV`;
+const GAS_URL="PASTE_URL_WEBAPP_GAS_DI_SINI";
 
-let INV=[], MAP=[];
+const DENAH=[
+ [22,21,20,19,18,17,"",4,3,2,1],
+ [28,27,26,25,24,23,"",8,7,6,5],
+ [34,33,32,31,30,29,"",12,11,10,9],
+ [40,39,38,37,36,35,"",16,15,14,13]
+];
 
-async function loadSheet(sheet){
-  const url=`https://docs.google.com/spreadsheets/d/${SS_ID}/gviz/tq?tqx=out:json&sheet=${sheet}`;
-  const res=await fetch(url);
-  const txt=await res.text();
-  const json=JSON.parse(txt.substr(47).slice(0,-2));
-  const head=json.table.cols.map(c=>c.label);
-  return json.table.rows.map(r=>{
-    let o={};
-    r.c.forEach((c,i)=>o[head[i]]=c?c.v:"");
-    return o;
-  });
-}
+let INV=[], LOGS=[];
 
-async function init(){
-  INV = await loadSheet("INV");
-  MAP = await loadSheet("MAP");
+Promise.all([
+ fetch(INV_URL).then(r=>r.text()),
+ fetch(GAS_URL).then(r=>r.json())
+]).then(([t,l])=>{
+ const j=JSON.parse(t.substring(47,t.length-2));
+ const h=j.table.cols.map(c=>c.label);
+ INV=j.table.rows.map(r=>{
+   let o={};r.c.forEach((c,i)=>o[h[i]]=c?c.v:"");return o;
+ });
+ LOGS=l;
+ renderAll();
+});
 
-  total.innerText=INV.length;
-  normal.innerText=INV.filter(x=>x.Kondisi=="Normal").length;
-  ringan.innerText=INV.filter(x=>x.Kondisi.includes("Ringan")).length;
-  berat.innerText=INV.filter(x=>x.Kondisi.includes("Berat")).length;
+function renderAll(){
+ total.textContent=INV.length;
+ normal.textContent=INV.filter(i=>i.Kondisi=="Normal").length;
+ ringan.textContent=INV.filter(i=>i.Kondisi=="Rusak Ringan").length;
+ berat.textContent=INV.filter(i=>i.Kondisi=="Rusak Berat").length;
 
-  mouseAda.innerText=INV.filter(x=>x.Mouse=="Ya").length;
-  mouseKurang.innerText=INV.filter(x=>x.Mouse=="Tidak").length;
-  keyAda.innerText=INV.filter(x=>x.Keyboard=="Ya").length;
-  keyKurang.innerText=INV.filter(x=>x.Keyboard=="Tidak").length;
+ mouseAda.textContent=INV.filter(i=>i.Mouse=="Ada").length;
+ mouseKurang.textContent=INV.length-mouseAda.textContent;
+ keyAda.textContent=INV.filter(i=>i.Keyboard=="Ada").length;
+ keyKurang.textContent=INV.length-keyAda.textContent;
 
-  renderMap();
+ renderMap();
 }
 
 function renderMap(){
-  map.innerHTML="";
-  MAP.forEach(r=>{
-    const d=document.createElement("div");
-    if(!r["NO MEJA"]){d.className="meja empty";map.appendChild(d);return;}
-    const inv=INV.find(x=>String(x["NO MEJA"])==String(r["NO MEJA"]));
-    let cls="normal";
-    if(inv){
-      if(inv.Kondisi.includes("Ringan"))cls="ringan";
-      if(inv.Kondisi.includes("Berat"))cls="berat";
-    }
-    d.className=`meja ${cls}`;
-    d.innerText=r["NO MEJA"];
-    d.onclick=()=>showDetail(inv);
-    map.appendChild(d);
-  });
+ map.innerHTML="";
+ DENAH.forEach(r=>r.forEach(n=>{
+  let d=document.createElement("div");
+  if(n===""){d.className="meja empty";map.appendChild(d);return;}
+  let i=INV.find(x=>String(x["NO MEJA"])===String(n));
+  let c="normal";
+  if(i?.Kondisi=="Rusak Ringan")c="ringan";
+  if(i?.Kondisi=="Rusak Berat")c="berat";
+  d.className=`meja ${c}`;
+  d.textContent=n;
+  if(i)d.onclick=()=>detail(i);
+  map.appendChild(d);
+ }));
 }
 
-function showDetail(i){
-  let img="";
-  if((i["Merek / Tipe"]||"").toLowerCase().includes("axio"))
-    img="https://yanuar-moga.github.io/escape/assets/LENOVO_IDEAPAD_110_14LBR.png";
-  else
-    img="https://yanuar-moga.github.io/escape/assets/AXIO_L19B.png";
+function detail(i){
+ let img=i["Merek / Tipe"].toLowerCase().includes("axio")
+ ? "https://yanuar-moga.github.io/escape/assets/AXIO_L19B.png"
+ : "https://yanuar-moga.github.io/escape/assets/LENOVO_IDEAPAD_110_14LBR.png";
 
-  detail.innerHTML=`
-    <h3>Meja ${i["NO MEJA"]}</h3>
-    <img src="${img}">
-    <b>No Inventaris:</b> ${i["No Inventaris"]}<br>
-    <b>Merek:</b> ${i["Merek / Tipe"]}<br>
-    <b>Processor:</b> ${i.Processor}<br>
-    <b>RAM:</b> ${i.RAM}<br>
-    <b>Storage:</b> ${i.Storage}<br>
-    <b>Layar:</b> ${i.Layar}<br>
-    <b>OS:</b> ${i.OS}<br><br>
-    <b>Kondisi:</b> ${i.Kondisi}<br>
-    <b>Keterangan:</b> ${i.Keterangan}<br><br>
+ let logs=LOGS.filter(l=>l["No Meja"]==i["NO MEJA"]);
 
-    <textarea id="catatan" placeholder="Catatan guru..."></textarea>
-    <button onclick="saveLog(${i["NO MEJA"]})">📝 Tandai</button>
-  `;
+ document.getElementById("detail").innerHTML=`
+ <h3>Meja ${i["NO MEJA"]}</h3>
+ <img src="${img}">
+ <b>No Inventaris:</b> ${i["No Inventaris"]}<br>
+ <b>Merek:</b> ${i["Merek / Tipe"]}<br>
+ <b>Processor:</b> ${i.Processor}<br>
+ <b>RAM:</b> ${i.RAM}<br>
+ <b>Storage:</b> ${i.Storage}<br>
+ <b>OS:</b> ${i.OS}<br><br>
+
+ <textarea id="catatan" placeholder="Catatan..."></textarea>
+ <button onclick="save('${i["NO MEJA"]}','${i["No Inventaris"]}','${i["Merek / Tipe"]}')">Simpan</button>
+
+ <hr>
+ ${logs.map(l=>`<small>${new Date(l.Timestamp).toLocaleString()}<br>${l.Catatan}</small><hr>`).join("")}
+ `;
 }
 
-async function saveLog(no){
-  const cat=document.getElementById("catatan").value;
-  await fetch(GAS_URL,{
-    method:"POST",
-    body:JSON.stringify({
-      no_meja:no,
-      catatan:cat,
-      admin:"Guru Lab"
-    })
-  });
-  alert("Catatan tersimpan");
-}
+function save(m,i,t){
+ let c=document.getElementById("catatan").value;
+ if(!c)return alert("Kosong");
 
-init();
+ fetch(GAS_URL,{
+  method:"POST",
+  body:JSON.stringify({noMeja:m,noInventaris:i,merek:t,catatan:c})
+ }).then(()=>location.reload());
+}
 </script>
 </body>
 </html>
