@@ -168,7 +168,6 @@ button{
   </div>
 </div>
 
-<!-- LIVE LOG -->
 <div class="map-box" style="margin-top:20px">
 <h3>📝 Catatan Terbaru</h3>
 <table>
@@ -191,9 +190,9 @@ button{
 </div>
 
 <script>
-const SHEET_ID="1QJkDbPf0x1vIyq-htJXrsZiLoRd6oghgBFouQHlZpM0";
-const GAS_URL="https://script.google.com/macros/s/AKfycbwVMfHVBWjbgyLX3yUjFFKhebLLO0iTEEiGaY4_Q8Wx3LZUnvYNs8AbJ4W_4h1BVCCI/exec";
-const INV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=INV`;
+const SHEET_ID = "1QJkDbPf0x1vIyq-htJXrsZiLoRd6oghgBFouQHlZpM0";
+const GAS_URL  = "https://script.google.com/macros/s/AKfycbwVMfHVBWjbgyLX3yUjFFKhebLLO0iTEEiGaY4_Q8Wx3LZUnvYNs8AbJ4W_4h1BVCCI/exec";
+const INV_URL  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=INV`;
 
 let INV=[];
 
@@ -222,85 +221,74 @@ function renderSummary(){
 
 function renderPeripheral(){
  const t=INV.length;
- mouseAda.textContent=INV.filter(i=>(i.Mouse||"").toLowerCase()==="ada").length;
- keyboardAda.textContent=INV.filter(i=>(i.Keyboard||"").toLowerCase()==="ada").length;
- mouseNeed.textContent=t-mouseAda.textContent;
- keyboardNeed.textContent=t-keyboardAda.textContent;
+ const m=INV.filter(i=>(i.Mouse||"").toLowerCase()==="ada").length;
+ const k=INV.filter(i=>(i.Keyboard||"").toLowerCase()==="ada").length;
+ mouseAda.textContent=m; keyboardAda.textContent=k;
+ mouseNeed.textContent=t-m; keyboardNeed.textContent=t-k;
 }
 
 function renderMap(){
- const g=mapGrid;
+ mapGrid.innerHTML="";
  DENAH.flat().forEach(n=>{
   const d=document.createElement("div");
-  if(n===""){d.className="meja kosong";g.appendChild(d);return;}
+  if(n===""){d.className="meja kosong";mapGrid.appendChild(d);return;}
   const i=INV.find(x=>String(x["NO MEJA"])===String(n));
   let c="normal";
   if(i?.Kondisi==="Rusak Ringan")c="ringan";
   if(i?.Kondisi==="Rusak Berat")c="berat";
-  d.className=`meja ${c}`; d.textContent=n;
+  d.className=`meja ${c}`;
+  d.textContent=n;
   if(i)d.onclick=()=>showDetail(i);
-  g.appendChild(d);
+  mapGrid.appendChild(d);
  });
 }
 
 function showDetail(i){
+ const tipe=(i["Merek / Tipe"]||"").toLowerCase();
+ let img="https://yanuar-moga.github.io/escape/assets/LENOVO_IDEAPAD_110_14LBR.png";
+ if(tipe.includes("axio")||tipe.includes("chrome")){
+   img="https://yanuar-moga.github.io/escape/assets/AXIO_L19B.png";
+ }
 
-  const tipe = (i["Merek / Tipe"] || "").toLowerCase();
+ detailBox.innerHTML=`
+ <h3>Detail Meja ${i["NO MEJA"]}</h3>
+ <img src="${img}">
+ <b>No Inventaris:</b> ${i["No Inventaris"]||"-"}<br>
+ <b>Merek / Tipe:</b> ${i["Merek / Tipe"]||"-"}<br>
+ <b>Processor:</b> ${i.Processor||"-"}<br>
+ <b>RAM:</b> ${i.RAM||"-"}<br>
+ <b>Storage:</b> ${i.Storage||"-"}<br>
+ <b>Layar:</b> ${i.Layar||"-"}<br>
+ <b>OS:</b> ${i.OS||"-"}<br><br>
+ <b>Kondisi:</b> ${i.Kondisi||"-"}<br>
+ <b>Keterangan:</b> ${i.Keterangan||"-"}<br><br>
 
-  let img = "https://yanuar-moga.github.io/escape/assets/LENOVO_IDEAPAD_110_14LBR.png";
-
-  if (tipe.includes("axio") || tipe.includes("chrome")) {
-    img = "https://yanuar-moga.github.io/escape/assets/AXIO_L19B.png";
-  }
-
-  detailBox.innerHTML = `
-    <h3>Detail Meja ${i["NO MEJA"]}</h3>
-
-    <img src="${img}" style="margin-bottom:15px">
-
-    <b>No Inventaris:</b> ${i["No Inventaris"] || "-"}<br>
-    <b>Merek / Tipe:</b> ${i["Merek / Tipe"] || "-"}<br>
-    <b>Processor:</b> ${i.Processor || "-"}<br>
-    <b>RAM:</b> ${i.RAM || "-"}<br>
-    <b>Storage:</b> ${i.Storage || "-"}<br>
-    <b>Layar:</b> ${i.Layar || "-"}<br>
-    <b>OS:</b> ${i.OS || "-"}<br><br>
-
-    <b>Kondisi:</b> ${i.Kondisi || "-"}<br>
-    <b>Keterangan:</b> ${i.Keterangan || "-"}<br><br>
-
-    <hr>
-
-    <b>📝 Catatan Guru / Admin</b><br>
-    <textarea id="catatan" placeholder="Tulis catatan..."></textarea>
-    <button onclick="saveLog(
-      '${i["NO MEJA"]}',
-      '${i["No Inventaris"]}',
-      '${i["Merek / Tipe"]}'
-    )">Simpan Catatan</button>
-  `;
+ <b>📝 Catatan</b>
+ <textarea id="catatan"></textarea>
+ <button onclick="saveLog('${i["NO MEJA"]}','${i["No Inventaris"]}','${i["Merek / Tipe"]}')">Simpan Catatan</button>
+ `;
 }
 
-
 function saveLog(noMeja,noInv,merek){
- const catatan=document.getElementById("catatan").value;
+ const catatan=document.getElementById("catatan").value.trim();
+ if(!catatan){alert("Catatan kosong");return;}
  fetch(GAS_URL,{
   method:"POST",
   body:JSON.stringify({noMeja,noInventaris:noInv,merek,catatan})
- }).then(()=>location.reload());
+ }).then(()=>fetch(GAS_URL).then(r=>r.json()).then(renderLog));
 }
 
 function renderLog(logs){
- const tb=document.getElementById("logTable");
- tb.innerHTML="";
- logs.reverse().slice(0,20).forEach(l=>{
-  tb.innerHTML+=`<tr>
-  <td>${l.TANGGAL}</td>
-  <td>${l["NO MEJA"]}</td>
-  <td>${l["NO INVENTARIS"]}</td>
-  <td>${l.TIPE}</td>
-  <td>${l.CATATAN}</td>
-  </tr>`;
+ logTable.innerHTML="";
+ logs.slice().reverse().slice(0,20).forEach(l=>{
+  logTable.innerHTML+=`
+   <tr>
+    <td>${l.TANGGAL}</td>
+    <td>${l["NO MEJA"]}</td>
+    <td>${l["NO INVENTARIS"]}</td>
+    <td>${l.TIPE}</td>
+    <td>${l.CATATAN}</td>
+   </tr>`;
  });
 }
 </script>
