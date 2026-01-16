@@ -157,25 +157,38 @@ button{
 }
 
 /* ========================================================= */
-/* 🔧 FIX RESMI TANPA MENGHAPUS KODE LAMA */
-/* (HANYA DITAMBAHKAN DI BAWAH) */
+/* ✅ FIX FINAL: MEJA LEBIH KECIL DI HP + TIDAK TERPOTONG */
 /* ========================================================= */
 
-/* Boleh scroll HANYA di dalam denah, bukan halaman */
+/* Scroll hanya di dalam kotak denah, BUKAN halaman */
 .map-box{
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
 }
 
-/* Pastikan denah tidak mengecil/terpotong di HP */
+/* Desktop tetap rapi dan tidak berubah */
 .map-grid{
-    min-width: 720px; /* menjaga layout tetap utuh */
+    min-width: 720px; 
 }
 
-/* Pastikan container tidak memotong map */
-.container{
-    overflow-x: visible;
+/* ======== KHUSUS HP ======== */
+@media (max-width: 600px){
+
+  /* Meja menyusut otomatis di HP */
+  .map-grid{
+    grid-template-columns: repeat(11, minmax(28px, 1fr));
+    gap: 6px;
+    min-width: 520px; 
+  }
+
+  /* Angka meja lebih kecil biar proporsional */
+  .meja{
+    font-size: 12px;
+    border-radius: 8px;
+  }
+
 }
+
 
 </style>
 </head>
