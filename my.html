@@ -5,226 +5,87 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard Tools Sekolah</title>
 
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
 <style>
 :root{
-    --blue1:#1e3a8a;
-    --blue2:#2563eb;
-    --violet:#4338ca;
-    --cyan:#22d3ee;
-    --glass: rgba(255,255,255,.15);
-    --glass-border: rgba(255,255,255,.25);
+    --primary:#3b82f6;
+    --secondary:#22d3ee;
+    --accent:#6366f1;
+    --glass:rgba(255,255,255,.15);
+    --glass-border:rgba(255,255,255,.25);
 }
-
 *{box-sizing:border-box}
-
 body{
     margin:0;
-    font-family:"Segoe UI", system-ui, Arial, sans-serif;
+    font-family:"Segoe UI",system-ui,Arial,sans-serif;
     min-height:100vh;
     color:#fff;
     background:
-      linear-gradient(rgba(10,15,35,.78), rgba(10,15,35,.78)),
-      url("assets/bg.png") center / cover no-repeat fixed;
+      linear-gradient(rgba(10,15,35,.75),rgba(10,15,35,.75)),
+      url("assets/bg.png") center/cover no-repeat fixed;
 }
-
-/* ================= FLOATING HEADER ================= */
 .top-header{
-    position:relative;
-    max-width:1200px;
-    margin:20px auto 0;
-    padding:20px 30px;
-    border-radius:22px;
-    overflow:hidden;
-    background: linear-gradient(
-        120deg,
-        var(--blue1),
-        var(--violet),
-        var(--blue2),
-        var(--cyan)
-    );
-    background-size:300% 300%;
-    animation:gradientMove 14s ease infinite;
-    box-shadow:
-        0 18px 40px rgba(0,0,0,.55),
-        inset 0 1px 0 rgba(255,255,255,.25);
-}
-
-@keyframes gradientMove{
-    0%{background-position:0% 50%}
-    50%{background-position:100% 50%}
-    100%{background-position:0% 50%}
-}
-
-.top-header::before{
-    content:"";
-    position:absolute;
-    top:0;
-    left:-45%;
-    width:45%;
-    height:100%;
-    background: linear-gradient(
-        120deg,
-        transparent,
-        rgba(255,255,255,.35),
-        transparent
-    );
-    animation:streak 3.2s ease-out 1;
-}
-
-@keyframes streak{
-    from{left:-45%}
-    to{left:120%}
-}
-
-.header-left{
     display:flex;
     align-items:center;
-    gap:18px;
-    position:relative;
-    z-index:1;
+    gap:16px;
+    padding:18px 24px;
+    background:linear-gradient(135deg,var(--primary),var(--accent));
+    box-shadow:0 8px 25px rgba(0,0,0,.45);
 }
-
 .top-header img{
-    width:58px;
-    height:58px;
-    border-radius:16px;
-    padding:6px;
-    background:#fff;
-    box-shadow:
-        0 10px 25px rgba(0,0,0,.45),
-        inset 0 0 0 1px rgba(255,255,255,.7);
+    width:56px;height:56px;border-radius:14px;
+    background:#fff;padding:6px;
 }
-
-.top-header h1{
-    margin:0;
-    font-size:22px;
-    font-weight:600;
-}
-
-.top-header p{
-    margin-top:4px;
-    font-size:12px;
-    opacity:.9;
-}
-
-/* ================= PAGE TITLE ================= */
-.header{
-    text-align:center;
-    padding:40px 15px 15px;
-}
-
-.header h2{
-    margin:0;
-    font-size:30px;
-}
-
-.header span{
-    font-size:14px;
-    opacity:.85;
-}
-
-/* ================= MENU ================= */
+.top-header h1{margin:0;font-size:20px}
+.top-header p{margin:2px 0 0;font-size:12px;opacity:.9}
+.header{text-align:center;padding:35px 15px 15px}
+.header h2{margin:0;font-size:30px}
+.header span{font-size:14px;opacity:.85}
 .menu{
-    display:flex;
-    justify-content:center;
-    flex-wrap:wrap;
-    gap:12px;
-    margin:20px auto 10px;
+    display:flex;justify-content:center;flex-wrap:wrap;
+    gap:12px;margin:20px auto 10px;
 }
-
 .menu button{
-    border:none;
-    padding:10px 20px;
-    border-radius:999px;
-    font-size:14px;
-    font-weight:600;
-    color:#fff;
+    border:none;padding:10px 18px;border-radius:999px;
+    font-size:14px;font-weight:600;color:#fff;
     cursor:pointer;
-    background: linear-gradient(135deg, var(--blue2), var(--cyan));
-    box-shadow:0 6px 18px rgba(0,0,0,.35);
-    transition:.25s;
+    background:linear-gradient(135deg,var(--primary),var(--secondary));
 }
-
-.menu button:hover{
-    transform:translateY(-2px) scale(1.04);
-}
-
 .menu button.active{
-    background: linear-gradient(135deg, #22c55e, #16a34a);
+    background:linear-gradient(135deg,#22c55e,#16a34a);
 }
-
-/* ================= CONTAINER ================= */
-.container{
-    max-width:1100px;
-    margin:auto;
-    padding:25px;
-}
-
-/* ================= SECTION ================= */
+.container{max-width:1100px;margin:auto;padding:25px}
 .section{display:none}
-.section.active{
-    display:block;
-    animation:fade .4s ease;
-}
-
-@keyframes fade{
-    from{opacity:0; transform:translateY(10px)}
-    to{opacity:1}
-}
-
-/* ================= GRID ================= */
+.section.active{display:block}
 .grid{
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
     gap:22px;
 }
-
-/* ================= CARD ================= */
 .card{
-    padding:22px;
-    border-radius:18px;
+    padding:22px;border-radius:18px;
     background:var(--glass);
-    backdrop-filter: blur(14px);
+    backdrop-filter:blur(14px);
     border:1px solid var(--glass-border);
-    box-shadow:0 12px 30px rgba(0,0,0,.4);
-    transition:.3s;
 }
-
-.card:hover{
-    transform:translateY(-6px) scale(1.02);
-    box-shadow:0 22px 45px rgba(0,0,0,.55);
-}
-
 .card a{
-    display:inline-block;
-    margin-top:15px;
-    padding:10px 18px;
-    border-radius:10px;
-    font-weight:600;
-    color:#fff;
-    text-decoration:none;
-    background: linear-gradient(135deg, var(--blue2), var(--cyan));
+    display:inline-block;margin-top:15px;
+    padding:10px 18px;border-radius:10px;
+    font-weight:600;color:#fff;text-decoration:none;
+    background:linear-gradient(135deg,var(--primary),var(--secondary));
 }
-
-/* ================= FOOTER ================= */
-.footer{
-    text-align:center;
-    font-size:13px;
-    opacity:.8;
-    margin:35px 0 20px;
-}
+.footer{text-align:center;font-size:13px;opacity:.8;margin:35px 0 20px}
 </style>
 </head>
 
 <body>
 
 <header class="top-header">
-    <div class="header-left">
-        <img src="assets/logo.jpg" alt="Logo">
-        <div>
-            <h1>Tools Aplikasi Sekolah</h1>
-            <p>Versi 1.0 · Build 13 Desember 2025 · Dev by MB</p>
-        </div>
+    <img src="assets/logo.jpg">
+    <div>
+        <h1>Tools Aplikasi Sekolah</h1>
+        <p>Versi 1.0 · Build 13 Desember 2025 · Dev by MB</p>
     </div>
 </header>
 
@@ -244,93 +105,94 @@ body{
 
 <!-- PENILAIAN -->
 <div id="rapor" class="section active">
-    <div class="grid">
-        <div class="card">
-            <h3>📝 e-Rapor</h3>
-            <p>Pengelolaan e-Rapor siswa.</p>
-            <a href="#">Buka Aplikasi</a>
-        </div>
-    </div>
+<div class="grid">
+<div class="card">
+<h3>📝 e-Rapor</h3>
+<p>Pengelolaan e-Rapor siswa.</p>
+<a href="tools/erapor.html" target="_blank" rel="noopener">Buka Aplikasi</a>
+</div>
+
+<div class="card">
+<h3>📊 Analisis Nilai</h3>
+<p>Analisis hasil belajar siswa.</p>
+<a href="tools/analisisnilai.html" target="_blank" rel="noopener">Buka Aplikasi</a>
+</div>
+
+<div class="card">
+<h3>🧠 Penilaian Karakter</h3>
+<p>Analisis karakter berbasis rapor.</p>
+<a href="https://yanuar-moga.github.io/tools/char2.html" target="_blank" rel="noopener">Buka Aplikasi</a>
+</div>
+</div>
 </div>
 
 <!-- DATA SISWA -->
 <div id="siswa" class="section">
-    <div class="grid">
-        <div class="card">
-            <h3>👥 Data Induk Siswa</h3>
-            <p>Manajemen data dan identitas siswa.</p>
-            <a href="#">Buka Aplikasi</a>
-        </div>
+<div class="grid">
+<div class="card">
+<h3>🔐 Akun Belajar</h3>
+<p>Manajemen akun belajar siswa.</p>
+<a href="tools/akunbelajar.html" target="_blank" rel="noopener">Buka Aplikasi</a>
+</div>
 
-        <div class="card">
-            <h3>🔐 Akun Belajar</h3>
-            <p>Pengelolaan akun belajar.id.</p>
-            <a href="#">Buka Aplikasi</a>
-        </div>
+<div class="card">
+<h3>🔎 Cocokkan Data</h3>
+<p>Pencocokan data Google Form.</p>
+<a href="tools/cocokin.html" target="_blank" rel="noopener">Buka Aplikasi</a>
+</div>
 
-        <div class="card">
-            <h3>📋 Absensi</h3>
-            <p>Rekap dan monitoring kehadiran.</p>
-            <a href="#">Buka Aplikasi</a>
-        </div>
-    </div>
+<div class="card">
+<h3>🧩 Split Dapodik</h3>
+<p>Pemisahan data per rombel.</p>
+<a href="tools/splitxldapodik.html" target="_blank" rel="noopener">Buka Aplikasi</a>
+</div>
+</div>
 </div>
 
 <!-- GOOGLE SHEET -->
 <div id="gsheet" class="section">
-    <div class="grid">
-        <div class="card">
-            <h3>📄 Nilai per Kelas</h3>
-            <p>Rekap nilai dari Google Sheet.</p>
-            <a href="#">Buka Aplikasi</a>
-        </div>
+<div class="grid">
+<div class="card">
+<h3>📄 Nilai per Kelas</h3>
+<p>Rekap nilai dari Google Sheet.</p>
+<a href="tools/nilaiperkelasgsheet.html" target="_blank" rel="noopener">Buka Aplikasi</a>
+</div>
 
-        <div class="card">
-            <h3>⚡ Input Nilai Cepat</h3>
-            <p>Input nilai langsung tanpa Excel.</p>
-            <a href="#">Buka Aplikasi</a>
-        </div>
+<div class="card">
+<h3>⚡ Nilai Direct</h3>
+<p>Input nilai tanpa Excel.</p>
+<a href="tools/nilaiperkelasgsheetdirect.html" target="_blank" rel="noopener">Buka Aplikasi</a>
+</div>
 
-        <div class="card">
-            <h3>🔄 Sinkron GForm</h3>
-            <p>Sinkronisasi nilai Google Form.</p>
-            <a href="#">Buka Aplikasi</a>
-        </div>
-    </div>
+<div class="card">
+<h3>🔄 Sync GForm</h3>
+<p>Sinkronisasi nilai Google Form.</p>
+<a href="tools/sync_nilaisiswa_gform.html" target="_blank" rel="noopener">Buka Aplikasi</a>
+</div>
+</div>
 </div>
 
 <!-- LAB -->
 <div id="lab" class="section">
-    <div class="grid">
-        <div class="card">
-            <h3>💻 Inventaris Lab</h3>
-            <p>Manajemen perangkat laboratorium.</p>
-            <a href="#">Buka Aplikasi</a>
-        </div>
-
-        <div class="card">
-            <h3>🧹 Optimasi PC Lab</h3>
-            <p>Tools optimasi komputer lab.</p>
-            <a href="#">Buka Aplikasi</a>
-        </div>
-    </div>
+<div class="grid">
+<div class="card">
+<h3>📦 Inventaris Lab</h3>
+<p>Data inventaris laboratorium.</p>
+<a href="tools/inventarislab2.html" target="_blank" rel="noopener">Buka Aplikasi</a>
+</div>
+</div>
 </div>
 
 </div>
 
-<div class="footer">
-© 2026 MB · All Rights Reserved
-</div>
+<div class="footer">© 2026 MB · All Rights Reserved</div>
 
 <script>
-function showSection(id, btn){
-    document.querySelectorAll('.section')
-      .forEach(s=>s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-
-    document.querySelectorAll('.menu button')
-      .forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
+function showSection(id,btn){
+document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+document.querySelectorAll('.menu button').forEach(b=>b.classList.remove('active'));
+btn.classList.add('active');
 }
 </script>
 
