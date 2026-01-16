@@ -2,27 +2,37 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Dashboard Inventaris Lab 2</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Inventaris Laptop Lab 2</title>
 
 <style>
-body{margin:0;font-family:Calibri;background:#f4f7fb}
-.top-header{display:flex;gap:15px;align-items:center;background:#2563eb;padding:15px;color:#fff}
-.top-header img{width:50px;height:50px;border-radius:10px;background:#fff}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;padding:15px}
-.card{background:#fff;padding:12px;border-radius:10px;border-left:5px solid #2563eb;box-shadow:0 3px 8px rgba(0,0,0,.15)}
-.container{display:flex;flex-wrap:wrap;gap:20px;padding:15px}
-#map{display:grid;grid-template-columns:repeat(11,55px);gap:6px}
-.meja{height:45px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:bold;cursor:pointer}
-.normal{background:#16a34a;color:#fff}
-.ringan{background:#facc15}
-.berat{background:#dc2626;color:#fff}
-.empty{background:transparent}
-#detail{flex:1;min-width:280px;background:#fff;border-radius:10px;padding:15px;box-shadow:0 3px 10px rgba(0,0,0,.25)}
-#detail img{width:150px;display:block;margin:auto}
-textarea{width:100%;margin-top:6px}
-button{margin-top:6px;background:#2563eb;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer}
-.info{background:#fff;margin:15px;padding:12px;border-radius:10px;box-shadow:0 3px 8px rgba(0,0,0,.15)}
+body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:#f1f5f9;}
+.top-header{display:flex;gap:15px;align-items:center;background:#2563eb;padding:15px 20px;color:#fff;border-radius:0 0 15px 15px;}
+.top-header img{height:50px;width:50px;border-radius:10px;background:#fff;}
+.top-header h1{margin:0;font-size:20px;}
+.top-header p{margin:0;font-size:12px;color:#e0e7ff;}
+.container{padding:20px;max-width:1300px;margin:auto;}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:15px;margin-bottom:20px;}
+.card{background:#fff;padding:15px;border-radius:14px;box-shadow:0 4px 10px rgba(0,0,0,.08);}
+.card h3{margin:0;font-size:14px;color:#64748b;}
+.card span{font-size:28px;font-weight:700;}
+.main{display:grid;grid-template-columns:1fr 360px;gap:20px;}
+@media(max-width:768px){.main{grid-template-columns:1fr;}}
+.map-box{background:#fff;padding:20px;border-radius:16px;box-shadow:0 4px 10px rgba(0,0,0,.1);}
+.map-grid{display:grid;grid-template-columns:repeat(11,55px);gap:8px;}
+.meja{width:55px;height:55px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:600;cursor:pointer;}
+.normal{background:#22c55e;color:#fff;}
+.ringan{background:#facc15;}
+.berat{background:#ef4444;color:#fff;}
+.kosong{visibility:hidden;}
+.peripheral-info{margin-top:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;}
+.info-card{background:#f8fafc;padding:15px;border-radius:12px;border-left:6px solid #2563eb;}
+.info-card h4{margin:0 0 5px;font-size:14px;color:#1e293b;}
+.info-card span{font-size:13px;color:#475569;}
+.detail{background:#fff;padding:20px;border-radius:16px;box-shadow:0 4px 10px rgba(0,0,0,.1);}
+.detail img{width:100%;max-width:220px;display:block;margin:10px auto;}
+.detail h3{margin-top:0;border-left:6px solid #2563eb;padding-left:10px;}
+.detail small{color:#64748b;}
 </style>
 </head>
 
@@ -31,36 +41,56 @@ button{margin-top:6px;background:#2563eb;color:#fff;border:none;padding:8px 12px
 <header class="top-header">
   <img src="assets/logo.jpg">
   <div>
-    <h2>Inventaris Lab Komputer 2</h2>
-    <small>Dashboard Guru Lab</small>
+    <h1>Dashboard Inventaris Laptop</h1>
+    <p>Lab Komputer 2</p>
   </div>
 </header>
 
-<section class="cards">
-  <div class="card">Total <b id="total">-</b></div>
-  <div class="card">Normal <b id="normal">-</b></div>
-  <div class="card">Rusak Ringan <b id="ringan">-</b></div>
-  <div class="card">Rusak Berat <b id="berat">-</b></div>
-</section>
+<div class="container">
 
-<section class="container">
-  <div id="map"></div>
-  <div id="detail">Klik nomor meja</div>
-</section>
+<div class="summary">
+  <div class="card"><h3>Total Laptop</h3><span id="total">0</span></div>
+  <div class="card"><h3>Normal</h3><span id="normal">0</span></div>
+  <div class="card"><h3>Rusak Ringan</h3><span id="ringan">0</span></div>
+  <div class="card"><h3>Rusak Berat</h3><span id="berat">0</span></div>
+</div>
 
-<section class="info">
-  <b>Perangkat Pendukung</b><br>
-  Mouse tersedia: <span id="mouseAda"></span><br>
-  Mouse kurang: <span id="mouseKurang"></span><br><br>
-  Keyboard tersedia: <span id="keyAda"></span><br>
-  Keyboard kurang: <span id="keyKurang"></span>
-</section>
+<div class="main">
+
+<div class="map-box">
+<h3>Denah Meja Laptop</h3>
+<div class="map-grid" id="mapGrid"></div>
+
+<div class="peripheral-info">
+  <div class="info-card">
+    <h4>🖱 Mouse</h4>
+    <span>Tersedia: <b id="mouseAda">0</b></span><br>
+    <span>Kebutuhan: <b id="mouseNeed">0</b></span>
+  </div>
+  <div class="info-card">
+    <h4>⌨ Keyboard</h4>
+    <span>Tersedia: <b id="keyboardAda">0</b></span><br>
+    <span>Kebutuhan: <b id="keyboardNeed">0</b></span>
+  </div>
+</div>
+</div>
+
+<div class="detail" id="detailBox">
+<small>Klik nomor meja untuk melihat detail</small>
+</div>
+
+</div>
+</div>
 
 <script>
-const SHEET_ID="1QJkDbPf0x1vIyq-htJXrsZiLoRd6oghgBFouQHlZpM0";
-const INV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=INV`;
-const GAS_URL="https://script.google.com/macros/s/AKfycbwVMfHVBWjbgyLX3yUjFFKhebLLO0iTEEiGaY4_Q8Wx3LZUnvYNs8AbJ4W_4h1BVCCI/exec";
+/* ===== KONFIGURASI FINAL ===== */
+const SHEET_ID = "1QJkDbPf0x1vIyq-htJXrsZiLoRd6oghgBFouQHlZpM0";
+const INV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=INV`;
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwVMfHVBWjbgyLX3yUjFFKhebLLO0iTEEiGaY4_Q8Wx3LZUnvYNs8AbJ4W_4h1BVCCI/exec";
 
+let INV=[], LOGS=[];
+
+/* DENAH SESUAI MAP */
 const DENAH=[
  [22,21,20,19,18,17,"",4,3,2,1],
  [28,27,26,25,24,23,"",8,7,6,5],
@@ -68,85 +98,97 @@ const DENAH=[
  [40,39,38,37,36,35,"",16,15,14,13]
 ];
 
-let INV=[], LOGS=[];
-
 Promise.all([
  fetch(INV_URL).then(r=>r.text()),
- fetch(GAS_URL).then(r=>r.json())
+ fetch(GAS_URL).then(r=>r.json()).catch(()=>[])
 ]).then(([t,l])=>{
  const j=JSON.parse(t.substring(47,t.length-2));
  const h=j.table.cols.map(c=>c.label);
  INV=j.table.rows.map(r=>{
-   let o={};r.c.forEach((c,i)=>o[h[i]]=c?c.v:"");return o;
+  let o={}; r.c.forEach((c,i)=>o[h[i]]=c?c.v:""); return o;
  });
- LOGS=l;
- renderAll();
+ LOGS=l||[];
+ renderSummary(); renderMap(); renderPeripheral();
 });
 
-function renderAll(){
+function renderSummary(){
  total.textContent=INV.length;
- normal.textContent=INV.filter(i=>i.Kondisi=="Normal").length;
- ringan.textContent=INV.filter(i=>i.Kondisi=="Rusak Ringan").length;
- berat.textContent=INV.filter(i=>i.Kondisi=="Rusak Berat").length;
+ normal.textContent=INV.filter(i=>i.Kondisi==="Normal").length;
+ ringan.textContent=INV.filter(i=>i.Kondisi==="Rusak Ringan").length;
+ berat.textContent=INV.filter(i=>i.Kondisi==="Rusak Berat").length;
+}
 
- mouseAda.textContent=INV.filter(i=>i.Mouse=="Ada").length;
- mouseKurang.textContent=INV.length-mouseAda.textContent;
- keyAda.textContent=INV.filter(i=>i.Keyboard=="Ada").length;
- keyKurang.textContent=INV.length-keyAda.textContent;
-
- renderMap();
+function renderPeripheral(){
+ const t=INV.length;
+ const m=INV.filter(i=>(i.Mouse||"").toLowerCase()==="ada").length;
+ const k=INV.filter(i=>(i.Keyboard||"").toLowerCase()==="ada").length;
+ mouseAda.textContent=m; mouseNeed.textContent=t-m;
+ keyboardAda.textContent=k; keyboardNeed.textContent=t-k;
 }
 
 function renderMap(){
- map.innerHTML="";
- DENAH.forEach(r=>r.forEach(n=>{
-  let d=document.createElement("div");
-  if(n===""){d.className="meja empty";map.appendChild(d);return;}
-  let i=INV.find(x=>String(x["NO MEJA"])===String(n));
-  let c="normal";
-  if(i?.Kondisi=="Rusak Ringan")c="ringan";
-  if(i?.Kondisi=="Rusak Berat")c="berat";
-  d.className=`meja ${c}`;
-  d.textContent=n;
-  if(i)d.onclick=()=>detail(i);
-  map.appendChild(d);
- }));
+ mapGrid.innerHTML="";
+ DENAH.forEach(r=>{
+  r.forEach(n=>{
+   const d=document.createElement("div");
+   if(n===""){d.className="meja kosong";mapGrid.appendChild(d);return;}
+   const i=INV.find(x=>String(x["NO MEJA"])===String(n));
+   let c="normal";
+   if(i){
+    if(i.Kondisi==="Rusak Ringan")c="ringan";
+    if(i.Kondisi==="Rusak Berat")c="berat";
+   }
+   d.className=`meja ${c}`;
+   d.textContent=n;
+   if(i)d.onclick=()=>showDetail(i);
+   mapGrid.appendChild(d);
+  });
+ });
 }
 
-function detail(i){
- let img=i["Merek / Tipe"].toLowerCase().includes("axio")
- ? "https://yanuar-moga.github.io/escape/assets/AXIO_L19B.png"
- : "https://yanuar-moga.github.io/escape/assets/LENOVO_IDEAPAD_110_14LBR.png";
+function showDetail(i){
+ const tipe=(i["Merek / Tipe"]||"").toLowerCase();
+ let img="https://yanuar-moga.github.io/escape/assets/LENOVO_IDEAPAD_110_14LBR.png";
+ if(tipe.includes("axio")) img="https://yanuar-moga.github.io/escape/assets/AXIO_L19B.png";
 
- let logs=LOGS.filter(l=>l["No Meja"]==i["NO MEJA"]);
+ const logs=LOGS.filter(l=>String(l["No Meja"])===String(i["NO MEJA"]));
 
- document.getElementById("detail").innerHTML=`
- <h3>Meja ${i["NO MEJA"]}</h3>
+ detailBox.innerHTML=`
+ <h3>Detail Nomor Meja ${i["NO MEJA"]}</h3>
  <img src="${img}">
- <b>No Inventaris:</b> ${i["No Inventaris"]}<br>
- <b>Merek:</b> ${i["Merek / Tipe"]}<br>
- <b>Processor:</b> ${i.Processor}<br>
- <b>RAM:</b> ${i.RAM}<br>
- <b>Storage:</b> ${i.Storage}<br>
- <b>OS:</b> ${i.OS}<br><br>
-
- <textarea id="catatan" placeholder="Catatan..."></textarea>
- <button onclick="save('${i["NO MEJA"]}','${i["No Inventaris"]}','${i["Merek / Tipe"]}')">Simpan</button>
+ <b>No Inventaris:</b> ${i["No Inventaris"]||"-"}<br>
+ <b>Merek / Tipe:</b> ${i["Merek / Tipe"]||"-"}<br>
+ <b>Processor:</b> ${i.Processor||"-"}<br>
+ <b>RAM:</b> ${i.RAM||"-"}<br>
+ <b>Storage:</b> ${i.Storage||"-"}<br>
+ <b>Layar:</b> ${i.Layar||"-"}<br>
+ <b>OS:</b> ${i.OS||"-"}<br><br>
+ <b>Kondisi:</b> ${i.Kondisi||"-"}<br>
+ <b>Keterangan:</b> ${i.Keterangan||"-"}<br><br>
 
  <hr>
- ${logs.map(l=>`<small>${new Date(l.Timestamp).toLocaleString()}<br>${l.Catatan}</small><hr>`).join("")}
+ <b>📝 Catatan Admin</b>
+ <textarea id="catatan" style="width:100%;height:70px"></textarea>
+ <button onclick="saveLog('${i["NO MEJA"]}','${i["No Inventaris"]}','${i["Merek / Tipe"]}')">Simpan Catatan</button>
+
+ <hr>
+ <b>📜 Riwayat Catatan</b>
+ ${logs.length?logs.map(l=>`
+ <div style="font-size:12px;background:#f1f5f9;padding:6px;margin:5px 0">
+  <b>${new Date(l.Timestamp).toLocaleString()}</b><br>${l.Catatan}
+ </div>`).join(""):"<small>Belum ada catatan</small>"}
  `;
 }
 
-function save(m,i,t){
- let c=document.getElementById("catatan").value;
- if(!c)return alert("Kosong");
-
+function saveLog(noMeja,noInv,merek){
+ const catatan=document.getElementById("catatan").value;
+ if(!catatan)return alert("Catatan kosong");
  fetch(GAS_URL,{
   method:"POST",
-  body:JSON.stringify({noMeja:m,noInventaris:i,merek:t,catatan:c})
- }).then(()=>location.reload());
+  body:JSON.stringify({noMeja,noInventaris:noInv,merek,catatan})
+ }).then(()=>{alert("Catatan tersimpan");location.reload();});
 }
 </script>
+
 </body>
 </html>
