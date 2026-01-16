@@ -11,8 +11,6 @@ body{
     font-family:"Segoe UI",Arial,sans-serif;
     background:#f1f5f9;
 }
-
-/* HEADER */
 .top-header{
     display:flex;
     align-items:center;
@@ -29,14 +27,11 @@ body{
 }
 .top-header h1{margin:0;font-size:20px;}
 .top-header p{margin:0;font-size:12px;color:#e0e7ff;}
-
 .container{
     padding:20px;
     max-width:1300px;
     margin:auto;
 }
-
-/* SUMMARY */
 .summary{
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
@@ -51,8 +46,6 @@ body{
 }
 .card h3{margin:0;font-size:14px;color:#64748b;}
 .card span{font-size:28px;font-weight:700;}
-
-/* MAIN GRID */
 .main{
     display:grid;
     grid-template-columns:1fr 360px;
@@ -61,8 +54,6 @@ body{
 @media(max-width:768px){
     .main{grid-template-columns:1fr;}
 }
-
-/* MAP */
 .map-box{
     background:#fff;
     padding:20px;
@@ -87,8 +78,6 @@ body{
 .ringan{background:#facc15;}
 .berat{background:#ef4444;color:#fff;}
 .kosong{visibility:hidden;}
-
-/* INFO PERANGKAT */
 .peripheral-info{
     margin-top:20px;
     display:grid;
@@ -101,8 +90,6 @@ body{
     border-radius:12px;
     border-left:6px solid #2563eb;
 }
-
-/* DETAIL */
 .detail{
     background:#fff;
     padding:20px;
@@ -115,8 +102,6 @@ body{
     display:block;
     margin:10px auto;
 }
-
-/* TABLE LOG */
 table{width:100%;border-collapse:collapse;font-size:13px}
 th,td{border:1px solid #e5e7eb;padding:6px}
 th{background:#f1f5f9}
@@ -248,12 +233,10 @@ function renderMap(){
 }
 
 function showDetail(i){
- const tipe=(i["Merek / Tipe"]||"").toLowerCase();
  let img="https://yanuar-moga.github.io/escape/assets/LENOVO_IDEAPAD_110_14LBR.png";
- if(tipe.includes("axio")||tipe.includes("chrome")){
+ if((i["Merek / Tipe"]||"").toLowerCase().includes("axio")){
    img="https://yanuar-moga.github.io/escape/assets/AXIO_L19B.png";
  }
-
  detailBox.innerHTML=`
  <h3>Detail Meja ${i["NO MEJA"]}</h3>
  <img src="${img}">
@@ -269,46 +252,34 @@ function showDetail(i){
 
  <b>📝 Catatan</b>
  <textarea id="catatan"></textarea>
- <button onclick="saveLog('${i["NO MEJA"]}','${i["No Inventaris"]}','${i["Merek / Tipe"]}')">Simpan Catatan</button>
+ <button onclick="saveLog('${i["NO MEJA"]}','${i["No Inventaris"]}','${i["Merek / Tipe"]}')">
+ Simpan Catatan</button>
  `;
 }
 
 function saveLog(noMeja,noInv,merek){
-  const catatan = document.getElementById("catatan").value.trim();
-  if(!catatan){
-    alert("Catatan kosong");
-    return;
-  }
-
-  const data = new URLSearchParams();
-  data.append("noMeja", noMeja);
-  data.append("noInventaris", noInv);
-  data.append("merek", merek);
-  data.append("catatan", catatan);
-
-  fetch(GAS_URL,{
-    method:"POST",
-    body:data
-  })
-  .then(r=>r.text())
-  .then(()=>{
-    alert("Catatan tersimpan");
-    document.getElementById("catatan").value="";
-    fetch(GAS_URL).then(r=>r.json()).then(renderLog);
-  })
-  .catch(err=>{
-    alert("Gagal koneksi");
-    console.error(err);
-  });
+ const catatan=document.getElementById("catatan").value.trim();
+ if(!catatan){alert("Catatan kosong");return;}
+ const data=new URLSearchParams({noMeja,noInventaris:noInv,merek,catatan});
+ fetch(GAS_URL,{method:"POST",body:data})
+ .then(()=>fetch(GAS_URL).then(r=>r.json()).then(renderLog));
 }
 
+/* ===== FORMAT TANGGAL INDONESIA (FIX UTAMA) ===== */
+function formatTanggalID(iso){
+ const d=new Date(iso);
+ if(isNaN(d))return iso;
+ const hari=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+ const bulan=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+ return `${hari[d.getDay()]}, ${String(d.getDate()).padStart(2,"0")} ${bulan[d.getMonth()]} ${d.getFullYear()} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}:${String(d.getSeconds()).padStart(2,"0")}`;
+}
 
 function renderLog(logs){
  logTable.innerHTML="";
  logs.reverse().slice(0,20).forEach(l=>{
   logTable.innerHTML+=`
   <tr>
-   <td>${l.TANGGAL}</td>
+   <td>${formatTanggalID(l.TANGGAL)}</td>
    <td>${l["NO MEJA"]}</td>
    <td>${l["NO INVENTARIS"]}</td>
    <td>${l.TIPE}</td>
