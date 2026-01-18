@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Inventaris Laptop Lab 2</title>
+
+<style>
+/* ====== FIX GLOBAL ANTI SCROLL ====== */
+html, body{
+    margin:0;
+    max-width:100vw;
+    overflow-x:hidden !important;
+    font-family:"Segoe UI",Arial,sans-serif;
+    background:#f1f5f9;
+}
+
+/* HEADER (TIDAK DIUBAH) */
+.top-header{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    background:#2563eb;
+    padding:15px 20px;
+    color:#fff;
+    border-radius:0 0 15px 15px;
+}
+.top-header img{
+    height:50px;width:50px;
+    border-radius:10px;
+    background:#fff;
+}
+.top-header h1{margin:0;font-size:20px;}
+.top-header p{margin:0;font-size:12px;color:#e0e7ff;}
+
+/* ====== CONTAINER DIBUAT RESPONSIVE TANPA MELUBER ====== */
+.container{
+    padding:16px;
+    max-width:1300px;
+    margin:auto;
+    width:100%;
+    box-sizing:border-box;
+    overflow-x:hidden;
+}
+
+/* SUMMARY (TETAP SAMA, HANYA DIAMANANKAN) */
+.summary{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:15px;
+    margin-bottom:20px;
+}
+.card{
+    background:#fff;
+    padding:15px;
+    border-radius:14px;
+    box-shadow:0 4px 10px rgba(0,0,0,.08);
+}
+.card h3{margin:0;font-size:14px;color:#64748b;}
+.card span{font-size:28px;font-weight:700;}
+
+/* LAYOUT UTAMA (TETAP SAMA) */
+.main{
+    display:grid;
+    grid-template-columns:1fr 360px;
+    gap:20px;
+}
+@media(max-width:900px){
+    .main{grid-template-columns:1fr;}
+}
+
+/* MAP BOX (TETAP SAMA) */
+.map-box{
+    background:#fff;
+    padding:16px;
+    border-radius:16px;
+    box-shadow:0 4px 10px rgba(0,0,0,.1);
+    box-sizing:border-box;
+}
+
+/* ====== DENAH DIBUAT RESPONSIVE TANPA MERUSAK DESAIN ====== */
+.map-grid{
+    display:grid;
+    width:100%;
+    box-sizing:border-box;
+    gap:8px;
+    grid-template-columns: repeat(11, 55px); 
+}
+
+/* MEJA TETAP KOTAK & MIRIP ASLI */
+.meja{
+    width:100%;
+    aspect-ratio: 1/1; 
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:600;
+    cursor:pointer;
+}
+
+/* WARNA STATUS (TIDAK DIUBAH) */
+.normal{background:#22c55e;color:#fff;}
+.ringan{background:#facc15;}
+.berat{background:#ef4444;color:#fff;}
+.kosong{visibility:hidden;}
+
+/* ✅ TAMBAHAN BARU — MEJA TANPA LAPTOP */
+.tidak-ada{
+  background:#cbd5e1; 
+  color:#334155;
+}
+
+/* PERIPHERAL INFO (TETAP SAMA) */
+.peripheral-info{
+    margin-top:20px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:15px;
+}
+.info-card{
+    background:#f8fafc;
+    padding:15px;
+    border-radius:12px;
+    border-left:6px solid #2563eb;
+}
+
+/* DETAIL (TETAP SAMA) */
+.detail{
+    background:#fff;
+    padding:16px;
+    border-radius:16px;
+    box-shadow:0 4px 10px rgba(0,0,0,.1);
+}
+.detail img{
+    width:100%;
+    max-width:220px;
+    display:block;
+    margin:10px auto;
+}
+
+/* TABLE AMAN DI HP (TIDAK MERUBAH TAMPILAN) */
+table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+}
+th,td{
+    border:1px solid #e5e7eb;
+    padding:6px;
+}
+th{background:#f1f5f9}
+
+/* FORM (TETAP SAMA) */
+textarea{width:100%;height:70px}
+button{
+  background:#2563eb;
+  color:white;
+  border:none;
+  padding:8px 12px;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+/* ========================================================= */
+/* FIX FINAL RESPONSIVE */
+/* ========================================================= */
+
+.map-box{
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.map-grid{
+    min-width: 720px; 
+}
+
+@media (max-width: 600px){
+
+  .map-grid{
+    grid-template-columns: repeat(11, minmax(28px, 1fr));
+    gap: 6px;
+    min-width: 520px; 
+  }
+
+  .meja{
+    font-size: 12px;
+    border-radius: 8px;
+  }
+
+}
+</style>
+</head>
+
+<body>
+
+<header class="top-header">
+  <img src="assets/logo.jpg">
+  <div>
+    <h1>Dashboard Inventaris Laptop</h1>
+    <p>Lab Komputer 2</p>
+  </div>
+</header>
+
+<div class="container">
+
+<div class="summary">
+  <div class="card"><h3>Total Laptop</h3><span id="total">0</span></div>
+  <div class="card"><h3>Normal</h3><span id="normal">0</span></div>
+  <div class="card"><h3>Rusak Ringan</h3><span id="ringan">0</span></div>
+  <div class="card"><h3>Rusak Berat</h3><span id="berat">0</span></div>
+</div>
+
+<div class="main">
+
+<div class="map-box">
+<h3>Denah Meja Laptop</h3>
+<div class="map-grid" id="mapGrid"></div>
+
+<div class="peripheral-info">
+  <div class="info-card">
+    🖱 Mouse tersedia: <b id="mouseAda">0</b><br>
+    Mouse kurang: <b id="mouseNeed">0</b>
+  </div>
+  <div class="info-card">
+    ⌨ Keyboard tersedia: <b id="keyboardAda">0</b><br>
+    Keyboard kurang: <b id="keyboardNeed">0</b>
+  </div>
+</div>
+
+<div class="map-box" style="margin-top:20px">
+<h3>📝 Catatan Terbaru</h3>
+<table>
+<thead>
+<tr>
+<th>Tanggal</th><th>No Meja</th><th>No Inventaris</th><th>Tipe</th><th>Catatan</th>
+</tr>
+</thead>
+<tbody id="logTable"></tbody>
+</table>
+</div>
+
+</div>
+
+<div class="detail" id="detailBox">
+<small>Klik nomor meja untuk melihat detail</small>
+</div>
+
+</div>
+
+<script>
+const SHEET_ID = "1QJkDbPf0x1vIyq-htJXrsZiLoRd6oghgBFouQHlZpM0";
+const GAS_URL  = "https://script.google.com/macros/s/AKfycbwVMfHVBWjbgyLX3yUjFFKhebLLO0iTEEiGaY4_Q8Wx3LZUnvYNs8AbJ4W_4h1BVCCI/exec";
+const INV_URL  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=INV`;
+
+let INV=[];
+
+const DENAH=[
+ [22,21,20,19,18,17,"",4,3,2,1],
+ [28,27,26,25,24,23,"",8,7,6,5],
+ [34,33,32,31,30,29,"",12,11,10,9],
+ [40,39,38,37,36,35,"",16,15,14,13]
+];
+
+fetch(INV_URL)
+.then(r=>r.text())
+.then(t=>{
+ const j=JSON.parse(t.substring(47,t.length-2));
+ const h=j.table.cols.map(c=>c.label);
+ INV=j.table.rows.map(r=>{
+   let o={}; r.c.forEach((c,i)=>o[h[i]]=c?c.v:""); return o;
+ });
+ renderSummary(); renderMap(); renderPeripheral();
+});
+
+fetch(GAS_URL).then(r=>r.json()).then(renderLog);
+
+function renderSummary(){
+ total.textContent=INV.length;
+ normal.textContent=INV.filter(i=>i.Kondisi==="Normal").length;
+ ringan.textContent=INV.filter(i=>i.Kondisi==="Rusak Ringan").length;
+ berat.textContent=INV.filter(i=>i.Kondisi==="Rusak Berat").length;
+}
+
+function renderPeripheral(){
+ const t=INV.length;
+ const m=INV.filter(i=>(i.Mouse||"").toLowerCase()==="ada").length;
+ const k=INV.filter(i=>(i.Keyboard||"").toLowerCase()==="ada").length;
+ mouseAda.textContent=m; keyboardAda.textContent=k;
+ mouseNeed.textContent=t-m; keyboardNeed.textContent=t-k;
+}
+
+/* ✅ PERBAIKAN UTAMA: MEJA TANPA LAPTOP = ABU-ABU */
+function renderMap(){
+ mapGrid.innerHTML="";
+ DENAH.flat().forEach(n=>{
+
+  const d=document.createElement("div");
+
+  if(n===""){
+    d.className="meja kosong";
+    mapGrid.appendChild(d);
+    return;
+  }
+
+  const i = INV.find(x=>String(x["NO MEJA"])===String(n));
+
+  if(!i){
+    d.className="meja tidak-ada";
+    d.textContent = n;
+    d.onclick = ()=>showDetail(null, n);
+    mapGrid.appendChild(d);
+    return;
+  }
+
+  let c="normal";
+  if(i.Kondisi==="Rusak Ringan")c="ringan";
+  if(i.Kondisi==="Rusak Berat")c="berat";
+
+  d.className=`meja ${c}`;
+  d.textContent=n;
+  d.onclick=()=>showDetail(i);
+  mapGrid.appendChild(d);
+ });
+}
+
+/* ✅ PERBAIKAN DETAIL: TANPA GAMBAR JIKA TIDAK ADA LAPTOP */
+function showDetail(i, noMeja){
+
+ if(!i){
+  detailBox.innerHTML = `
+   <h3>Detail Meja ${noMeja}</h3>
+   <div style="padding:20px;text-align:center;color:#64748b;">
+     <b>❌ TIDAK ADA LAPTOP DI MEJA INI</b>
+   </div>
+  `;
+  return;
+ }
+
+ let img="https://yanuar-moga.github.io/escape/assets/LENOVO_IDEAPAD_110_14LBR.png";
+ if((i["Merek / Tipe"]||"").toLowerCase().includes("axio")){
+   img="https://yanuar-moga.github.io/escape/assets/AXIO_L19B.png";
+ }
+
+ detailBox.innerHTML=`
+ <h3>Detail Meja ${i["NO MEJA"]}</h3>
+ <img src="${img}">
+ <b>No Inventaris:</b> ${i["No Inventaris"]||"-"}<br>
+ <b>Merek / Tipe:</b> ${i["Merek / Tipe"]||"-"}<br>
+ <b>Processor:</b> ${i.Processor||"-"}<br>
+ <b>RAM:</b> ${i.RAM||"-"}<br>
+ <b>Storage:</b> ${i.Storage||"-"}<br>
+ <b>Layar:</b> ${i.Layar||"-"}<br>
+ <b>OS:</b> ${i.OS||"-"}<br><br>
+ <b>Kondisi:</b> ${i.Kondisi||"-"}<br>
+ <b>Keterangan:</b> ${i.Keterangan||"-"}<br><br>
+
+ <b>📝 Catatan</b>
+ <textarea id="catatan"></textarea>
+ <button onclick="saveLog('${i["NO MEJA"]}','${i["No Inventaris"]}','${i["Merek / Tipe"]}')">
+ Simpan Catatan</button>
+ `;
+}
+
+function saveLog(noMeja,noInv,merek){
+ const catatan=document.getElementById("catatan").value.trim();
+ if(!catatan){alert("Catatan kosong");return;}
+ const data=new URLSearchParams({noMeja,noInventaris:noInv,merek,catatan});
+ fetch(GAS_URL,{method:"POST",body:data})
+ .then(()=>fetch(GAS_URL).then(r=>r.json()).then(renderLog));
+}
+
+function formatTanggalID(iso){
+ const d=new Date(iso);
+ if(isNaN(d))return iso;
+ const hari=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+ const bulan=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+ return `${hari[d.getDay()]}, ${String(d.getDate()).padStart(2,"0")} ${bulan[d.getMonth()]} ${d.getFullYear()} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}:${String(d.getSeconds()).padStart(2,"0")}`;
+}
+
+function renderLog(logs){
+ logTable.innerHTML="";
+ logs.reverse().slice(0,20).forEach(l=>{
+  logTable.innerHTML+=`
+  <tr>
+   <td>${formatTanggalID(l.TANGGAL)}</td>
+   <td>${l["NO MEJA"]}</td>
+   <td>${l["NO INVENTARIS"]}</td>
+   <td>${l.TIPE}</td>
+   <td>${l.CATATAN}</td>
+  </tr>`;
+ });
+}
+</script>
+
+</body>
+</html>
