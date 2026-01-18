@@ -84,13 +84,13 @@ html, body{
     width:100%;
     box-sizing:border-box;
     gap:8px;
-    grid-template-columns: repeat(11, 55px); /* ← DISAMAKAN DENGAN UKURAN ASLI */
+    grid-template-columns: repeat(11, 55px); 
 }
 
 /* MEJA TETAP KOTAK & MIRIP ASLI */
 .meja{
     width:100%;
-    aspect-ratio: 1/1; /* tetap kotak */
+    aspect-ratio: 1/1; 
     border-radius:10px;
     display:flex;
     align-items:center;
@@ -104,6 +104,12 @@ html, body{
 .ringan{background:#facc15;}
 .berat{background:#ef4444;color:#fff;}
 .kosong{visibility:hidden;}
+
+/* ✅ TAMBAHAN BARU — MEJA TANPA LAPTOP */
+.tidak-ada{
+  background:#cbd5e1; 
+  color:#334155;
+}
 
 /* PERIPHERAL INFO (TETAP SAMA) */
 .peripheral-info{
@@ -157,31 +163,26 @@ button{
 }
 
 /* ========================================================= */
-/* ✅ FIX FINAL: MEJA LEBIH KECIL DI HP + TIDAK TERPOTONG */
+/* FIX FINAL RESPONSIVE */
 /* ========================================================= */
 
-/* Scroll hanya di dalam kotak denah, BUKAN halaman */
 .map-box{
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
 }
 
-/* Desktop tetap rapi dan tidak berubah */
 .map-grid{
     min-width: 720px; 
 }
 
-/* ======== KHUSUS HP ======== */
 @media (max-width: 600px){
 
-  /* Meja menyusut otomatis di HP */
   .map-grid{
     grid-template-columns: repeat(11, minmax(28px, 1fr));
     gap: 6px;
     min-width: 520px; 
   }
 
-  /* Angka meja lebih kecil biar proporsional */
   .meja{
     font-size: 12px;
     border-radius: 8px;
@@ -289,27 +290,58 @@ function renderPeripheral(){
  mouseNeed.textContent=t-m; keyboardNeed.textContent=t-k;
 }
 
+/* ✅ PERBAIKAN UTAMA: MEJA TANPA LAPTOP = ABU-ABU */
 function renderMap(){
  mapGrid.innerHTML="";
  DENAH.flat().forEach(n=>{
+
   const d=document.createElement("div");
-  if(n===""){d.className="meja kosong";mapGrid.appendChild(d);return;}
-  const i=INV.find(x=>String(x["NO MEJA"])===String(n));
+
+  if(n===""){
+    d.className="meja kosong";
+    mapGrid.appendChild(d);
+    return;
+  }
+
+  const i = INV.find(x=>String(x["NO MEJA"])===String(n));
+
+  if(!i){
+    d.className="meja tidak-ada";
+    d.textContent = n;
+    d.onclick = ()=>showDetail(null, n);
+    mapGrid.appendChild(d);
+    return;
+  }
+
   let c="normal";
-  if(i?.Kondisi==="Rusak Ringan")c="ringan";
-  if(i?.Kondisi==="Rusak Berat")c="berat";
+  if(i.Kondisi==="Rusak Ringan")c="ringan";
+  if(i.Kondisi==="Rusak Berat")c="berat";
+
   d.className=`meja ${c}`;
   d.textContent=n;
-  if(i)d.onclick=()=>showDetail(i);
+  d.onclick=()=>showDetail(i);
   mapGrid.appendChild(d);
  });
 }
 
-function showDetail(i){
+/* ✅ PERBAIKAN DETAIL: TANPA GAMBAR JIKA TIDAK ADA LAPTOP */
+function showDetail(i, noMeja){
+
+ if(!i){
+  detailBox.innerHTML = `
+   <h3>Detail Meja ${noMeja}</h3>
+   <div style="padding:20px;text-align:center;color:#64748b;">
+     <b>❌ TIDAK ADA LAPTOP DI MEJA INI</b>
+   </div>
+  `;
+  return;
+ }
+
  let img="https://yanuar-moga.github.io/escape/assets/LENOVO_IDEAPAD_110_14LBR.png";
  if((i["Merek / Tipe"]||"").toLowerCase().includes("axio")){
    img="https://yanuar-moga.github.io/escape/assets/AXIO_L19B.png";
  }
+
  detailBox.innerHTML=`
  <h3>Detail Meja ${i["NO MEJA"]}</h3>
  <img src="${img}">
