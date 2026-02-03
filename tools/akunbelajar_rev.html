@@ -55,7 +55,7 @@ th,td{border:1px solid #777;padding:6px}
 
 <br><br>
 
-<button onclick="proses()">🔍 Cocokkan</button>
+<button onclick="proses()">📂 Load Data</button>
 <button onclick="toggleDark()">🌙 Dark Mode</button>
 
 <div class="progress" id="progressBar">
@@ -201,9 +201,7 @@ function downloadExcel(){
  XLSX.writeFile(wb,"Akun_Belajar.xlsx");
 }
 
-/* ======================= */
-/* === PDF SUDAH FIX === */
-/* ======================= */
+/* ===== PDF FINAL (TITIK DUA LURUS) ===== */
 function downloadPDF(){
  const {jsPDF}=window.jspdf;
  let doc=new jsPDF("p","mm","a4");
@@ -215,24 +213,27 @@ function downloadPDF(){
 
  let x=10,y=10,w=90,h=45;
  let padding=4;
- let maxWidth = w - (padding*2);
+ let labelWidth=28;
+ let valueX=x+padding+labelWidth+2;
+ let maxWidth=w-padding*2-labelWidth-2;
 
  p.forEach((r,i)=>{
   doc.rect(x,y,w,h);
-  let lineY = y + 8;
+  let lineY=y+8;
 
-  function tulis(teks){
-    let t = doc.splitTextToSize(teks, maxWidth);
-    doc.text(t, x+padding, lineY);
-    lineY += t.length * 5;
+  function baris(label,value){
+    doc.text(label, x+padding, lineY);
+    let t=doc.splitTextToSize(value,maxWidth);
+    doc.text(t, valueX, lineY);
+    lineY+=t.length*5;
   }
 
-  tulis(`Nama : ${r.Nama}`);
-  tulis(`Kelas : ${r.Kelas}`);
-  tulis(`Username : ${r.Akun}`);
-  tulis(`Password : ${r.Password}`);
-  tulis(`Email Guru : ${emailGuru.value}`);
-  tulis(`Website : ${webGuru.value}`);
+  baris("Nama",r.Nama);
+  baris("Kelas",r.Kelas);
+  baris("Username",r.Akun);
+  baris("Password",r.Password);
+  baris("Email Guru",emailGuru.value);
+  baris("Website",webGuru.value);
 
   x+=w+5;
   if((i+1)%2===0){x=10;y+=h+6}
