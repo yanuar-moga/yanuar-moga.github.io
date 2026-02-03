@@ -201,11 +201,11 @@ function downloadExcel(){
  XLSX.writeFile(wb,"Akun_Belajar.xlsx");
 }
 
-/* ===== PDF FIX TOTAL (ANTI NUMPAK) ===== */
+/* ===== PDF PALING RAPI & AMAN ===== */
 function downloadPDF(){
  const {jsPDF}=window.jspdf;
  let doc=new jsPDF("p","mm","a4");
- doc.setFontSize(10);
+ doc.setFontSize(9);
 
  let data=hasilGabung.filter(x=>x.cek);
  if(!data.length) return alert("Pilih data dulu");
@@ -226,9 +226,9 @@ function downloadPDF(){
   doc.rect(x,y,cardW,cardH);
 
   let labelX=x+4;
-  let colonX=x+30;
-  let valueX=x+34;
-  let maxW=cardW-38;
+  let colonX=x+22;   // 🔥 DIPERKECIL
+  let valueX=x+25;
+  let maxW=cardW-29; // 🔒 BATAS AMAN
   let lineY=y+8;
 
   function rowText(label,value){
@@ -236,7 +236,7 @@ function downloadPDF(){
     doc.text(":",colonX,lineY);
     let t=doc.splitTextToSize(value,maxW);
     doc.text(t,valueX,lineY);
-    lineY+=t.length*5;
+    lineY+=t.length*4.2; // 🔥 BARIS DIPADATKAN
   }
 
   rowText("Nama",r.Nama);
