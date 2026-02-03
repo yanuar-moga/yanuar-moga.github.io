@@ -150,7 +150,7 @@ function cocokkan(){
   if(!a) tanpa++;
   hasilGabung.push({
    cek:false,
-   Nama:s.tampil.toUpperCase(),   // 🔥 NAMA KAPITAL
+   Nama:s.tampil.toUpperCase(),
    Kelas:s.kelas,
    Akun:a?a.akun:"",
    Password:a?a.pass:""
@@ -163,7 +163,8 @@ function isiDropdownKelas(){
  kelasDipilih.innerHTML=`<option value="all">📁 Semua Kelas</option>`;
  [...new Set(hasilGabung.map(x=>x.Kelas))].sort().forEach(k=>{
   let o=document.createElement("option");
-  o.value=k;o.textContent="Kelas "+k;
+  o.value=k;
+  o.textContent=k;   // ✅ FIX: tidak ditambah "Kelas " lagi
   kelasDipilih.appendChild(o);
  });
 }
