@@ -150,7 +150,7 @@ function cocokkan(){
   if(!a) tanpa++;
   hasilGabung.push({
    cek:false,
-   Nama:s.tampil,
+   Nama:s.tampil.toUpperCase(),   // 🔥 NAMA KAPITAL
    Kelas:s.kelas,
    Akun:a?a.akun:"",
    Password:a?a.pass:""
@@ -181,7 +181,10 @@ function tampil(){
  hasilTampil.forEach(r=>{
   h+=`<tr>
   <td><input type="checkbox" ${r.cek?"checked":""} onclick="r.cek=!r.cek"></td>
-  <td>${r.Nama}</td><td>${r.Kelas}</td><td>${r.Akun}</td><td>${r.Password}</td>
+  <td>${r.Nama}</td>
+  <td>${r.Kelas}</td>
+  <td>${r.Akun}</td>
+  <td>${r.Password}</td>
   </tr>`;
  });
  tabelHasil.innerHTML=h;
@@ -194,14 +197,17 @@ function downloadExcel(){
  let p=hasilGabung.filter(x=>x.cek);
  if(!p.length) return alert("Pilih data dulu");
  let ws=XLSX.utils.json_to_sheet(p.map(x=>({
-  Nama:x.Nama,Kelas:x.Kelas,Username:x.Akun,Password:x.Password
+  Nama:x.Nama,
+  Kelas:x.Kelas,
+  Username:x.Akun,
+  Password:x.Password
  })));
  let wb=XLSX.utils.book_new();
  XLSX.utils.book_append_sheet(wb,ws,"Data");
  XLSX.writeFile(wb,"Akun_Belajar.xlsx");
 }
 
-/* ===== PDF: 1 HALAMAN = 10 KARTU (FIX) ===== */
+/* ===== PDF: 1 HALAMAN = 10 KARTU ===== */
 function downloadPDF(){
  const {jsPDF}=window.jspdf;
  let doc=new jsPDF("p","mm","a4");
