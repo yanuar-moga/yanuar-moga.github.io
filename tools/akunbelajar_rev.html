@@ -201,43 +201,50 @@ function downloadExcel(){
  XLSX.writeFile(wb,"Akun_Belajar.xlsx");
 }
 
-/* ===== PDF FINAL (TITIK DUA LURUS) ===== */
+/* ===== PDF FIX TOTAL (ANTI NUMPAK) ===== */
 function downloadPDF(){
  const {jsPDF}=window.jspdf;
  let doc=new jsPDF("p","mm","a4");
-
- let p=hasilGabung.filter(x=>x.cek);
- if(!p.length) return alert("Pilih data dulu");
-
  doc.setFontSize(10);
 
- let x=10,y=10,w=90,h=45;
- let padding=4;
- let labelWidth=28;
- let valueX=x+padding+labelWidth+2;
- let maxWidth=w-padding*2-labelWidth-2;
+ let data=hasilGabung.filter(x=>x.cek);
+ if(!data.length) return alert("Pilih data dulu");
 
- p.forEach((r,i)=>{
-  doc.rect(x,y,w,h);
+ let cardW=90, cardH=45;
+ let startX=10, startY=10;
+ let gapX=5, gapY=6;
+
+ data.forEach((r,i)=>{
+  let col=i%2;
+  let row=Math.floor(i/2);
+
+  let x=startX+(cardW+gapX)*col;
+  let y=startY+(cardH+gapY)*row;
+
+  if(y>260){ doc.addPage(); y=10; }
+
+  doc.rect(x,y,cardW,cardH);
+
+  let labelX=x+4;
+  let colonX=x+30;
+  let valueX=x+34;
+  let maxW=cardW-38;
   let lineY=y+8;
 
-  function baris(label,value){
-    doc.text(label, x+padding, lineY);
-    let t=doc.splitTextToSize(value,maxWidth);
-    doc.text(t, valueX, lineY);
+  function rowText(label,value){
+    doc.text(label,labelX,lineY);
+    doc.text(":",colonX,lineY);
+    let t=doc.splitTextToSize(value,maxW);
+    doc.text(t,valueX,lineY);
     lineY+=t.length*5;
   }
 
-  baris("Nama",r.Nama);
-  baris("Kelas",r.Kelas);
-  baris("Username",r.Akun);
-  baris("Password",r.Password);
-  baris("Email Guru",emailGuru.value);
-  baris("Website",webGuru.value);
-
-  x+=w+5;
-  if((i+1)%2===0){x=10;y+=h+6}
-  if(y>260){doc.addPage();x=10;y=10}
+  rowText("Nama",r.Nama);
+  rowText("Kelas",r.Kelas);
+  rowText("Username",r.Akun);
+  rowText("Password",r.Password);
+  rowText("Email Guru",emailGuru.value);
+  rowText("Website",webGuru.value);
  });
 
  doc.save("Kartu_Login.pdf");
