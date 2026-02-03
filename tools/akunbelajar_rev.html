@@ -201,7 +201,7 @@ function downloadExcel(){
  XLSX.writeFile(wb,"Akun_Belajar.xlsx");
 }
 
-/* ===== PDF PALING RAPI & AMAN ===== */
+/* ===== PDF: 1 HALAMAN = 10 KARTU (FIX) ===== */
 function downloadPDF(){
  const {jsPDF}=window.jspdf;
  let doc=new jsPDF("p","mm","a4");
@@ -213,22 +213,26 @@ function downloadPDF(){
  let cardW=90, cardH=45;
  let startX=10, startY=10;
  let gapX=5, gapY=6;
+ let perPage=10;
 
  data.forEach((r,i)=>{
-  let col=i%2;
-  let row=Math.floor(i/2);
+  if(i>0 && i%perPage===0){
+    doc.addPage();
+  }
+
+  let index=i%perPage;
+  let col=index%2;
+  let row=Math.floor(index/2);
 
   let x=startX+(cardW+gapX)*col;
   let y=startY+(cardH+gapY)*row;
 
-  if(y>260){ doc.addPage(); y=10; }
-
   doc.rect(x,y,cardW,cardH);
 
   let labelX=x+4;
-  let colonX=x+22;   // 🔥 DIPERKECIL
-  let valueX=x+25;
-  let maxW=cardW-29; // 🔒 BATAS AMAN
+  let colonX=x+20;
+  let valueX=x+23;
+  let maxW=cardW-27;
   let lineY=y+8;
 
   function rowText(label,value){
@@ -236,7 +240,7 @@ function downloadPDF(){
     doc.text(":",colonX,lineY);
     let t=doc.splitTextToSize(value,maxW);
     doc.text(t,valueX,lineY);
-    lineY+=t.length*4.2; // 🔥 BARIS DIPADATKAN
+    lineY+=t.length*4.2;
   }
 
   rowText("Nama",r.Nama);
