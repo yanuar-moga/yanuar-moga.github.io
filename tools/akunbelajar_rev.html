@@ -101,8 +101,7 @@ function loadSheet(id,cb){
     .then(r=>r.arrayBuffer())
     .then(b=>{
         let wb=XLSX.read(b,{type:"array"});
-        let ws=wb.Sheets[wb.SheetNames[0]];
-        cb(XLSX.utils.sheet_to_json(ws,{header:1}));
+        cb(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1}));
     });
 }
 
@@ -138,12 +137,18 @@ function loadSiswa(rows){
 
 function loadAkun(rows){
     dataAkun=[];
+    let header=rows[0].map(h=>h.toString().toLowerCase());
+
+    let idxNama=header.findIndex(h=>h.includes("nama"));
+    let idxUser=header.findIndex(h=>h.includes("username")||h.includes("email"));
+    let idxPass=header.findIndex(h=>h.includes("password"));
+
     for(let i=1;i<rows.length;i++){
-        if(rows[i][8]){
+        if(rows[i][idxNama]){
             dataAkun.push({
-                nama:rows[i][8].toString().trim().toLowerCase(),
-                akun:rows[i][7],
-                pass:rows[i][14]
+                nama:rows[i][idxNama].toString().trim().toLowerCase(),
+                akun:rows[i][idxUser]||"",
+                pass:rows[i][idxPass]||""
             });
         }
     }
@@ -179,10 +184,8 @@ function tampil(list){
     </tr>`;
     list.forEach(r=>{
         h+=`<tr>
-            <td>
-                <input type="checkbox" ${r.cek?"checked":""}
-                onchange="r.cek=this.checked">
-            </td>
+            <td><input type="checkbox" ${r.cek?"checked":""}
+                onchange="r.cek=this.checked"></td>
             <td>${r.Nama}</td>
             <td>${r.Kelas}</td>
             <td>${r.Akun}</td>
@@ -204,11 +207,7 @@ function isiKelas(){
 
 function filterKelas(){
     let k=filterKelas.value;
-    if(k==="all"){
-        tampil(hasilGabung);
-    }else{
-        tampil(hasilGabung.filter(x=>x.Kelas==k));
-    }
+    tampil(k==="all"?hasilGabung:hasilGabung.filter(x=>x.Kelas==k));
 }
 
 function pilihSemua(){
@@ -223,18 +222,8 @@ function hapusPilihan(){
 
 function downloadExcel(){
     let pilih=hasilGabung.filter(x=>x.cek);
-    if(!pilih.length){
-        alert("Pilih data dulu");
-        return;
-    }
-    let ws=XLSX.utils.json_to_sheet(
-        pilih.map(r=>({
-            Nama:r.Nama,
-            Kelas:r.Kelas,
-            Username:r.Akun,
-            Password:r.Password
-        }))
-    );
+    if(!pilih.length){alert("Pilih data dulu");return;}
+    let ws=XLSX.utils.json_to_sheet(pilih);
     let wb=XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb,ws,"Sheet1");
     XLSX.writeFile(wb,"Hasil_Pencocokan.xlsx");
@@ -244,20 +233,14 @@ function downloadPDF(){
     const {jsPDF}=window.jspdf;
     let doc=new jsPDF("p","mm","a4");
     let pilih=hasilGabung.filter(x=>x.cek);
-    if(!pilih.length){
-        alert("Pilih data dulu");
-        return;
-    }
+    if(!pilih.length){alert("Pilih data dulu");return;}
     let y=10;
     pilih.forEach(r=>{
         doc.text(`Nama: ${r.Nama}`,10,y);y+=6;
         doc.text(`Kelas: ${r.Kelas}`,10,y);y+=6;
         doc.text(`Username: ${r.Akun}`,10,y);y+=6;
         doc.text(`Password: ${r.Password}`,10,y);y+=10;
-        if(y>280){
-            doc.addPage();
-            y=10;
-        }
+        if(y>280){doc.addPage();y=10;}
     });
     doc.save("Kartu_Login.pdf");
 }
