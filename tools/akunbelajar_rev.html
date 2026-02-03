@@ -86,7 +86,10 @@ button:hover{background:#244ec4;}
 const ID_SISWA = "1o-UJUKgFk1Yzz7UDfyhIDQrDp50apLSlsYKaBbk-_Rk";
 const ID_AKUN  = "1kr1awxn3B8io3vyehAMgLgRHHt8JigDZT9zlH3C0kFw";
 
-let dataSiswa=[],dataAkun=[],hasilGabung=[],hasilFiltered=[];
+let dataSiswa=[];
+let dataAkun=[];
+let hasilGabung=[];
+let hasilFiltered=[];
 
 function progress(v){
     progressBar.style.display="block";
@@ -98,7 +101,8 @@ function loadSheet(id,cb){
     .then(r=>r.arrayBuffer())
     .then(b=>{
         let wb=XLSX.read(b,{type:"array"});
-        cb(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1}));
+        let ws=wb.Sheets[wb.SheetNames[0]];
+        cb(XLSX.utils.sheet_to_json(ws,{header:1}));
     });
 }
 
@@ -159,17 +163,26 @@ function cocokkan(){
             Password:a?a.pass:""
         });
     });
-    status.innerHTML=`<b>Total siswa:</b> ${hasilGabung.length} | <b>Tidak punya akun:</b> ${tanpa}`;
+    status.innerHTML=
+        `<b>Total siswa:</b> ${hasilGabung.length} |
+         <b>Tidak punya akun:</b> ${tanpa}`;
 }
 
 function tampil(list){
     hasilFiltered=list;
     let h=`<tr>
-        <th>Pilih</th><th>Nama</th><th>Kelas</th><th>Username</th><th>Password</th>
+        <th>Pilih</th>
+        <th>Nama</th>
+        <th>Kelas</th>
+        <th>Username</th>
+        <th>Password</th>
     </tr>`;
-    list.forEach((r,i)=>{
+    list.forEach(r=>{
         h+=`<tr>
-            <td><input type="checkbox" ${r.cek?"checked":""} onclick="toggle(${i})"></td>
+            <td>
+                <input type="checkbox" ${r.cek?"checked":""}
+                onchange="r.cek=this.checked">
+            </td>
             <td>${r.Nama}</td>
             <td>${r.Kelas}</td>
             <td>${r.Akun}</td>
@@ -179,29 +192,49 @@ function tampil(list){
     tabelHasil.innerHTML=h;
 }
 
-function toggle(i){hasilFiltered[i].cek=!hasilFiltered[i].cek;}
-
 function isiKelas(){
     filterKelas.innerHTML=`<option value="all">Semua Kelas</option>`;
     [...new Set(hasilGabung.map(x=>x.Kelas))].forEach(k=>{
         let o=document.createElement("option");
-        o.value=k;o.textContent=k;
+        o.value=k;
+        o.textContent=k;
         filterKelas.appendChild(o);
     });
 }
 
 function filterKelas(){
     let k=filterKelas.value;
-    tampil(k==="all"?hasilGabung:hasilGabung.filter(x=>x.Kelas==k));
+    if(k==="all"){
+        tampil(hasilGabung);
+    }else{
+        tampil(hasilGabung.filter(x=>x.Kelas==k));
+    }
 }
 
-function pilihSemua(){hasilFiltered.forEach(x=>x.cek=true);tampil(hasilFiltered);}
-function hapusPilihan(){hasilFiltered.forEach(x=>x.cek=false);tampil(hasilFiltered);}
+function pilihSemua(){
+    hasilFiltered.forEach(x=>x.cek=true);
+    tampil(hasilFiltered);
+}
+
+function hapusPilihan(){
+    hasilFiltered.forEach(x=>x.cek=false);
+    tampil(hasilFiltered);
+}
 
 function downloadExcel(){
-    let p=hasilGabung.filter(x=>x.cek);
-    if(!p.length)return alert("Pilih data dulu");
-    let ws=XLSX.utils.json_to_sheet(p);
+    let pilih=hasilGabung.filter(x=>x.cek);
+    if(!pilih.length){
+        alert("Pilih data dulu");
+        return;
+    }
+    let ws=XLSX.utils.json_to_sheet(
+        pilih.map(r=>({
+            Nama:r.Nama,
+            Kelas:r.Kelas,
+            Username:r.Akun,
+            Password:r.Password
+        }))
+    );
     let wb=XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb,ws,"Sheet1");
     XLSX.writeFile(wb,"Hasil_Pencocokan.xlsx");
@@ -209,21 +242,29 @@ function downloadExcel(){
 
 function downloadPDF(){
     const {jsPDF}=window.jspdf;
-    let doc=new jsPDF();
-    let p=hasilGabung.filter(x=>x.cek);
-    if(!p.length)return alert("Pilih data dulu");
+    let doc=new jsPDF("p","mm","a4");
+    let pilih=hasilGabung.filter(x=>x.cek);
+    if(!pilih.length){
+        alert("Pilih data dulu");
+        return;
+    }
     let y=10;
-    p.forEach(r=>{
+    pilih.forEach(r=>{
         doc.text(`Nama: ${r.Nama}`,10,y);y+=6;
         doc.text(`Kelas: ${r.Kelas}`,10,y);y+=6;
         doc.text(`Username: ${r.Akun}`,10,y);y+=6;
         doc.text(`Password: ${r.Password}`,10,y);y+=10;
-        if(y>270){doc.addPage();y=10;}
+        if(y>280){
+            doc.addPage();
+            y=10;
+        }
     });
     doc.save("Kartu_Login.pdf");
 }
 
-function toggleDark(){document.body.classList.toggle("dark-mode");}
+function toggleDark(){
+    document.body.classList.toggle("dark-mode");
+}
 </script>
 
 </body>
