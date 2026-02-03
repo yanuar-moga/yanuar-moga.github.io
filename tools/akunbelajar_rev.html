@@ -55,7 +55,7 @@ th,td{border:1px solid #777;padding:6px}
 
 <br><br>
 
-<button onclick="proses()">🔍 Load Data</button>
+<button onclick="proses()">🔍 Cocokkan</button>
 <button onclick="toggleDark()">🌙 Dark Mode</button>
 
 <div class="progress" id="progressBar">
@@ -201,25 +201,44 @@ function downloadExcel(){
  XLSX.writeFile(wb,"Akun_Belajar.xlsx");
 }
 
+/* ======================= */
+/* === PDF SUDAH FIX === */
+/* ======================= */
 function downloadPDF(){
  const {jsPDF}=window.jspdf;
- let doc=new jsPDF();
+ let doc=new jsPDF("p","mm","a4");
+
  let p=hasilGabung.filter(x=>x.cek);
  if(!p.length) return alert("Pilih data dulu");
 
+ doc.setFontSize(10);
+
  let x=10,y=10,w=90,h=45;
+ let padding=4;
+ let maxWidth = w - (padding*2);
+
  p.forEach((r,i)=>{
   doc.rect(x,y,w,h);
-  doc.text(`Nama : ${r.Nama}`,x+4,y+8);
-  doc.text(`Kelas : ${r.Kelas}`,x+4,y+14);
-  doc.text(`Username : ${r.Akun}`,x+4,y+20);
-  doc.text(`Password : ${r.Password}`,x+4,y+26);
-  doc.text(`Email Guru : ${emailGuru.value}`,x+4,y+32);
-  doc.text(`Website : ${webGuru.value}`,x+4,y+38);
+  let lineY = y + 8;
+
+  function tulis(teks){
+    let t = doc.splitTextToSize(teks, maxWidth);
+    doc.text(t, x+padding, lineY);
+    lineY += t.length * 5;
+  }
+
+  tulis(`Nama : ${r.Nama}`);
+  tulis(`Kelas : ${r.Kelas}`);
+  tulis(`Username : ${r.Akun}`);
+  tulis(`Password : ${r.Password}`);
+  tulis(`Email Guru : ${emailGuru.value}`);
+  tulis(`Website : ${webGuru.value}`);
+
   x+=w+5;
   if((i+1)%2===0){x=10;y+=h+6}
-  if(y>270){doc.addPage();x=10;y=10}
+  if(y>260){doc.addPage();x=10;y=10}
  });
+
  doc.save("Kartu_Login.pdf");
 }
 
