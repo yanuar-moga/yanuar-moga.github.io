@@ -35,12 +35,6 @@ button:hover{background:#244ec4;}
 .progress-inner{height:100%;width:0;background:#3d6ef7;}
 .dark-mode .progress{background:#444;}
 .dark-mode td,.dark-mode th{color:white;border-color:#666;}
-.card{
-    padding:10px;background:white;
-    border-radius:10px;
-    box-shadow:0 0 10px rgba(0,0,0,.1);
-}
-.dark-mode .card{background:#2b2b2b;}
 </style>
 </head>
 
@@ -124,12 +118,16 @@ function proses(){
 
 function loadSiswa(rows){
     dataSiswa=[];
+    let header = rows[0].map(h=>h.toString().toLowerCase());
+    let idxNama  = header.findIndex(h=>h.includes("nama"));
+    let idxKelas = header.findIndex(h=>h.includes("kelas") || h.includes("rombel"));
+
     for(let i=1;i<rows.length;i++){
-        if(rows[i][1]){
+        if(rows[i][idxNama]){
             dataSiswa.push({
-                nama:rows[i][1].toString().trim().toLowerCase(),
-                tampil_nama:rows[i][1],
-                kelas:rows[i][2]
+                nama: rows[i][idxNama].toString().trim().toLowerCase(),
+                tampil_nama: rows[i][idxNama],
+                kelas: rows[i][idxKelas] || "-"
             });
         }
     }
@@ -137,18 +135,17 @@ function loadSiswa(rows){
 
 function loadAkun(rows){
     dataAkun=[];
-    let header=rows[0].map(h=>h.toString().toLowerCase());
-
-    let idxNama=header.findIndex(h=>h.includes("nama"));
-    let idxUser=header.findIndex(h=>h.includes("username")||h.includes("email"));
-    let idxPass=header.findIndex(h=>h.includes("password"));
+    let header = rows[0].map(h=>h.toString().toLowerCase());
+    let idxNama = header.findIndex(h=>h.includes("nama"));
+    let idxUser = header.findIndex(h=>h.includes("username") || h.includes("email"));
+    let idxPass = header.findIndex(h=>h.includes("password"));
 
     for(let i=1;i<rows.length;i++){
         if(rows[i][idxNama]){
             dataAkun.push({
-                nama:rows[i][idxNama].toString().trim().toLowerCase(),
-                akun:rows[i][idxUser]||"",
-                pass:rows[i][idxPass]||""
+                nama: rows[i][idxNama].toString().trim().toLowerCase(),
+                akun: rows[i][idxUser] || "",
+                pass: rows[i][idxPass] || ""
             });
         }
     }
@@ -223,7 +220,14 @@ function hapusPilihan(){
 function downloadExcel(){
     let pilih=hasilGabung.filter(x=>x.cek);
     if(!pilih.length){alert("Pilih data dulu");return;}
-    let ws=XLSX.utils.json_to_sheet(pilih);
+    let ws=XLSX.utils.json_to_sheet(
+        pilih.map(r=>({
+            Nama:r.Nama,
+            Kelas:r.Kelas,
+            Username:r.Akun,
+            Password:r.Password
+        }))
+    );
     let wb=XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb,ws,"Sheet1");
     XLSX.writeFile(wb,"Hasil_Pencocokan.xlsx");
