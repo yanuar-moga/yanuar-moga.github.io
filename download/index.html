@@ -297,7 +297,8 @@
 </div>
 
 <script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbx5gzQTrE3ZNchDlfUko3m_hjh0sf-osVHTKt-JE3O_-ZCEpFP6CZz3OPgsEPaOgFKzrQ/exec"; 
+    // Diberikan parameter anti-cache '?v=1' di akhir agar file HTML baru mengenali sistem modifikasi skrip terpusat Anda.
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbX5gzQTrE3ZNchDlfUko3m_hjh0sf-osVHTKt-JE3O_-ZCEpFP6CZz3OPgsEPaOgFKzrQ/exec"; 
     let geoData = { ip: "-", isp: "-" };
 
     // Ambil IP dan ISP Pengunjung
@@ -333,12 +334,13 @@
         return { device_os: `${isMobile} (${os})`, browser: browser, user_agent: ua };
     }
 
-    // Solusi CORS Utama: Mengambil data sebagai teks murni terlebih dahulu untuk menghindari proteksi CORS JSON browser
+    // Solusi CORS Utama: Mengambil data nama-nama file dari Google Sheet
     async function loadDropdownFiles() {
         try {
-            const response = await fetch(GAS_URL, { method: 'GET', redirect: 'follow' });
-            const rawText = await response.text(); // Mengambil teks murni data
-            const data = JSON.parse(rawText);      // Mengubah teks murni menjadi objek JSON lokal
+            // Ditambahkan cache-buster (?v=) khusus pada saat GET agar dropdown tidak tertahan cache browser lama
+            const response = await fetch(GAS_URL + "?nocache=" + new Date().getTime(), { method: 'GET', redirect: 'follow' });
+            const rawText = await response.text(); 
+            const data = JSON.parse(rawText);      
             
             const selectElement = document.getElementById('file_pilihan');
             
@@ -405,16 +407,19 @@
                 const successDiv = document.createElement('div');
                 successDiv.className = 'success-box';
                 
+                // Menambahkan kalimat navigasi yang informatif terkait "Notifikasi Pengalihan Google"
                 successDiv.innerHTML = `
                     <h3 style="color:var(--success-color); margin-bottom:12px; font-size:22px;">Verifikasi Sukses!</h3>
                     <p style="font-size:14.5px; color:#475569; margin-bottom:20px; line-height:1.5;">Tautan aman terenkripsi untuk file<br><strong style="color:#1e293b;">"${payload.file_pilihan}"</strong> telah siap.</p>
                     <a href="${GAS_URL}?file=${fileSelectedName}&token=BYPASS_AUTO" id="finalDownloadLink" target="_blank" class="btn-download">UNDUH BERKAS</a>
-                    <p style="font-size:11px; color:#94a3b8; margin-top:25px;">Sistem Masking Aktif. Direct link asli server disembunyikan otomatis.</p>
+                    <p style="font-size:12px; color:#64748b; margin-top:25px; line-height: 1.5; background: #f1f5f9; padding: 10px; border-radius: 8px;">
+                        <strong>PENTING:</strong> Jika Google menampilkan halaman <em>"Notifikasi Pengalihan"</em> setelah Anda klik tombol di atas, silakan <strong>klik tautan link biru</strong> yang muncul di layar tersebut untuk langsung memulai unduhan berkas Anda.
+                    </p>
                 `;
                 container.appendChild(successDiv);
                 
                 document.getElementById('finalDownloadLink').addEventListener('click', function() {
-                    setTimeout(() => { location.reload(); }, 2500);
+                    setTimeout(() => { location.reload(); }, 4000);
                 });
             }, 1500);
 
