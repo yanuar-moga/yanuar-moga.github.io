@@ -382,10 +382,22 @@ async function loadFiles(){
 try{
 
 const res=await fetch(API_URL);
-const data=await res.json();
+const data = await res.json();
+
+if(!data.success){
+  throw new Error("Gagal memuat data file");
+}
 
 select.innerHTML="";
+const firstOption =
+document.createElement("option");
 
+firstOption.value="";
+firstOption.textContent="-- Pilih File --";
+firstOption.disabled=true;
+firstOption.selected=true;
+
+select.appendChild(firstOption);
 data.files.forEach(file=>{
 
 const option=document.createElement("option");
@@ -591,7 +603,9 @@ await res.json();
 
 showLoading(false);
 
-form.style.display="none";
+if(data.success){
+  form.style.display="none";
+}
 
 const box=
 document.getElementById(
@@ -629,7 +643,7 @@ box.innerHTML=`
 <h2>File Premium</h2>
 
 <p style="margin-top:15px">
-Token tersedia melalui admin.
+Hubungi admin untuk mendapatkan token akses.
 </p>
 
 <a
@@ -645,6 +659,32 @@ href="https://www.tiktok.com/@yanuar_moga"
 target="_blank">
 TikTok Admin
 </a>
+
+<div style="margin-top:20px">
+
+<label style="text-align:left;display:block;margin-bottom:8px;">
+Masukkan Token Dari Admin
+</label>
+
+<input
+type="text"
+id="premiumToken"
+placeholder="Contoh: ABC123XYZ">
+
+<button
+class="download-btn"
+style="margin-top:10px"
+onclick="downloadPremiumFile()">
+VALIDASI TOKEN & DOWNLOAD
+</button>
+<button
+type="button"
+class="submit-btn"
+style="margin-top:10px"
+onclick="location.reload()">
+Pilih File Lain
+</button>
+</div>
 
 `;
 
@@ -687,7 +727,9 @@ data.downloadUrl;
 
 }else{
 
-showToast(data.error);
+showToast(
+data.error || "Token tidak valid"
+);
 
 }
 
@@ -697,9 +739,70 @@ showLoading(false);
 
 showToast("Gagal download");
 
+console.error(err);
+
 }
 
 }
+
+
+async function downloadPremiumFile(){
+
+const token =
+document
+.getElementById("premiumToken")
+.value
+.trim();
+
+if(!token){
+
+showToast(
+"Masukkan token terlebih dahulu"
+);
+
+return;
+
+}
+
+showLoading(true);
+
+try{
+
+const res=await fetch(
+`${API_URL}?file=${encodeURIComponent(selectedFile)}&token=${encodeURIComponent(token)}`
+);
+
+const data=await res.json();
+
+showLoading(false);
+
+if(data.success){
+
+window.location.href=
+data.downloadUrl;
+
+}else{
+
+showToast(
+data.error || "Token tidak valid"
+);
+
+}
+
+}catch(err){
+
+showLoading(false);
+
+showToast(
+"Gagal memvalidasi token"
+);
+
+console.error(err);
+
+}
+
+}
+
 
 loadFiles();
 loadIP();
