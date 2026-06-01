@@ -44,13 +44,12 @@
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             padding: 40px 30px;
-            border-radius: 20px; /* Rounded corner lebih melengkung halus */
-            box-shadow: 0 15px 35px rgba(31, 73, 125, 0.08), 0 5px 15px rgba(0, 0, 0, 0.04); /* Gabungan shadow elegan */
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(31, 73, 125, 0.08), 0 5px 15px rgba(0, 0, 0, 0.04);
             width: 100%;
             max-width: 520px;
             border: 1px solid rgba(255, 255, 255, 0.8);
             
-            /* Animasi Muncul Mengambang yang Memanjakan Mata */
             opacity: 0;
             transform: translateY(40px) scale(0.98);
             animation: formAppear 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
@@ -106,7 +105,6 @@
             animation: slideIn 0.5s ease forwards;
         }
 
-        /* Animasi Staggered (Berurutan) untuk Komponen Input Form */
         .form-group:nth-child(1) { animation-delay: 0.2s; }
         .form-group:nth-child(2) { animation-delay: 0.3s; }
         .form-group:nth-child(3) { animation-delay: 0.4s; }
@@ -144,7 +142,6 @@
             box-shadow: 0 0 0 4px rgba(31, 73, 125, 0.1);
         }
 
-        /* Tombol Utama Interaktif */
         button {
             width: 100%;
             padding: 15px;
@@ -177,7 +174,6 @@
             transform: none;
         }
 
-        /* Efek Loading & Spinner */
         .loading-area {
             display: none;
             text-align: center;
@@ -205,7 +201,6 @@
             font-weight: 600;
         }
 
-        /* Kotak Sukses Unduhan */
         .success-box {
             text-align: center;
             padding: 20px 10px;
@@ -236,7 +231,6 @@
             box-shadow: 0 8px 22px rgba(40, 167, 69, 0.4);
         }
 
-        /* 3. Media Query Khusus agar Form Tampil Sempurna di Layar HP */
         @media (max-width: 480px) {
             body { padding: 12px; }
             .container { padding: 30px 20px; border-radius: 16px; }
@@ -339,12 +333,13 @@
         return { device_os: `${isMobile} (${os})`, browser: browser, user_agent: ua };
     }
 
-    // Solusi CORS: Menarik Daftar File Aktif Menggunakan Metode Fetch Kebalikan Modifikasi URL
+    // Solusi CORS Utama: Mengambil data sebagai teks murni terlebih dahulu untuk menghindari proteksi CORS JSON browser
     async function loadDropdownFiles() {
         try {
-            // Kita bypass pembatasan CORS browser dengan memaksa request mengambil struktur teks mentah
             const response = await fetch(GAS_URL, { method: 'GET', redirect: 'follow' });
-            const data = await response.json();
+            const rawText = await response.text(); // Mengambil teks murni data
+            const data = JSON.parse(rawText);      // Mengubah teks murni menjadi objek JSON lokal
+            
             const selectElement = document.getElementById('file_pilihan');
             
             if(data.files && data.files.length > 0) {
@@ -401,7 +396,6 @@
 
             document.getElementById('loadingText').textContent = "Sinkronisasi Berhasil! Merakit tautan aman...";
             
-            // Beri jeda animasi 1.5 detik agar baris data di spreadsheet tertulis rapi terlebih dahulu
             setTimeout(function() {
                 form.style.display = 'none';
                 loader.style.display = 'none';
@@ -411,7 +405,6 @@
                 const successDiv = document.createElement('div');
                 successDiv.className = 'success-box';
                 
-                // Mengarahkan ke doGet GAS bertoken bypass otomatis yang langsung mengecek token internal di kolom C Sheet Files
                 successDiv.innerHTML = `
                     <h3 style="color:var(--success-color); margin-bottom:12px; font-size:22px;">Verifikasi Sukses!</h3>
                     <p style="font-size:14.5px; color:#475569; margin-bottom:20px; line-height:1.5;">Tautan aman terenkripsi untuk file<br><strong style="color:#1e293b;">"${payload.file_pilihan}"</strong> telah siap.</p>
