@@ -1,439 +1,535 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Download Digital Portal Secure Gateway</title>
-    <style>
-        :root {
-            --primary-color: #1f497d;
-            --primary-hover: #16355a;
-            --success-color: #28a745;
-            --text-color: #2c3e50;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        * {
-            box-shadow: none;
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        }
+<title>Secure Download Gateway</title>
 
-        /* 1. Background Gradasi Biru Muda ke Putih dengan Animasi Halus */
-        body {
-            background: linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 50%, #ffffff 100%);
-            background-size: 400% 400%;
-            animation: gradientBg 12s ease infinite;
-            color: var(--text-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-        @keyframes gradientBg {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+<style>
 
-        /* 2. Container Form dengan Efek Rounded Corner & Soft Shadow Elegan */
-        .container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 40px 30px;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(31, 73, 125, 0.08), 0 5px 15px rgba(0, 0, 0, 0.04);
-            width: 100%;
-            max-width: 520px;
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            
-            opacity: 0;
-            transform: translateY(40px) scale(0.98);
-            animation: formAppear 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
+:root{
+--primary:#4f46e5;
+--secondary:#7c3aed;
+--success:#16a34a;
+--danger:#ef4444;
+--shadow:0 8px 30px rgba(0,0,0,.08);
+}
 
-        @keyframes formAppear {
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
 
-        .header-area {
-            text-align: center;
-            margin-bottom: 35px;
-        }
+body{
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:20px;
+background:
+linear-gradient(
+135deg,
+#eef2ff 0%,
+#f5f3ff 50%,
+#ede9fe 100%
+);
+}
 
-        /* Logo Bulat dengan Animasi Bernapas (Pulse) */
-        .logo {
-            max-width: 90px;
-            height: auto;
-            border-radius: 50%;
-            margin-bottom: 15px;
-            box-shadow: 0 8px 20px rgba(31, 73, 125, 0.15);
-            animation: logoPulse 3s ease-in-out infinite;
-            border: 3px solid #fff;
-        }
+.container{
+width:100%;
+max-width:650px;
+}
 
-        @keyframes logoPulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.04); box-shadow: 0 12px 25px rgba(31, 73, 125, 0.25); }
-            100% { transform: scale(1); }
-        }
+.card{
+background:white;
+border-radius:24px;
+padding:35px;
+box-shadow:var(--shadow);
+animation:fadeUp .7s ease;
+}
 
-        h2 {
-            color: var(--primary-color);
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            letter-spacing: -0.5px;
-        }
+.logo{
+width:90px;
+height:90px;
+margin:auto;
+border-radius:50%;
+background:linear-gradient(135deg,#4f46e5,#7c3aed);
+display:flex;
+justify-content:center;
+align-items:center;
+color:white;
+font-size:40px;
+font-weight:bold;
+animation:pulse 2s infinite;
+}
 
-        p.subtitle {
-            color: #64748b;
-            font-size: 14px;
-            line-height: 1.5;
-        }
+h1{
+text-align:center;
+margin-top:20px;
+margin-bottom:10px;
+font-size:28px;
+}
 
-        .form-group {
-            margin-bottom: 22px;
-            opacity: 0;
-            transform: translateX(-15px);
-            animation: slideIn 0.5s ease forwards;
-        }
+.subtitle{
+text-align:center;
+color:#666;
+margin-bottom:25px;
+}
 
-        .form-group:nth-child(1) { animation-delay: 0.2s; }
-        .form-group:nth-child(2) { animation-delay: 0.3s; }
-        .form-group:nth-child(3) { animation-delay: 0.4s; }
-        .form-group:nth-child(4) { animation-delay: 0.5s; }
-        .form-group:nth-child(5) { animation-delay: 0.6s; }
-        .form-group:nth-child(6) { animation-delay: 0.7s; }
+.form-group{
+margin-bottom:15px;
+}
 
-        @keyframes slideIn {
-            to { opacity: 1; transform: translateX(0); }
-        }
+label{
+display:block;
+font-size:14px;
+font-weight:600;
+margin-bottom:6px;
+}
 
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            font-size: 13.5px;
-            color: #475569;
-        }
+input,
+textarea,
+select{
+width:100%;
+padding:13px;
+border:1px solid #ddd;
+border-radius:12px;
+outline:none;
+transition:.3s;
+}
 
-        input, select {
-            width: 100%;
-            padding: 13px 16px;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            font-size: 15px;
-            color: #334155;
-            transition: all 0.3s ease;
-            background-color: #f8fafc;
-        }
+input:focus,
+textarea:focus,
+select:focus{
+border-color:#7c3aed;
+box-shadow:0 0 0 4px rgba(124,58,237,.12);
+}
 
-        input:focus, select:focus {
-            border-color: var(--primary-color);
-            outline: none;
-            background-color: #fff;
-            box-shadow: 0 0 0 4px rgba(31, 73, 125, 0.1);
-        }
+button{
+border:none;
+cursor:pointer;
+}
 
-        button {
-            width: 100%;
-            padding: 15px;
-            background-color: var(--primary-color);
-            border: none;
-            color: white;
-            font-size: 16px;
-            font-weight: 700;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 12px rgba(31, 73, 125, 0.2);
-            margin-top: 10px;
-        }
+.submit-btn{
+width:100%;
+padding:15px;
+border-radius:14px;
+font-size:16px;
+font-weight:600;
+color:white;
+background:
+linear-gradient(
+135deg,
+#4f46e5,
+#7c3aed
+);
+transition:.3s;
+}
 
-        button:hover {
-            background-color: var(--primary-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(31, 73, 125, 0.3);
-        }
+.submit-btn:hover{
+transform:translateY(-2px);
+}
 
-        button:active {
-            transform: translateY(0);
-        }
+.success-box{
+display:none;
+text-align:center;
+}
 
-        button:disabled {
-            background-color: #cbd5e1;
-            box-shadow: none;
-            cursor: not-allowed;
-            transform: none;
-        }
+.token-box{
+margin-top:15px;
+}
 
-        .loading-area {
-            display: none;
-            text-align: center;
-            margin-top: 25px;
-        }
+.download-btn{
+margin-top:20px;
+width:100%;
+padding:16px;
+background:#16a34a;
+color:white;
+font-size:18px;
+font-weight:700;
+border-radius:15px;
+}
 
-        .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.05);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border-left-color: var(--primary-color);
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto 12px;
-        }
+.download-btn:hover{
+transform:scale(1.02);
+}
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+.contact-btn{
+display:block;
+text-decoration:none;
+padding:14px;
+border-radius:12px;
+color:white;
+margin-top:12px;
+font-weight:600;
+}
 
-        .loading-text {
-            font-size: 14px;
-            color: var(--primary-color);
-            font-weight: 600;
-        }
+.wa{
+background:#25D366;
+}
 
-        .success-box {
-            text-align: center;
-            padding: 20px 10px;
-            animation: scaleUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
+.tt{
+background:#000;
+}
 
-        @keyframes scaleUp {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
+.loading{
+position:fixed;
+inset:0;
+background:rgba(255,255,255,.85);
+display:none;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+backdrop-filter:blur(6px);
+z-index:999;
+}
 
-        .btn-download {
-            display: inline-block;
-            padding: 14px 35px;
-            background-color: var(--success-color);
-            color: white;
-            text-decoration: none;
-            font-weight: 700;
-            border-radius: 10px;
-            box-shadow: 0 6px 18px rgba(40, 167, 69, 0.3);
-            transition: all 0.3s ease;
-            margin-top: 20px;
-        }
+.spinner{
+width:60px;
+height:60px;
+border:5px solid #ddd;
+border-top:5px solid #4f46e5;
+border-radius:50%;
+animation:spin 1s linear infinite;
+}
 
-        .btn-download:hover {
-            background-color: #218838;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 22px rgba(40, 167, 69, 0.4);
-        }
+.loading p{
+margin-top:15px;
+font-weight:600;
+}
 
-        @media (max-width: 480px) {
-            body { padding: 12px; }
-            .container { padding: 30px 20px; border-radius: 16px; }
-            h2 { font-size: 21px; }
-            input, select, button { padding: 12px; font-size: 14px; }
-        }
-    </style>
+.toast{
+position:fixed;
+bottom:30px;
+right:30px;
+background:#111827;
+color:white;
+padding:12px 20px;
+border-radius:12px;
+display:none;
+z-index:9999;
+}
+
+@keyframes spin{
+100%{transform:rotate(360deg);}
+}
+
+@keyframes pulse{
+0%,100%{transform:scale(1);}
+50%{transform:scale(1.08);}
+}
+
+@keyframes fadeUp{
+from{
+opacity:0;
+transform:translateY(20px);
+}
+to{
+opacity:1;
+transform:none;
+}
+}
+
+</style>
 </head>
+
 <body>
 
 <div class="container">
-    <div class="header-area">
-        <img src="https://yanuar-moga.github.io/assets/logo.jpg" alt="Logo" class="logo">
-        <h2>Formulir Akses Download</h2>
-        <p class="subtitle">Lengkapi berkas identitas Anda secara valid untuk mengunci token enkripsi file digital.</p>
-    </div>
 
-    <form id="downloadForm">
-        <div class="form-group">
-            <label for="nama">Nama Lengkap</label>
-            <input type="text" id="nama" placeholder="Masukkan nama lengkap Anda" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="alamat">Alamat Kelurahan / Kota</label>
-            <input type="text" id="alamat" placeholder="Contoh: Moga, Pemalang" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="no_hp">Nomor HP / WhatsApp</label>
-            <input type="tel" id="no_hp" placeholder="Contoh: 081234567xxx" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="email">Alamat Email Aktif</label>
-            <input type="email" id="email" placeholder="nama@email.com" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="alasan">Alasan Mengunduh Berkas</label>
-            <select id="alasan" required>
-                <option value="">-- Pilih Alasan --</option>
-                <option value="Belajar Mandiri">Belajar Mandiri</option>
-                <option value="Mengajar">Mengajar</option>
-                <option value="Referensi">Referensi</option>
-                <option value="Lainnya">Lainnya</option>
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label for="file_pilihan">Pilih Berkas File</label>
-            <select id="file_pilihan" required>
-                <option value="">Menghubungkan ke database...</option>
-            </select>
-        </div>
-        
-        <button type="submit" id="btnSubmit">Verifikasi Data & Ambil Berkas</button>
-    </form>
+<div class="card">
 
-    <div class="loading-area" id="loadingArea">
-        <div class="spinner"></div>
-        <div class="loading-text" id="loadingText">Mengunci data dan menyiapkan token keamanan...</div>
-    </div>
+<div class="logo">🔒</div>
+
+<h1>Secure Download Gateway</h1>
+
+<p class="subtitle">
+Silakan lengkapi data untuk mengakses berkas.
+</p>
+
+<form id="leadForm">
+
+<div class="form-group">
+<label>Nama</label>
+<input type="text" id="nama" required>
 </div>
 
+<div class="form-group">
+<label>Alamat</label>
+<input type="text" id="alamat">
+</div>
+
+<div class="form-group">
+<label>No HP</label>
+<input type="text" id="nohp" required>
+</div>
+
+<div class="form-group">
+<label>Email</label>
+<input type="email" id="email">
+</div>
+
+<div class="form-group">
+<label>Alasan</label>
+<textarea id="alasan"></textarea>
+</div>
+
+<div class="form-group">
+<label>Pilih File</label>
+<select id="fileSelect">
+<option>Memuat data...</option>
+</select>
+</div>
+
+<button class="submit-btn">
+Lanjutkan
+</button>
+
+</form>
+
+<div class="success-box" id="successBox"></div>
+
+</div>
+
+</div>
+
+<div class="loading" id="loading">
+<div class="spinner"></div>
+<p>Menyimpan data & memvalidasi keamanan...</p>
+</div>
+
+<div class="toast" id="toast"></div>
+
 <script>
-    // Diberikan parameter anti-cache '?v=1' di akhir agar file HTML baru mengenali sistem modifikasi skrip terpusat Anda.
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbyO4PG8xN_MnZh19htSsnRBveD_j3zXpK9aBc_BVR2Ey4Di0dZSAayJSn4vWpe9DFioWw/exec"; 
-    let geoData = { ip: "-", isp: "-" };
 
-    // Ambil IP dan ISP Pengunjung
-    async function fetchGeoLocation() {
-        try {
-            const res = await fetch('https://ipapi.co/json/');
-            const data = await res.json();
-            geoData.ip = data.ip || "-";
-            geoData.isp = data.org || "-";
-        } catch (err) {
-            console.log("Deteksi IP dilewati/terblokir adblocker.");
-        }
-    }
+const API_URL =
+"https://script.google.com/macros/s/AKfycbzVrpnznLAHNgc5mY_BWcgjkGXJSGzcQovzzUDHwVf5X0rWpipS3UA6In72fxOeUYXw/exec";
 
-    // Analisis Browser Pengunjung
-    function parseClientBrowser() {
-        const ua = navigator.userAgent;
-        let browser = "Browser Lainnya";
-        let os = "OS Lainnya";
+let selectedFile="";
+let currentToken="";
+let ipInfo={};
 
-        if (ua.includes("Firefox")) browser = "Mozilla Firefox";
-        else if (ua.includes("SamsungBrowser")) browser = "Samsung Browser";
-        else if (ua.includes("Chrome") && !ua.includes("Chromium")) browser = "Google Chrome";
-        else if (ua.includes("Safari") && !ua.includes("Chrome")) browser = "Apple Safari";
-        else if (ua.includes("Edge")) browser = "Microsoft Edge";
+const form=document.getElementById("leadForm");
+const select=document.getElementById("fileSelect");
 
-        if (ua.includes("Windows")) os = "Windows";
-        else if (ua.includes("Android")) os = "Android";
-        else if (ua.includes("iPhone") || ua.includes("iPad")) os = "iOS";
-        else if (ua.includes("Macintosh")) os = "MacOS";
+async function loadFiles(){
 
-        const isMobile = /Mobi|Android/i.test(ua) ? "Mobile" : "Desktop";
-        return { device_os: `${isMobile} (${os})`, browser: browser, user_agent: ua };
-    }
+try{
 
-    // Solusi CORS Utama: Mengambil data nama-nama file dari Google Sheet
-    async function loadDropdownFiles() {
-        try {
-            // Ditambahkan cache-buster (?v=) khusus pada saat GET agar dropdown tidak tertahan cache browser lama
-            const response = await fetch(GAS_URL + "?nocache=" + new Date().getTime(), { method: 'GET', redirect: 'follow' });
-            const rawText = await response.text(); 
-            const data = JSON.parse(rawText);      
-            
-            const selectElement = document.getElementById('file_pilihan');
-            
-            if(data.files && data.files.length > 0) {
-                selectElement.innerHTML = '<option value="">-- Pilih Berkas File --</option>';
-                data.files.forEach(file => {
-                    let option = document.createElement('option');
-                    option.value = file;
-                    option.textContent = file;
-                    selectElement.appendChild(option);
-                });
-            } else {
-                selectElement.innerHTML = '<option value="">Tidak ada berkas file di Kolom A Sheet Files</option>';
-            }
-        } catch (error) {
-            console.error(error);
-            document.getElementById('file_pilihan').innerHTML = '<option value="">⚠️ Gagal memuat! Pastikan Web App GAS sudah di-Deploy sebagai "Anyone"</option>';
-        }
-    }
+const res=await fetch(API_URL);
+const data=await res.json();
 
-    // Proses Submit Form & Pembuatan Gateway Link Unduhan
-    document.getElementById('downloadForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const btn = document.getElementById('btnSubmit');
-        const loader = document.getElementById('loadingArea');
-        const form = document.getElementById('downloadForm');
-        
-        btn.disabled = true;
-        loader.style.display = 'block';
-        
-        const clientInfo = parseClientBrowser();
-        const payload = {
-            nama: document.getElementById('nama').value,
-            alamat: document.getElementById('alamat').value,
-            no_hp: document.getElementById('no_hp').value,
-            email: document.getElementById('email').value,
-            alasan: document.getElementById('alasan').value,
-            file_pilihan: document.getElementById('file_pilihan').value,
-            ip: geoData.ip,
-            isp: geoData.isp,
-            device_os: clientInfo.device_os,
-            browser: clientInfo.browser,
-            user_agent: clientInfo.user_agent
-        };
+select.innerHTML="";
 
-        try {
-            // Mengirim data leads via POST ke Google Sheets
-            await fetch(GAS_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+data.files.forEach(file=>{
 
-            document.getElementById('loadingText').textContent = "Sinkronisasi Berhasil! Merakit tautan aman...";
-            
-            setTimeout(function() {
-                form.style.display = 'none';
-                loader.style.display = 'none';
-                
-                const fileSelectedName = encodeURIComponent(payload.file_pilihan);
-                const container = document.querySelector('.container');
-                const successDiv = document.createElement('div');
-                successDiv.className = 'success-box';
-                
-                // Menambahkan kalimat navigasi yang informatif terkait "Notifikasi Pengalihan Google"
-                successDiv.innerHTML = `
-                    <h3 style="color:var(--success-color); margin-bottom:12px; font-size:22px;">Verifikasi Sukses!</h3>
-                    <p style="font-size:14.5px; color:#475569; margin-bottom:20px; line-height:1.5;">Tautan aman terenkripsi untuk file<br><strong style="color:#1e293b;">"${payload.file_pilihan}"</strong> telah siap.</p>
-                    <a href="${GAS_URL}?file=${fileSelectedName}&token=BYPASS_AUTO" id="finalDownloadLink" target="_blank" class="btn-download">UNDUH BERKAS</a>
-                    <p style="font-size:12px; color:#64748b; margin-top:25px; line-height: 1.5; background: #f1f5f9; padding: 10px; border-radius: 8px;">
-                        <strong>PENTING:</strong> Jika Google menampilkan halaman <em>"Notifikasi Pengalihan"</em> setelah Anda klik tombol di atas, silakan <strong>klik tautan link biru</strong> yang muncul di layar tersebut untuk langsung memulai unduhan berkas Anda.
-                    </p>
-                `;
-                container.appendChild(successDiv);
-                
-                document.getElementById('finalDownloadLink').addEventListener('click', function() {
-                    setTimeout(() => { location.reload(); }, 4000);
-                });
-            }, 1500);
+const option=document.createElement("option");
 
-        } catch (error) {
-            alert("Gagal terhubung ke server database.");
-            btn.disabled = false;
-            loader.style.display = 'none';
-        }
-    });
+option.value=file.name;
 
-    window.onload = async function() {
-        await fetchGeoLocation();
-        await loadDropdownFiles();
-    };
+let text=file.name;
+
+if(file.status==="GRATIS"){
+text+=" (GRATIS)";
+}else{
+text+=" (Rp "+Number(file.price).toLocaleString()+")";
+}
+
+option.textContent=text;
+
+option.dataset.status=file.status;
+
+select.appendChild(option);
+
+});
+
+}catch(err){
+
+showToast("Gagal memuat data");
+
+}
+
+}
+
+async function loadIP(){
+
+try{
+
+const res=await fetch("https://ipapi.co/json/");
+ipInfo=await res.json();
+
+}catch(e){}
+
+}
+
+function showLoading(show=true){
+document.getElementById("loading").style.display=
+show?"flex":"none";
+}
+
+function showToast(text){
+
+const t=document.getElementById("toast");
+
+t.innerText=text;
+t.style.display="block";
+
+setTimeout(()=>{
+t.style.display="none";
+},3000);
+
+}
+
+form.addEventListener("submit",async(e)=>{
+
+e.preventDefault();
+
+showLoading(true);
+
+selectedFile=select.value;
+
+const payload={
+
+nama:nama.value,
+alamat:alamat.value,
+nohp:nohp.value,
+email:email.value,
+alasan:alasan.value,
+filePilihan:selectedFile,
+
+ip:ipInfo.ip||"",
+isp:ipInfo.org||"",
+os:navigator.platform,
+browser:navigator.userAgent,
+userAgent:navigator.userAgent
+
+};
+
+try{
+
+const res=await fetch(API_URL,{
+method:"POST",
+body:JSON.stringify(payload)
+});
+
+const data=await res.json();
+
+showLoading(false);
+
+form.style.display="none";
+
+const box=document.getElementById("successBox");
+
+if(data.type==="GRATIS"){
+
+currentToken=data.token;
+
+box.innerHTML=`
+
+<h2>Terima Kasih</h2>
+
+<p style="margin-top:10px">
+Token akses Anda:
+</p>
+
+<div class="token-box">
+<input value="${data.token}" readonly>
+</div>
+
+<button
+class="download-btn"
+onclick="downloadFile()"
+>
+UNDUH BERKAS SEKARANG
+</button>
+
+`;
+
+}else{
+
+box.innerHTML=`
+
+<h2>File Premium</h2>
+
+<p style="margin-top:15px">
+Token akses tersedia melalui admin.
+</p>
+
+<a
+class="contact-btn wa"
+href="https://wa.me/6285229399579"
+target="_blank"
+>
+WhatsApp Admin
+</a>
+
+<a
+class="contact-btn tt"
+href="https://tiktok.com/@yanuar_moga"
+target="_blank"
+>
+TikTok Admin
+</a>
+
+`;
+
+}
+
+box.style.display="block";
+
+}catch(err){
+
+showLoading(false);
+showToast("Terjadi kesalahan");
+
+}
+
+});
+
+async function downloadFile(){
+
+showLoading(true);
+
+try{
+
+const res=await fetch(
+`${API_URL}?file=${encodeURIComponent(selectedFile)}&token=${encodeURIComponent(currentToken)}`
+);
+
+const data=await res.json();
+
+showLoading(false);
+
+if(data.success){
+
+window.location.href=
+data.downloadUrl;
+
+}else{
+
+showToast(data.error);
+
+}
+
+}catch(err){
+
+showLoading(false);
+
+showToast("Gagal download");
+
+}
+
+}
+
+loadFiles();
+loadIP();
+
 </script>
+
 </body>
 </html>
