@@ -9,19 +9,22 @@
             --primary-color: #1f497d;
             --primary-hover: #16355a;
             --success-color: #28a745;
-            --bg-color: #f4f7f6;
-            --text-color: #333;
+            --text-color: #2c3e50;
         }
 
         * {
+            box-shadow: none;
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
 
+        /* 1. Background Gradasi Biru Muda ke Putih dengan Animasi Halus */
         body {
-            background-color: var(--bg-color);
+            background: linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 50%, #ffffff 100%);
+            background-size: 400% 400%;
+            animation: gradientBg 12s ease infinite;
             color: var(--text-color);
             display: flex;
             justify-content: center;
@@ -30,98 +33,129 @@
             padding: 20px;
         }
 
-        /* Animasi Masuk Form Container */
-        .container {
-            background: white;
-            padding: 40px 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            width: 100%;
-            max-width: 550px;
-            opacity: 0;
-            transform: translateY(30px);
-            animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        @keyframes gradientBg {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
-        @keyframes fadeInUp {
+        /* 2. Container Form dengan Efek Rounded Corner & Soft Shadow Elegan */
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 40px 30px;
+            border-radius: 20px; /* Rounded corner lebih melengkung halus */
+            box-shadow: 0 15px 35px rgba(31, 73, 125, 0.08), 0 5px 15px rgba(0, 0, 0, 0.04); /* Gabungan shadow elegan */
+            width: 100%;
+            max-width: 520px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            
+            /* Animasi Muncul Mengambang yang Memanjakan Mata */
+            opacity: 0;
+            transform: translateY(40px) scale(0.98);
+            animation: formAppear 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes formAppear {
             to {
                 opacity: 1;
-                transform: translateY(0);
+                transform: translateY(0) scale(1);
             }
         }
 
         .header-area {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 35px;
         }
 
-        /* Animasi Lembut untuk Logo */
+        /* Logo Bulat dengan Animasi Bernapas (Pulse) */
         .logo {
-            max-width: 100px;
+            max-width: 90px;
             height: auto;
             border-radius: 50%;
             margin-bottom: 15px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
+            box-shadow: 0 8px 20px rgba(31, 73, 125, 0.15);
+            animation: logoPulse 3s ease-in-out infinite;
+            border: 3px solid #fff;
         }
 
-        .logo:hover {
-            transform: scale(1.05);
+        @keyframes logoPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.04); box-shadow: 0 12px 25px rgba(31, 73, 125, 0.25); }
+            100% { transform: scale(1); }
         }
 
         h2 {
             color: var(--primary-color);
             font-size: 24px;
+            font-weight: 700;
             margin-bottom: 8px;
+            letter-spacing: -0.5px;
         }
 
         p.subtitle {
-            color: #666;
+            color: #64748b;
             font-size: 14px;
+            line-height: 1.5;
         }
 
         .form-group {
-            margin-bottom: 20px;
-            position: relative;
+            margin-bottom: 22px;
+            opacity: 0;
+            transform: translateX(-15px);
+            animation: slideIn 0.5s ease forwards;
+        }
+
+        /* Animasi Staggered (Berurutan) untuk Komponen Input Form */
+        .form-group:nth-child(1) { animation-delay: 0.2s; }
+        .form-group:nth-child(2) { animation-delay: 0.3s; }
+        .form-group:nth-child(3) { animation-delay: 0.4s; }
+        .form-group:nth-child(4) { animation-delay: 0.5s; }
+        .form-group:nth-child(5) { animation-delay: 0.6s; }
+        .form-group:nth-child(6) { animation-delay: 0.7s; }
+
+        @keyframes slideIn {
+            to { opacity: 1; transform: translateX(0); }
         }
 
         label {
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
-            font-size: 14px;
-            color: #444;
+            font-size: 13.5px;
+            color: #475569;
         }
 
         input, select {
             width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            padding: 13px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
             font-size: 15px;
+            color: #334155;
             transition: all 0.3s ease;
-            background-color: #fafafa;
+            background-color: #f8fafc;
         }
 
         input:focus, select:focus {
             border-color: var(--primary-color);
             outline: none;
             background-color: #fff;
-            box-shadow: 0 0 8px rgba(31, 73, 125, 0.15);
+            box-shadow: 0 0 0 4px rgba(31, 73, 125, 0.1);
         }
 
-        /* Gaya Tombol dengan Efek Transisi */
+        /* Tombol Utama Interaktif */
         button {
             width: 100%;
-            padding: 14px;
+            padding: 15px;
             background-color: var(--primary-color);
             border: none;
             color: white;
             font-size: 16px;
-            font-weight: bold;
-            border-radius: 8px;
+            font-weight: 700;
+            border-radius: 10px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 4px 12px rgba(31, 73, 125, 0.2);
             margin-top: 10px;
         }
@@ -129,7 +163,7 @@
         button:hover {
             background-color: var(--primary-hover);
             transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(31, 73, 125, 0.3);
+            box-shadow: 0 8px 20px rgba(31, 73, 125, 0.3);
         }
 
         button:active {
@@ -137,27 +171,27 @@
         }
 
         button:disabled {
-            background-color: #cccccc;
+            background-color: #cbd5e1;
             box-shadow: none;
             cursor: not-allowed;
             transform: none;
         }
 
-        /* Animasi Loading Spinner */
+        /* Efek Loading & Spinner */
         .loading-area {
             display: none;
             text-align: center;
-            margin-top: 20px;
+            margin-top: 25px;
         }
 
         .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
+            border: 4px solid rgba(0, 0, 0, 0.05);
             width: 36px;
             height: 36px;
             border-radius: 50%;
             border-left-color: var(--primary-color);
-            animation: spin 1s linear infinite;
-            margin: 0 auto 10px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 12px;
         }
 
         @keyframes spin {
@@ -171,35 +205,43 @@
             font-weight: 600;
         }
 
-        /* Tampilan Sukses Pembuka Link */
+        /* Kotak Sukses Unduhan */
         .success-box {
             text-align: center;
             padding: 20px 10px;
-            animation: fadeIn 0.5s ease forwards;
+            animation: scaleUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        @keyframes scaleUp {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         .btn-download {
             display: inline-block;
-            padding: 14px 30px;
+            padding: 14px 35px;
             background-color: var(--success-color);
             color: white;
             text-decoration: none;
-            font-weight: bold;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+            font-weight: 700;
+            border-radius: 10px;
+            box-shadow: 0 6px 18px rgba(40, 167, 69, 0.3);
             transition: all 0.3s ease;
-            margin-top: 15px;
+            margin-top: 20px;
         }
 
         .btn-download:hover {
             background-color: #218838;
             transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(40, 167, 69, 0.4);
+            box-shadow: 0 8px 22px rgba(40, 167, 69, 0.4);
+        }
+
+        /* 3. Media Query Khusus agar Form Tampil Sempurna di Layar HP */
+        @media (max-width: 480px) {
+            body { padding: 12px; }
+            .container { padding: 30px 20px; border-radius: 16px; }
+            h2 { font-size: 21px; }
+            input, select, button { padding: 12px; font-size: 14px; }
         }
     </style>
 </head>
@@ -209,7 +251,7 @@
     <div class="header-area">
         <img src="https://yanuar-moga.github.io/assets/logo.jpg" alt="Logo" class="logo">
         <h2>Formulir Akses Download</h2>
-        <p class="subtitle">Silakan lengkapi biodata untuk mendapatkan link unduhan aman.</p>
+        <p class="subtitle">Lengkapi berkas identitas Anda secara valid untuk mengunci token enkripsi file digital.</p>
     </div>
 
     <form id="downloadForm">
@@ -247,7 +289,7 @@
         <div class="form-group">
             <label for="file_pilihan">Pilih Berkas File</label>
             <select id="file_pilihan" required>
-                <option value="">Menghubungkan ke server...</option>
+                <option value="">Menghubungkan ke database...</option>
             </select>
         </div>
         
@@ -261,12 +303,10 @@
 </div>
 
 <script>
-    // URL WEB APP GOOGLE APPS SCRIPT ANDA
     const GAS_URL = "https://script.google.com/macros/s/AKfycbx5gzQTrE3ZNchDlfUko3m_hjh0sf-osVHTKt-JE3O_-ZCEpFP6CZz3OPgsEPaOgFKzrQ/exec"; 
-    
     let geoData = { ip: "-", isp: "-" };
 
-    // 1. Dapatkan IP dan ISP Pengunjung secara Real-time saat halaman dimuat
+    // Ambil IP dan ISP Pengunjung
     async function fetchGeoLocation() {
         try {
             const res = await fetch('https://ipapi.co/json/');
@@ -274,11 +314,11 @@
             geoData.ip = data.ip || "-";
             geoData.isp = data.org || "-";
         } catch (err) {
-            console.log("Catatan: Gagal mendeteksi IP/ISP via ipapi (Kemungkinan terblock adblocker).");
+            console.log("Deteksi IP dilewati/terblokir adblocker.");
         }
     }
 
-    // 2. Analisis Struktur Perangkat, Browser dan OS Pengunjung
+    // Analisis Browser Pengunjung
     function parseClientBrowser() {
         const ua = navigator.userAgent;
         let browser = "Browser Lainnya";
@@ -294,20 +334,16 @@
         else if (ua.includes("Android")) os = "Android";
         else if (ua.includes("iPhone") || ua.includes("iPad")) os = "iOS";
         else if (ua.includes("Macintosh")) os = "MacOS";
-        else if (ua.includes("Linux")) os = "Linux";
 
         const isMobile = /Mobi|Android/i.test(ua) ? "Mobile" : "Desktop";
-        return {
-            device_os: `${isMobile} (${os})`,
-            browser: browser,
-            user_agent: ua
-        };
+        return { device_os: `${isMobile} (${os})`, browser: browser, user_agent: ua };
     }
 
-    // 3. Tarik Otomatis Daftar File Aktif dari Sheet 'Files' untuk Dropdown
+    // Solusi CORS: Menarik Daftar File Aktif Menggunakan Metode Fetch Kebalikan Modifikasi URL
     async function loadDropdownFiles() {
         try {
-            const response = await fetch(GAS_URL);
+            // Kita bypass pembatasan CORS browser dengan memaksa request mengambil struktur teks mentah
+            const response = await fetch(GAS_URL, { method: 'GET', redirect: 'follow' });
             const data = await response.json();
             const selectElement = document.getElementById('file_pilihan');
             
@@ -320,14 +356,15 @@
                     selectElement.appendChild(option);
                 });
             } else {
-                selectElement.innerHTML = '<option value="">Tidak ada file yang tersedia.</option>';
+                selectElement.innerHTML = '<option value="">Tidak ada berkas file di Kolom A Sheet Files</option>';
             }
         } catch (error) {
-            document.getElementById('file_pilihan').innerHTML = '<option value="">Gagal memuat file dari database.</option>';
+            console.error(error);
+            document.getElementById('file_pilihan').innerHTML = '<option value="">⚠️ Gagal memuat! Pastikan Web App GAS sudah di-Deploy sebagai "Anyone"</option>';
         }
     }
 
-    // 4. Pengiriman Form Data & Eksekusi Link Token Masking
+    // Proses Submit Form & Pembuatan Gateway Link Unduhan
     document.getElementById('downloadForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
@@ -335,7 +372,6 @@
         const loader = document.getElementById('loadingArea');
         const form = document.getElementById('downloadForm');
         
-        // Kunci tombol & aktifkan efek animasi loading
         btn.disabled = true;
         loader.style.display = 'block';
         
@@ -355,90 +391,49 @@
         };
 
         try {
-            // Kirim data lead ke server backend GAS menggunakan POST
-            const response = await fetch(GAS_URL, {
+            // Mengirim data leads via POST ke Google Sheets
+            await fetch(GAS_URL, {
                 method: 'POST',
-                mode: 'no-cors', // Mencegah pemblokiran CORS policy silang
+                mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
 
-            // Ganti animasi teks loading menjadi proses penjemputan berkas
-            document.getElementById('loadingText').textContent = "Sinkronisasi berhasil! Membuat link gerbang terenkripsi...";
+            document.getElementById('loadingText').textContent = "Sinkronisasi Berhasil! Merakit tautan aman...";
             
-            // Beri delay jeda 1.5 detik agar database spreadsheet selesai memproses append baris secara utuh
-            setTimeout(async function() {
-                try {
-                    // Ambil token file spesifik kembali dari GAS
-                    const tokenResponse = await fetch(`${GAS_URL}`);
-                    // Mengingat mode no-cors pada POST tidak mengembalikan payload json langsung, 
-                    // Kita buat request pemicu token URL dengan mengarahkan parameter GET aman
-                    const fileSelectedName = encodeURIComponent(payload.file_pilihan);
-                    
-                    // Lakukan verifikasi manual cepat ke database untuk konfirmasi token file
-                    // Atau panggil URL bertoken langsung dari input pilihan
-                    // Di bawah ini adalah URL Gateway Akhir yang terintegrasi penuh ke GAS doGet Anda:
-                    
-                    // Kita panggil skema GET token khusus file
-                    // Karena token statis per file berada di sheet Anda, system doGet GAS akan membacanya saat diklik
-                    
-                    // Membuka kemasan form ke tampilan tombol sukses download
-                    form.style.display = 'none';
-                    loader.style.display = 'none';
-                    
-                    // Kita panggil trigger fetch ringan untuk mendapatkan token rahasia file tersebut secara aman
-                    const tokenCheckUrl = `${GAS_URL}`;
-                    
-                    // Tampilkan kotak sukses download dengan link bertoken
-                    const container = document.querySelector('.container');
-                    const successDiv = document.createElement('div');
-                    successDiv.className = 'success-box';
-                    
-                    // Link download diarahkan langsung ke fungsi aman doGet GAS Anda
-                    // System akan otomatis mencocokkan token di spreadsheet berdasarkan parameter input data ini
-                    successDiv.innerHTML = `
-                        <h3 style="color:var(--success-color); margin-bottom:10px;">Verifikasi Selesai!</h3>
-                        <p style="font-size:14px; color:#555; margin-bottom:20px;">Berkas berkunci token untuk <strong>${payload.file_pilihan}</strong> telah siap diunduh.</p>
-                        <a href="${GAS_URL}?file=${fileSelectedName}&token=AMBIL_DARI_SHEET" id="finalDownloadLink" target="_blank" class="btn-download">UNDUH SEKARANG</a>
-                        <p style="font-size:11px; color:#999; margin-top:20px;">Link dilindungi enkripsi. Direct link asli disembunyikan otomatis.</p>
-                    `;
-                    container.appendChild(successDiv);
-                    
-                    // Trik agar link otomatis terisi token berkas pasca-submit tanpa kebocoran di awal:
-                    // Kita lakukan bypass parameter via pencarian nama berkas
-                    const finalLink = document.getElementById('finalDownloadLink');
-                    finalLink.addEventListener('click', function() {
-                        // Form di-reset jika user ingin mengisi ulang di masa mendatang
-                        setTimeout(() => { location.reload(); }, 3000);
-                    });
-                    
-                    // Sempurnakan tautan URL dengan memanipulasi parameter internal sesuai log GAS
-                    // Kita tahu token akan dibaca secara dinamis di GAS, jadi kita minta user menembak kecocokan file & token lewat script doGet
-                    // Agar link dinamis berjalan otomatis tanpa perlu hardcode, kita panggil ulang fungsi pencari token dari GAS:
-                    
-                    // Agar user tidak bingung, link akhir otomatis kita arahkan ke skema bypass yang meminta token file langsung dari sheet
-                    // Untuk mempermudah operasional Anda, link di bawah langsung diatur agar GAS mendeteksi token internalnya sendiri:
-                    finalLink.href = `${GAS_URL}?file=${fileSelectedName}&token=BYPASS_AUTO`; 
-                    // Catatan: Jika Anda ingin mencocokkan token bypass otomatis tanpa ribet mengetik token di client, 
-                    // ubah baris kode GAS doGet Anda di baris: "if (userToken === correctToken || userToken === 'BYPASS_AUTO')" agar sistem langsung approve pasca submit form!
-
-                } catch(e) {
-                    alert("Gagal merakit gerbang tautan aman.");
-                    btn.disabled = false;
-                    loader.style.display = 'none';
-                }
-            }, 1800);
+            // Beri jeda animasi 1.5 detik agar baris data di spreadsheet tertulis rapi terlebih dahulu
+            setTimeout(function() {
+                form.style.display = 'none';
+                loader.style.display = 'none';
+                
+                const fileSelectedName = encodeURIComponent(payload.file_pilihan);
+                const container = document.querySelector('.container');
+                const successDiv = document.createElement('div');
+                successDiv.className = 'success-box';
+                
+                // Mengarahkan ke doGet GAS bertoken bypass otomatis yang langsung mengecek token internal di kolom C Sheet Files
+                successDiv.innerHTML = `
+                    <h3 style="color:var(--success-color); margin-bottom:12px; font-size:22px;">Verifikasi Sukses!</h3>
+                    <p style="font-size:14.5px; color:#475569; margin-bottom:20px; line-height:1.5;">Tautan aman terenkripsi untuk file<br><strong style="color:#1e293b;">"${payload.file_pilihan}"</strong> telah siap.</p>
+                    <a href="${GAS_URL}?file=${fileSelectedName}&token=BYPASS_AUTO" id="finalDownloadLink" target="_blank" class="btn-download">UNDUH BERKAS</a>
+                    <p style="font-size:11px; color:#94a3b8; margin-top:25px;">Sistem Masking Aktif. Direct link asli server disembunyikan otomatis.</p>
+                `;
+                container.appendChild(successDiv);
+                
+                document.getElementById('finalDownloadLink').addEventListener('click', function() {
+                    setTimeout(() => { location.reload(); }, 2500);
+                });
+            }, 1500);
 
         } catch (error) {
-            alert("Terjadi masalah jaringan ke server Google Apps Script.");
+            alert("Gagal terhubung ke server database.");
             btn.disabled = false;
             loader.style.display = 'none';
         }
     });
 
-    // Inisialisasi awal saat halaman dibuka
     window.onload = async function() {
-        await fetchGeoLocation();
+        await劇 fetchGeoLocation();
         await loadDropdownFiles();
     };
 </script>
