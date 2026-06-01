@@ -255,38 +255,98 @@ Silakan lengkapi data untuk mengakses berkas.
 <form id="leadForm">
 
 <div class="form-group">
-<label>Nama</label>
-<input type="text" id="nama" required>
+<label>Nama Lengkap *</label>
+<input
+type="text"
+id="nama"
+placeholder="Masukkan nama lengkap"
+required>
 </div>
 
 <div class="form-group">
-<label>Alamat</label>
-<input type="text" id="alamat">
+<label>Alamat *</label>
+<input
+type="text"
+id="alamat"
+placeholder="Masukkan alamat"
+required>
 </div>
 
 <div class="form-group">
-<label>No HP</label>
-<input type="text" id="nohp" required>
+<label>No HP / WhatsApp *</label>
+<input
+type="tel"
+id="nohp"
+placeholder="08xxxxxxxxxx"
+required>
 </div>
 
 <div class="form-group">
-<label>Email</label>
-<input type="email" id="email">
+<label>Email *</label>
+<input
+type="email"
+id="email"
+placeholder="email@contoh.com"
+required>
 </div>
 
 <div class="form-group">
-<label>Alasan</label>
-<textarea id="alasan"></textarea>
-</div>
+<label>Alasan Download *</label>
 
-<div class="form-group">
-<label>Pilih File</label>
-<select id="fileSelect">
-<option>Memuat data...</option>
+<select
+id="alasan"
+required
+onchange="toggleAlasanLain()">
+
+<option value="">
+-- Pilih Alasan Download --
+</option>
+
+<option value="Belajar Mandiri">
+📚 Belajar Mandiri
+</option>
+
+<option value="Mengajar">
+👨‍🏫 Mengajar
+</option>
+
+<option value="Referensi">
+📖 Referensi
+</option>
+
+<option value="Lainnya">
+📝 Lainnya
+</option>
+
 </select>
 </div>
 
-<button class="submit-btn">
+<div
+class="form-group"
+id="alasanLainBox"
+style="display:none;">
+
+<label>Alasan Lainnya *</label>
+
+<input
+type="text"
+id="alasanLain"
+placeholder="Tulis alasan Anda">
+
+</div>
+
+<div class="form-group">
+<label>Pilih File *</label>
+
+<select id="fileSelect" required>
+<option value="">Memuat data...</option>
+</select>
+
+</div>
+
+<button
+type="submit"
+class="submit-btn">
 Lanjutkan
 </button>
 
@@ -341,7 +401,6 @@ text+=" (Rp "+Number(file.price).toLocaleString()+")";
 }
 
 option.textContent=text;
-
 option.dataset.status=file.status;
 
 select.appendChild(option);
@@ -385,22 +444,129 @@ t.style.display="none";
 
 }
 
-form.addEventListener("submit",async(e)=>{
+function toggleAlasanLain(){
+
+const alasan =
+document.getElementById("alasan").value;
+
+const box =
+document.getElementById("alasanLainBox");
+
+const input =
+document.getElementById("alasanLain");
+
+if(alasan==="Lainnya"){
+
+box.style.display="block";
+
+input.setAttribute(
+"required",
+"required"
+);
+
+}else{
+
+box.style.display="none";
+
+input.removeAttribute(
+"required"
+);
+
+input.value="";
+
+}
+
+}
+
+form.addEventListener(
+"submit",
+async(e)=>{
 
 e.preventDefault();
 
+const nama =
+document.getElementById("nama").value.trim();
+
+const alamat =
+document.getElementById("alamat").value.trim();
+
+const nohp =
+document.getElementById("nohp").value.trim();
+
+const email =
+document.getElementById("email").value.trim();
+
+const alasan =
+document.getElementById("alasan").value;
+
+const file =
+document.getElementById("fileSelect").value;
+
+if(
+!nama ||
+!alamat ||
+!nohp ||
+!email ||
+!alasan ||
+!file
+){
+showToast(
+"Semua data wajib diisi."
+);
+return;
+}
+
+if(nohp.length < 10){
+showToast(
+"No HP tidak valid."
+);
+return;
+}
+
+const emailRegex =
+/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+if(!emailRegex.test(email)){
+showToast(
+"Format email tidak valid."
+);
+return;
+}
+
+let alasanFinal = alasan;
+
+if(alasan==="Lainnya"){
+
+alasanFinal =
+document
+.getElementById("alasanLain")
+.value
+.trim();
+
+if(!alasanFinal){
+
+showToast(
+"Isi alasan lainnya."
+);
+
+return;
+
+}
+
+}
+
 showLoading(true);
 
-selectedFile=select.value;
+selectedFile=file;
 
 const payload={
 
-nama:nama.value,
-alamat:alamat.value,
-nohp:nohp.value,
-email:email.value,
-alasan:alasan.value,
-filePilihan:selectedFile,
+nama:nama,
+alamat:alamat,
+nohp:nohp,
+email:email,
+alasan:alasanFinal,
+filePilihan:file,
 
 ip:ipInfo.ip||"",
 isp:ipInfo.org||"",
@@ -412,18 +578,25 @@ userAgent:navigator.userAgent
 
 try{
 
-const res=await fetch(API_URL,{
+const res=await fetch(
+API_URL,
+{
 method:"POST",
 body:JSON.stringify(payload)
-});
+}
+);
 
-const data=await res.json();
+const data=
+await res.json();
 
 showLoading(false);
 
 form.style.display="none";
 
-const box=document.getElementById("successBox");
+const box=
+document.getElementById(
+"successBox"
+);
 
 if(data.type==="GRATIS"){
 
@@ -443,8 +616,7 @@ Token akses Anda:
 
 <button
 class="download-btn"
-onclick="downloadFile()"
->
+onclick="downloadFile()">
 UNDUH BERKAS SEKARANG
 </button>
 
@@ -457,22 +629,20 @@ box.innerHTML=`
 <h2>File Premium</h2>
 
 <p style="margin-top:15px">
-Token akses tersedia melalui admin.
+Token tersedia melalui admin.
 </p>
 
 <a
 class="contact-btn wa"
 href="https://wa.me/6285229399579"
-target="_blank"
->
+target="_blank">
 WhatsApp Admin
 </a>
 
 <a
 class="contact-btn tt"
-href="https://tiktok.com/@yanuar_moga"
-target="_blank"
->
+href="https://www.tiktok.com/@yanuar_moga"
+target="_blank">
 TikTok Admin
 </a>
 
@@ -485,7 +655,12 @@ box.style.display="block";
 }catch(err){
 
 showLoading(false);
-showToast("Terjadi kesalahan");
+
+showToast(
+"Terjadi kesalahan."
+);
+
+console.error(err);
 
 }
 
@@ -533,3 +708,4 @@ loadIP();
 
 </body>
 </html>
+```
