@@ -15,7 +15,10 @@
     --glass:rgba(255,255,255,.15);
     --glass-border:rgba(255,255,255,.25);
 }
-*{box-sizing:border-box}
+
+*{
+    box-sizing:border-box;
+}
 
 body{
     margin:0;
@@ -23,11 +26,12 @@ body{
     min-height:100vh;
     color:#fff;
     background:
-      linear-gradient(rgba(10,15,35,.75),rgba(10,15,35,.75)),
-      url("assets/bg.png") center/cover no-repeat fixed;
+        linear-gradient(rgba(10,15,35,.75),rgba(10,15,35,.75)),
+        url("assets/bg.png") center/cover no-repeat fixed;
 }
 
 /* ================= FLOATING PREMIUM HEADER ================= */
+
 .top-header{
     max-width:1200px;
     margin:22px auto 0;
@@ -45,9 +49,11 @@ body{
         var(--accent),
         var(--secondary)
     );
+
     background-size:300% 300%;
-    animation:gradientFlow 18s ease infinite,
-              floating 6s ease-in-out infinite;
+    animation:
+        gradientFlow 18s ease infinite,
+        floating 6s ease-in-out infinite;
 
     box-shadow:
         0 25px 55px rgba(0,0,0,.6),
@@ -61,36 +67,44 @@ body{
     left:-70%;
     width:50%;
     height:100%;
+
     background:linear-gradient(
         120deg,
         transparent,
         rgba(255,255,255,.45),
         transparent
     );
+
     animation:lightSweep 3.5s ease-out 1;
 }
 
 @keyframes gradientFlow{
-    0%{background-position:0% 50%}
-    50%{background-position:100% 50%}
-    100%{background-position:0% 50%}
+    0%{
+        background-position:0% 50%;
+    }
+    50%{
+        background-position:100% 50%;
+    }
+    100%{
+        background-position:0% 50%;
+    }
 }
 
 @keyframes floating{
     0%,100%{
-        transform:translateY(0)
+        transform:translateY(0);
     }
     50%{
-        transform:translateY(-4px)
+        transform:translateY(-4px);
     }
 }
 
 @keyframes lightSweep{
     from{
-        left:-70%
+        left:-70%;
     }
     to{
-        left:130%
+        left:130%;
     }
 }
 
@@ -100,6 +114,7 @@ body{
     border-radius:16px;
     background:#fff;
     padding:6px;
+
     box-shadow:
         0 12px 30px rgba(0,0,0,.45),
         inset 0 0 0 1px rgba(255,255,255,.8);
@@ -117,6 +132,7 @@ body{
     opacity:.9;
 }
 
+
 /* ================= HEADER ================= */
 
 .header{
@@ -133,6 +149,7 @@ body{
     font-size:14px;
     opacity:.85;
 }
+
 
 /* ================= MENU ================= */
 
@@ -152,17 +169,24 @@ body{
     font-weight:600;
     color:#fff;
     cursor:pointer;
-    background:linear-gradient(
-        135deg,
-        var(--primary),
-        var(--secondary)
-    );
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--primary),
+            var(--secondary)
+        );
 }
 
 .menu button.active{
     background:
-    linear-gradient(135deg,#22c55e,#16a34a);
+        linear-gradient(
+            135deg,
+            #22c55e,
+            #16a34a
+        );
 }
+
 
 /* ================= CONTENT ================= */
 
@@ -183,7 +207,8 @@ body{
 .grid{
     display:grid;
     grid-template-columns:
-    repeat(auto-fit,minmax(260px,1fr));
+        repeat(auto-fit,minmax(260px,1fr));
+
     gap:22px;
 }
 
@@ -198,8 +223,9 @@ body{
 
 .card:hover{
     transform:translateY(-4px);
+
     box-shadow:
-    0 20px 40px rgba(0,0,0,.45);
+        0 20px 40px rgba(0,0,0,.45);
 }
 
 .card a{
@@ -210,13 +236,15 @@ body{
     font-weight:600;
     color:#fff;
     text-decoration:none;
+
     background:
-    linear-gradient(
-        135deg,
-        var(--primary),
-        var(--secondary)
-    );
+        linear-gradient(
+            135deg,
+            var(--primary),
+            var(--secondary)
+        );
 }
+
 
 /* ================= FOOTER ================= */
 
@@ -233,13 +261,14 @@ body{
 <body>
 
 <header class="top-header">
+
 <img src="assets/logo.jpg">
 
 <div>
-<h1>Tools Aplikasi Sekolah</h1>
-<p>
-Versi 1.0 · Build 13 Desember 2025 · Dev by MB
-</p>
+    <h1>Tools Aplikasi Sekolah</h1>
+    <p>
+        Versi 1.0 · Build 13 Desember 2025 · Dev by MB
+    </p>
 </div>
 
 </header>
@@ -250,7 +279,520 @@ Versi 1.0 · Build 13 Desember 2025 · Dev by MB
 <h2>Dashboard Tools</h2>
 
 <span>
-Pusat Akses Aplikasi Pendukung Pembelajaran
+    Pusat Akses Aplikasi Pendukung Pembelajaran
 </span>
 
 </div>
+<div class="menu">
+
+<button class="active" onclick="showSection('rapor',this)">
+    📘 Penilaian
+</button>
+
+<button onclick="showSection('siswa',this)">
+    👥 Data Siswa
+</button>
+
+<button onclick="showSection('gsheet',this)">
+    📄 Google Sheet
+</button>
+
+<button onclick="showSection('lab',this)">
+    💻 Laboratorium
+</button>
+
+<button onclick="showSection('guru',this)">
+    👨‍🏫 Aplikasi Guru
+</button>
+
+</div>
+
+
+<div class="container">
+
+
+<!-- ================= PENILAIAN ================= -->
+
+<div id="rapor" class="section active">
+
+<div class="grid">
+
+
+<div class="card">
+
+<h3>📝 e-Rapor</h3>
+
+<p>
+    Pengelolaan e-Rapor siswa.
+</p>
+
+<a href="tools/erapor.html"
+   target="_blank"
+   rel="noopener">
+
+    Buka Aplikasi
+
+</a>
+
+</div>
+
+
+<div class="card">
+
+<h3>📊 Analisis Nilai</h3>
+
+<p>
+    Analisis hasil belajar siswa.
+</p>
+
+<a href="tools/analisisnilai.html"
+   target="_blank"
+   rel="noopener">
+
+    Buka Aplikasi
+
+</a>
+
+</div>
+
+
+<div class="card">
+
+<h3>🧠 Penilaian Karakter</h3>
+
+<p>
+    Analisis karakter berbasis rapor.
+</p>
+
+<a href="https://yanuar-moga.github.io/tools/char2.html"
+   target="_blank"
+   rel="noopener">
+
+    Buka Aplikasi
+
+</a>
+
+</div>
+
+
+<!-- MENU BARU DITAMBAHKAN -->
+
+<div class="card">
+
+<h3>📋 Laporan Kenaikan Kelas</h3>
+
+<p>
+    Aplikasi pembuatan laporan kenaikan kelas siswa.
+</p>
+
+<a href="https://yanuar-moga.github.io/tools/laporan_kenaikan_kelas"
+   target="_blank"
+   rel="noopener">
+
+    Buka Aplikasi
+
+</a>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+
+<!-- ================= DATA SISWA ================= -->
+
+
+<div id="siswa" class="section">
+
+
+<div class="grid">
+
+
+<div class="card">
+
+<h3>🔐 Akun Belajar</h3>
+
+<p>
+    Manajemen akun belajar siswa.
+</p>
+
+<a href="tools/akunbelajar.html"
+   target="_blank"
+   rel="noopener">
+
+    Buka Aplikasi
+
+</a>
+
+</div>
+
+
+
+<div class="card">
+
+<h3>🔎 Cocokkan Data</h3>
+
+<p>
+    Pencocokan data Google Form.
+</p>
+
+<a href="tools/cocokin.html"
+   target="_blank"
+   rel="noopener">
+
+    Buka Aplikasi
+
+</a>
+
+</div>
+
+
+
+<div class="card">
+
+<h3>🧩 Split Dapodik</h3>
+
+<p>
+    Pemisahan data per rombel.
+</p>
+
+<a href="tools/splitxldapodik.html"
+   target="_blank"
+   rel="noopener">
+
+    Buka Aplikasi
+
+</a>
+
+</div>
+
+
+</div>
+
+</div>
+<!-- ================= GOOGLE SHEET ================= -->
+
+<div id="gsheet" class="section">
+
+<div class="grid">
+
+
+<div class="card">
+
+<h3>📄 Nilai per Kelas</h3>
+
+<p>
+    Rekap nilai dari Google Sheet.
+</p>
+
+<a href="tools/nilaiperkelasgsheet.html"
+   target="_blank"
+   rel="noopener">
+
+    Buka Aplikasi
+
+</a>
+
+</div>
+
+
+
+<div class="card">
+
+<h3>⚡ Nilai Direct</h3>
+
+<p>
+    Input nilai tanpa Excel.
+</p>
+
+<a href="tools/nilaiperkelasgsheetdirect.html"
+   target="_blank"
+   rel="noopener">
+
+    Buka Aplikasi
+
+</a>
+
+</div>
+
+
+
+<div class="card">
+
+<h3>🔄 Sync GForm</h3>
+
+<p>
+    Sinkronisasi nilai Google Form.
+</p>
+
+<a href="tools/sync_nilaisiswa_gform.html"
+   target="_blank"
+   rel="noopener">
+
+    Buka Aplikasi
+
+</a>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+
+<!-- ================= LABORATORIUM ================= -->
+
+<div id="lab" class="section">
+
+
+<div class="grid">
+
+
+<div class="card">
+
+<h3>📦 Inventaris Lab</h3>
+
+<p>
+    Data inventaris laboratorium.
+</p>
+
+<a href="tools/inventarislab2.html"
+   target="_blank"
+   rel="noopener">
+
+    Buka Aplikasi
+
+</a>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+
+<!-- ================= APLIKASI GURU ================= -->
+
+<div id="guru" class="section">
+
+
+<div class="grid">
+
+
+<div class="card">
+
+<h3>👨‍🏫 Aplikasi Guru Wali</h3>
+
+<p>
+    Aplikasi pendukung tugas guru wali kelas.
+</p>
+
+<a href="https://yanuar-moga.github.io/guruwali/"
+   target="_blank"
+   rel="noopener">
+
+    Buka Aplikasi
+
+</a>
+
+</div>
+
+
+
+<div class="card">
+
+<h3>🎮 Ice Breaking Escape</h3>
+
+<p>
+    Permainan ice breaking interaktif untuk siswa.
+</p>
+
+<a href="https://yanuar-moga.github.io/escape/"
+   target="_blank"
+   rel="noopener">
+
+    Buka Aplikasi
+
+</a>
+
+</div>
+
+
+
+<div class="card">
+
+<h3>🚑 Web Ekstra PMR</h3>
+
+<p>
+    Website kegiatan ekstrakurikuler PMR.
+</p>
+
+<a href="https://yanuar-moga.github.io/pmr/"
+   target="_blank"
+   rel="noopener">
+
+    Buka Aplikasi
+
+</a>
+
+</div>
+
+
+
+<div class="card">
+
+<h3>💻 E-Learning Informatika</h3>
+
+<p>
+    Media pembelajaran informatika online.
+</p>
+
+<a href="https://tik-smpn1moga.blogspot.com/"
+   target="_blank"
+   rel="noopener">
+
+    Buka Aplikasi
+
+</a>
+
+</div>
+
+
+
+<div class="card">
+
+<h3>🎡 Spin Picker Siswa</h3>
+
+<p>
+    Aplikasi acak siswa berbasis roda putar.
+</p>
+
+<a href="https://yanuar-moga.github.io/informatika/spin.html"
+   target="_blank"
+   rel="noopener">
+
+    Buka Aplikasi
+
+</a>
+
+</div>
+
+
+
+<div class="card">
+
+<h3>🧹 Pembagi Tugas RESHAP</h3>
+
+<p>
+    Alat otomatis pembagian tugas kebersihan kelas.
+</p>
+
+<a href="https://yanuar-moga.github.io/informatika/kelompok_reshap.html"
+   target="_blank"
+   rel="noopener">
+
+    Buka Aplikasi
+
+</a>
+
+</div>
+
+
+
+<div class="card">
+
+<h3>📑 Penilaian Lingkup Materi 1</h3>
+
+<p>
+    Aplikasi penilaian untuk asesmen Lingkup Materi 1.
+</p>
+
+<a href="https://yanuar-moga.github.io/informatika/asesmen/nilai_lm1.html"
+   target="_blank"
+   rel="noopener">
+
+    Buka Aplikasi
+
+</a>
+
+</div>
+
+
+
+<div class="card">
+
+<h3>👥 Pembagian Tugas Kelompok</h3>
+
+<p>
+    Aplikasi untuk membagi kelompok siswa secara otomatis dan adil.
+</p>
+
+<a href="https://yanuar-moga.github.io/informatika/kelompok.html"
+   target="_blank"
+   rel="noopener">
+
+    Buka Aplikasi
+
+</a>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+
+</div>
+
+
+<!-- ================= FOOTER ================= -->
+
+<div class="footer">
+
+© 2026 MB · All Rights Reserved
+
+</div>
+
+
+
+<script>
+
+function showSection(id, btn){
+
+    document
+        .querySelectorAll('.section')
+        .forEach(function(section){
+            section.classList.remove('active');
+        });
+
+
+    document
+        .getElementById(id)
+        .classList.add('active');
+
+
+    document
+        .querySelectorAll('.menu button')
+        .forEach(function(button){
+            button.classList.remove('active');
+        });
+
+
+    btn.classList.add('active');
+}
+
+</script>
+
+
+</body>
+
+</html>
