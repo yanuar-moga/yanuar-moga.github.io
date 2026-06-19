@@ -2,137 +2,109 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Rapor Digital Professional - SMPN 1 Moga</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Perkembangan Hasil Belajar</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        body { font-family: 'Poppins', sans-serif; background: #f1f5f9; }
-        .card { background: white; border-radius: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .dashboard-card { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-6">
 
-<div class="max-w-4xl mx-auto">
-    <div class="bg-blue-900 p-8 rounded-3xl text-white text-center mb-6 shadow-2xl">
-        <h1 class="text-2xl font-bold">Laporan Perkembangan Siswa 360°</h1>
-        <p class="text-yellow-400">SMP NEGERI 1 MOGA - KELAS 7H</p>
+<div class="max-w-6xl mx-auto">
+    <div class="mb-8 flex flex-col md:flex-row gap-4 items-center justify-between bg-white p-6 rounded-xl shadow-sm border">
+        <h1 class="text-xl font-bold text-gray-800">Dashboard Hasil Belajar Siswa</h1>
+        <input type="file" id="fileInput" class="text-sm border p-2 rounded-lg" accept=".xlsx">
+        <select id="selectSiswa" class="p-2 border rounded-lg w-full md:w-64 font-medium"></select>
     </div>
 
-    <div class="card p-6 mb-6">
-        <div class="grid grid-cols-2 gap-4">
-            <input type="file" id="fileS1" class="p-2 border rounded-xl" title="Semester 1">
-            <input type="file" id="fileS2" class="p-2 border rounded-xl" title="Semester 2">
+    <div id="mainContent" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-1 space-y-6">
+            <div class="dashboard-card p-6">
+                <h2 id="namaSiswa" class="text-lg font-bold text-blue-900">Nama Siswa</h2>
+                <p id="nisInfo" class="text-sm text-gray-500 mb-4">NIS / NISN</p>
+                <div class="grid grid-cols-2 gap-2 text-center">
+                    <div class="bg-blue-50 p-2 rounded">Rank S1<p id="rankS1" class="font-bold">0</p></div>
+                    <div class="bg-blue-50 p-2 rounded">Rank S2<p id="rankS2" class="font-bold">0</p></div>
+                </div>
+            </div>
+            
+            <div class="dashboard-card p-6">
+                <h3 class="font-bold mb-3 text-gray-700">Kehadiran</h3>
+                <table class="w-full text-sm text-center">
+                    <tr class="text-gray-400"><th>Ket</th><th>S</th><th>I</th><th>A</th></tr>
+                    <tr id="rowS1"><td>S1</td><td colspan="3">-</td></tr>
+                    <tr id="rowS2"><td>S2</td><td colspan="3">-</td></tr>
+                </table>
+            </div>
         </div>
-        <div class="mt-4 flex flex-col gap-2">
-            <select id="selectSiswa" class="w-full p-4 bg-gray-100 rounded-2xl font-bold text-lg">
-                <option value="">-- Pilih Nama Siswa --</option>
-            </select>
-            <div class="flex gap-2">
-                <button onclick="navigasi(-1)" class="flex-1 bg-gray-500 text-white p-3 rounded-xl font-bold">◀ Sebelumnya</button>
-                <button onclick="navigasi(1)" class="flex-1 bg-blue-600 text-white p-3 rounded-xl font-bold">Selanjutnya ▶</button>
+
+        <div class="lg:col-span-2 space-y-6">
+            <div class="dashboard-card p-6">
+                <canvas id="chartMapel" height="150"></canvas>
+            </div>
+            
+            <div class="dashboard-card p-6 grid grid-cols-2 gap-4">
+                <div><p class="text-gray-500 text-sm">Rata-rata S1 / S2</p><p id="avgInfo" class="font-bold">0 / 0</p></div>
+                <div><p class="text-gray-500 text-sm">Status Ketuntasan</p><p id="statusInfo" class="font-bold">--</p></div>
+            </div>
+
+            <div class="bg-blue-900 text-white p-6 rounded-xl">
+                <h3 class="font-bold mb-2">Catatan Wali Kelas</h3>
+                <p id="catatanWali" class="italic text-sm text-blue-100"></p>
             </div>
         </div>
     </div>
-
-    <div id="displayArea" class="hidden space-y-6"></div>
 </div>
 
 <script>
-    let dataS1 = [], dataS2 = [];
-    Chart.register(ChartDataLabels);
-    const mapelLabels = ["Agama", "Pend. Pancasila", "B. Indonesia", "Matematika", "IPA", "IPS", "B. Inggris", "Prakarya", "PJOK", "Informatika", "B. Daerah"];
+    let d1, d2, dCatatan;
+    const mapels = ["Agama", "Pancasila", "B. Indo", "Matematika", "IPA", "IPS", "B. Inggris", "Prakarya", "PJOK", "Informatika", "B. Daerah"];
 
-    function process(e, type) {
+    document.getElementById('fileInput').addEventListener('change', (e) => {
         const reader = new FileReader();
         reader.onload = (ev) => {
             const wb = XLSX.read(ev.target.result, {type: 'array'});
-            const data = XLSX.utils.sheet_to_json(wb.Sheets[Object.keys(wb.Sheets)[0]], {header: 1});
-            if(type === 1) dataS1 = data; else { dataS2 = data; initDropdown(); }
+            d1 = XLSX.utils.sheet_to_json(wb.Sheets["Semester1"], {header: 1});
+            d2 = XLSX.utils.sheet_to_json(wb.Sheets["Semester2"], {header: 1});
+            dCatatan = XLSX.utils.sheet_to_json(wb.Sheets["CatatanWaliKelas"], {header: 1});
+            
+            const sel = document.getElementById('selectSiswa');
+            d2.forEach((r, i) => { if(i > 0 && r[1]) sel.innerHTML += `<option value="${i}">${r[1]}</option>`; });
+            document.getElementById('mainContent').classList.remove('hidden');
         };
         reader.readAsArrayBuffer(e.target.files[0]);
-    }
-
-    function initDropdown() {
-        const select = document.getElementById('selectSiswa');
-        select.innerHTML = '<option value="">-- Pilih Nama Siswa --</option>';
-        dataS2.forEach((row, i) => { if(i >= 7 && row[1]) { 
-            let opt = document.createElement('option'); opt.value = i; opt.text = row[1]; select.appendChild(opt); 
-        }});
-    }
-
-    function navigasi(step) {
-        const select = document.getElementById('selectSiswa');
-        let nextIndex = select.selectedIndex + step;
-        if (nextIndex > 0 && nextIndex < select.options.length) {
-            select.selectedIndex = nextIndex;
-            select.dispatchEvent(new Event('change'));
-        }
-    }
+    });
 
     document.getElementById('selectSiswa').addEventListener('change', (e) => {
-        if(!e.target.value) return;
-        const s2 = dataS2[e.target.value];
-        const s1 = dataS1.find(r => r && r[1] && r[1].trim() === s2[1].trim());
+        const i = e.target.value;
+        const s2 = d2[i], s1 = d1[i];
         
-        const nilaiS2 = mapelLabels.map((_, i) => parseFloat(s2[i+4]) || 0);
-        const nilaiS1 = s1 ? mapelLabels.map((_, i) => parseFloat(s1[i+5]) || 0) : mapelLabels.map(() => 0);
-        
-        const avgS2 = parseFloat(s2[21]);
-        const avgS1 = parseFloat(s1 ? s1[28] : 0);
-        const rankS2 = s2[22] || '-';
-        const rankS1 = s1 ? s1[2] : '-';
-        const isNaik = avgS2 >= 75;
-
-        const display = document.getElementById('displayArea');
-        display.classList.remove('hidden');
-
-        display.innerHTML = `
-            <div class="bg-white p-6 rounded-2xl shadow-md text-center">
-                <h2 class="text-3xl font-bold text-blue-900">${s2[1]}</h2>
-                <div class="flex justify-center gap-6 mt-2 text-sm font-bold">
-                    <span class="text-gray-500">Peringkat S1: <span class="text-blue-600">${rankS1}</span></span>
-                    <span class="text-gray-500">Peringkat S2: <span class="text-blue-600">${rankS2}</span></span>
-                </div>
-            </div>
-
-            <div class="card p-6"><canvas id="chartMapel" height="100"></canvas></div>
-            <div class="card p-6"><canvas id="chartAvg" height="60"></canvas></div>
-            
-            <div class="card p-6 bg-gradient-to-r from-blue-700 to-blue-900 text-white">
-                <h3 class="text-xl font-bold uppercase mb-2">${isNaik ? '✅ Status: NAIK KELAS' : '⚠️ Status: PERLU EVALUASI'}</h3>
-                <p class="italic mb-4">"${isNaik ? 'Prestasi yang membanggakan! Pertahankan semangat juangmu.' : 'Jangan menyerah, mari tingkatkan belajar di rumah.'}"</p>
-            </div>
-
-            <div class="card p-6">
-                <h3 class="font-bold text-lg mb-4">Rekapitulasi Kehadiran & Sikap</h3>
-                <table class="w-full text-sm text-center">
-                    <thead><tr class="border-b bg-gray-50"><th>Semester</th><th>Sakit</th><th>Izin</th><th>Alpa</th></tr></thead>
-                    <tbody>
-                        <tr><td>S1</td><td>${s1 ? s1[15] : '-'}</td><td>${s1 ? s1[16] : '-'}</td><td>${s1 ? s1[17] : '-'}</td></tr>
-                        <tr><td>S2</td><td>${s2[14]}</td><td>${s2[15]}</td><td>${s2[16]}</td></tr>
-                    </tbody>
-                </table>
-                <p class="mt-4 font-bold">Penilaian Sikap (S2): <span class="text-blue-900">${s2[23] || 'Baik'}</span></p>
-            </div>
-        `;
+        document.getElementById('namaSiswa').innerText = s2[1];
+        document.getElementById('nisInfo').innerText = `NIS: ${s2[4]} | NISN: ${s2[3]}`;
+        document.getElementById('rankS1').innerText = s1[2];
+        document.getElementById('rankS2').innerText = s2[27];
+        document.getElementById('rowS1').innerHTML = `<td>S1</td><td>${s1[16]}</td><td>${s1[17]}</td><td>${s1[18]}</td>`;
+        document.getElementById('rowS2').innerHTML = `<td>S2</td><td>${s2[16]}</td><td>${s2[17]}</td><td>${s2[18]}</td>`;
+        document.getElementById('avgInfo').innerText = `${parseFloat(s1[26]).toFixed(2)} / ${parseFloat(s2[26]).toFixed(2)}`;
+        document.getElementById('statusInfo').innerText = s2[26] >= 75 ? "TUNTAS" : "BELUM TUNTAS";
+        document.getElementById('catatanWali').innerText = dCatatan.find(r=>r[0]==s2[28])?.[3] || "Siswa berkembang dengan baik.";
 
         new Chart(document.getElementById('chartMapel'), {
             type: 'bar',
-            data: { labels: mapelLabels, datasets: [{ label: 'S1', data: nilaiS1, backgroundColor: '#cbd5e1' }, { label: 'S2', data: nilaiS2, backgroundColor: '#1e40af' }] },
-            options: { plugins: { datalabels: { anchor: 'end', align: 'top', font: { size: 9 } } }, scales: { y: { max: 100 } } }
-        });
-
-        new Chart(document.getElementById('chartAvg'), {
-            type: 'bar',
-            data: { labels: ['Rata-rata S1', 'Rata-rata S2'], datasets: [{ data: [avgS1, avgS2], backgroundColor: ['#94a3b8', '#fbbf24'] }] },
-            options: { indexAxis: 'y', plugins: { datalabels: { anchor: 'end', align: 'right', font: { weight: 'bold' } } } }
+            data: { labels: mapels, datasets: [
+                { label: 'S1', data: mapels.map((_, idx) => parseFloat(s1[idx+5]) || 0), backgroundColor: '#d1d5db' },
+                { label: 'S2', data: mapels.map((_, idx) => parseFloat(s2[idx+5]) || 0), backgroundColor: '#1e40af' }
+            ]},
+            options: { plugins: { datalabels: { anchor: 'end', align: 'top', color: '#111827', font: { weight: 'bold' } } } }
         });
     });
-
-    document.getElementById('fileS1').addEventListener('change', (e) => process(e, 1));
-    document.getElementById('fileS2').addEventListener('change', (e) => process(e, 2));
 </script>
 </body>
 </html>
