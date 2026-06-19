@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Rapor Digital Professional - SMPN 1 Moga</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; background: #f1f5f9; }
+        .card { background: white; border-radius: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+<div class="max-w-4xl mx-auto">
+    <div class="bg-blue-900 p-8 rounded-3xl text-white text-center mb-6 shadow-2xl">
+        <h1 class="text-2xl font-bold">Laporan Perkembangan Siswa 360°</h1>
+        <p class="text-yellow-400">SMP NEGERI 1 MOGA - KELAS 7H</p>
+    </div>
+
+    <div class="card p-6 mb-6">
+        <div class="grid grid-cols-2 gap-4">
+            <input type="file" id="fileS1" class="p-2 border rounded-xl" title="Semester 1">
+            <input type="file" id="fileS2" class="p-2 border rounded-xl" title="Semester 2">
+        </div>
+        <select id="selectSiswa" class="w-full mt-4 p-4 bg-gray-100 rounded-2xl font-bold text-lg">
+            <option value="">-- Pilih Nama Siswa --</option>
+        </select>
+    </div>
+
+    <div id="displayArea" class="hidden space-y-6"></div>
+</div>
+
+<script>
+    let dataS1 = [], dataS2 = [];
+    Chart.register(ChartDataLabels);
+
+    function process(e, type) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const data = XLSX.utils.sheet_to_json(XLSX.read(ev.target.result, {type:'array'}).Sheets[Object.keys(XLSX.read(ev.target.result).Sheets)[0]], {header: 1});
+            if(type === 1) dataS1 = data; else { dataS2 = data; initDropdown(); }
+        };
+        reader.readAsArrayBuffer(e.target.files[0]);
+    }
+
+    function initDropdown() {
+        const select = document.getElementById('selectSiswa');
+        select.innerHTML = '<option value="">-- Pilih Nama Siswa --</option>';
+        dataS2.forEach((row, i) => { if(i >= 7 && row[1]) { 
+            let opt = document.createElement('option'); opt.value = i; opt.text = row[1]; select.appendChild(opt); 
+        }});
+    }
+
+    document.getElementById('selectSiswa').addEventListener('change', (e) => {
+        const s2 = dataS2[e.target.value];
+        const s1 = dataS1.find(r => r[1] === s2[1]);
+        const display = document.getElementById('displayArea');
+        display.classList.remove('hidden');
+
+        // Logic Mapel (asumsi kolom 4-14)
+        const mapels = ['PAIDBP', 'PP', 'BI', 'MU', 'IPAI', 'IPSI', 'BI', 'P', 'PJODK', 'I', 'MLBD'];
+        const nilaiS2 = mapels.map((_, i) => s2[i+4] || 0);
+        const nilaiS1 = s1 ? mapels.map((_, i) => s1[i+4] || 0) : mapels.map(() => 0);
+
+        display.innerHTML = `
+            <div class="card p-6"><canvas id="chartMapel"></canvas></div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="card p-6">
+                    <h3 class="font-bold text-gray-500 uppercase text-xs">Kehadiran (Alpa)</h3>
+                    <p class="text-2xl font-bold text-red-600">S1: ${s1 ? (s1[17] || 0) : '-'} | S2: ${s2[17] || 0} hari</p>
+                </div>
+                <div class="card p-6">
+                    <h3 class="font-bold text-gray-500 uppercase text-xs">Nilai Ekstrakurikuler</h3>
+                    <p class="text-2xl font-bold text-green-600">${s2[18] || 'Aktif'}</p>
+                </div>
+            </div>
+            <div class="card p-6 border-l-8 border-blue-600">
+                <h3 class="font-bold text-blue-900 mb-2">Analisis Wali Kelas</h3>
+                <p class="text-lg font-bold italic mb-4">${s2[21] >= 75 ? '✅ NAIK KELAS' : '⚠️ PERLU EVALUASI'}</p>
+                <p class="text-gray-700">${s2[21] >= 75 ? 'Pertahankan prestasi ananda, tingkatkan semangat di semester depan.' : 'Mohon Bapak/Ibu memberikan pendampingan belajar lebih di rumah.'}</p>
+            </div>
+        `;
+
+        new Chart(document.getElementById('chartMapel'), {
+            type: 'bar',
+            data: { labels: mapels, datasets: [
+                { label: 'S1', data: nilaiS1, backgroundColor: '#cbd5e1' },
+                { label: 'S2', data: nilaiS2, backgroundColor: '#1e40af' }
+            ]},
+            options: { 
+                plugins: { datalabels: { anchor: 'end', align: 'top', font: { weight: 'bold' } } },
+                scales: { y: { max: 100 } }
+            }
+        });
+    });
+
+    document.getElementById('fileS1').addEventListener('change', (e) => process(e, 1));
+    document.getElementById('fileS2').addEventListener('change', (e) => process(e, 2));
+</script>
+</body>
+</html>
