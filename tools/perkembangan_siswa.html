@@ -2,103 +2,110 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Perkembangan Siswa</title>
+    <title>Sistem Rapor Digital - SMPN 1 Moga</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #2563eb; --bg: #f8fafc; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; }
-        .wrapper { max-width: 800px; margin: auto; }
-        .nav-panel { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; display: flex; gap: 10px; }
-        #report-card { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 15px rgba(0,0,0,0.05); }
-        .header-print { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 10px; }
-        .grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
-        .badge { padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9em; }
-        .status-naik { background: #dcfce7; color: #166534; }
-        .status-eval { background: #fee2e2; color: #991b1b; }
-        h2 { margin: 0; color: var(--primary); }
+        body { font-family: 'Poppins', sans-serif; background-color: #f3f4f6; }
+        .bg-smp { background: linear-gradient(135deg, #1d4ed8, #1e3a8a); }
+        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .card-rounded { border-radius: 2rem; }
+        .btn-gold { background: #fbbf24; transition: all 0.3s; }
+        .btn-gold:hover { background: #d97706; transform: scale(1.05); }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 50; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
-<body>
+<body class="p-4 md:p-8">
 
-<div class="wrapper">
-    <div class="nav-panel">
-        <input type="file" id="upload" accept=".xlsx">
-        <select id="selectSiswa" disabled><option>Pilih Siswa...</option></select>
-        <button onclick="cetakPDF()">Simpan PDF</button>
-    </div>
-
-    <div id="report-card">
-        <div class="header-print">
-            <h3>SMP NEGERI 1 MOGA</h3>
-            <p>Laporan Perkembangan Siswa Semester Genap 2025/2026</p>
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-smp p-6 text-white rounded-t-3xl shadow-lg">
+            <h1 class="text-2xl font-bold">Dashboard Rapor 7H</h1>
+            <p class="text-yellow-300">Analisis Perbandingan Semester 1 & 2</p>
         </div>
-        <div id="kontenRapor" style="text-align: center; color: #64748b;">
-            Silakan unggah file Excel untuk melihat rapor siswa.
-        </div>
-    </div>
-</div>
-
-<script>
-    let dataSiswa = [];
-
-    document.getElementById('upload').addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-            const wb = XLSX.read(ev.target.result, {type: 'array'});
-            const ws = wb.Sheets[wb.SheetNames[0]];
-            const data = XLSX.utils.sheet_to_json(ws, {header: 1});
+        
+        <div class="bg-white p-6 shadow-xl card-rounded border-b-8 border-yellow-400">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <input type="file" id="fileS1" class="p-2 border rounded-xl" placeholder="Upload S1">
+                <input type="file" id="fileS2" class="p-2 border rounded-xl" placeholder="Upload S2">
+            </div>
             
-            const dropdown = document.getElementById('selectSiswa');
-            dropdown.innerHTML = '<option>Pilih Siswa...</option>';
-            dataSiswa = [];
+            <select id="selectSiswa" class="w-full p-4 bg-gray-100 rounded-2xl mb-6 font-semibold outline-none focus:ring-2 ring-blue-500">
+                <option>-- Pilih Siswa --</option>
+            </select>
 
-            for(let i = 7; i <= 38; i++) {
-                if(data[i] && data[i][1]) {
-                    dataSiswa.push(data[i]);
+            <div id="displayArea" class="hidden space-y-6">
+                </div>
+        </div>
+    </div>
+
+    <div id="myModal" class="modal">
+        <div class="glass p-8 rounded-3xl text-center shadow-2xl max-w-sm transform transition-all scale-90">
+            <h2 id="modalTitle" class="text-xl font-bold text-blue-800 mb-2">Info</h2>
+            <p id="modalMsg" class="text-gray-600 mb-6"></p>
+            <button onclick="closeModal()" class="bg-blue-600 text-white px-6 py-2 rounded-full">Tutup</button>
+        </div>
+    </div>
+
+    <script>
+        let dataS1 = [], dataS2 = [];
+
+        function showModal(title, msg) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMsg').innerText = msg;
+            document.getElementById('myModal').style.display = 'flex';
+        }
+        function closeModal() { document.getElementById('myModal').style.display = 'none'; }
+
+        function processExcel(e, isS1) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const wb = XLSX.read(ev.target.result, {type: 'array'});
+                const data = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header: 1});
+                if(isS1) dataS1 = data; else { dataS2 = data; initDropdown(); }
+                showModal('Sukses', isS1 ? 'Data Semester 1 dimuat' : 'Data Semester 2 dimuat');
+            };
+            reader.readAsArrayBuffer(e.target.files[0]);
+        }
+
+        function initDropdown() {
+            const select = document.getElementById('selectSiswa');
+            dataS2.forEach((row, index) => {
+                if(index > 6 && row[1]) {
                     let opt = document.createElement('option');
-                    opt.value = dataSiswa.length - 1;
-                    opt.textContent = data[i][1];
-                    dropdown.appendChild(opt);
+                    opt.value = index; opt.text = row[1];
+                    select.appendChild(opt);
                 }
-            }
-            dropdown.disabled = false;
-        };
-        reader.readAsArrayBuffer(file);
-    });
+            });
+        }
 
-    document.getElementById('selectSiswa').addEventListener('change', (e) => {
-        const s = dataSiswa[e.target.value];
-        const avg = s[21] || 0;
-        const alpa = s[17] || 0;
-        const eks = s.slice(18, 25).filter(x => x && x !== "-").length >= 2;
-        const isNaik = (avg >= 75 && alpa < 5);
+        document.getElementById('selectSiswa').addEventListener('change', (e) => {
+            const idx = e.target.value;
+            const s2 = dataS2[idx];
+            const name = s2[1];
+            const s1 = dataS1.find(r => r[1] === name);
+            
+            const r2 = s2[21] || 0;
+            const r1 = s1 ? s1[22] : 0; // Sesuaikan index kolom rata-rata S1
+            const tren = r2 >= r1 ? '📈 Meningkat' : '📉 Perlu Perhatian';
 
-        document.getElementById('kontenRapor').innerHTML = `
-            <h1 style="color:#1e293b">${s[1]}</h1>
-            <div class="badge ${isNaik ? 'status-naik' : 'status-eval'}">
-                ${isNaik ? 'DINYATAKAN NAIK KELAS' : 'MEMERLUKAN EVALUASI'}
-            </div>
-            <div class="grid-info" style="margin-top:30px; text-align:left">
-                <div><strong>Rata-rata Nilai:</strong> ${avg.toFixed(1)}</div>
-                <div><strong>Ketidakhadiran:</strong> ${alpa} hari</div>
-            </div>
-            <div style="text-align:left; border-top:1px solid #e2e8f0; padding-top:20px;">
-                <strong>Catatan Wali Kelas:</strong><br>
-                ${isNaik ? 'Selamat atas keberhasilan ananda. Terus tingkatkan semangat belajar.' : 'Diperlukan kolaborasi orang tua untuk meningkatkan fokus akademik ananda.'}
-            </div>
-        `;
-    });
+            document.getElementById('displayArea').classList.remove('hidden');
+            document.getElementById('displayArea').innerHTML = `
+                <div class="bg-blue-50 p-6 rounded-2xl border-l-8 border-blue-600">
+                    <h2 class="text-2xl font-bold text-gray-800">${name}</h2>
+                    <div class="grid grid-cols-2 gap-4 mt-4">
+                        <div class="p-4 bg-white rounded-xl shadow">Rata S1: ${parseFloat(r1).toFixed(1)}</div>
+                        <div class="p-4 bg-white rounded-xl shadow">Rata S2: ${parseFloat(r2).toFixed(1)}</div>
+                    </div>
+                    <div class="mt-4 font-bold text-lg">${tren}</div>
+                    <p class="mt-2 text-sm text-gray-600">${r2 >= r1 ? 'Pertahankan semangat belajar ananda.' : 'Mari tingkatkan fokus di semester depan.'}</p>
+                </div>
+            `;
+        });
 
-    function cetakPDF() {
-        const element = document.getElementById('report-card');
-        html2pdf().from(element).set({
-            filename: 'Rapor_Siswa.pdf',
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        }).save();
-    }
-</script>
+        document.getElementById('fileS1').addEventListener('change', (e) => processExcel(e, true));
+        document.getElementById('fileS2').addEventListener('change', (e) => processExcel(e, false));
+    </script>
 </body>
 </html>
