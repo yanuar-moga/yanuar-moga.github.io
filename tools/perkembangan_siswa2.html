@@ -80,6 +80,7 @@
         const nilaiS1 = s1 ? mapelLabels.map((_, i) => parseFloat(s1[i+5]) || 0) : mapelLabels.map(() => 0);
         
         const avgS2 = parseFloat(s2[21]);
+        const avgS1 = parseFloat(s1 ? s1[28] : 0);
         const isNaik = avgS2 >= 75;
 
         const display = document.getElementById('displayArea');
@@ -87,20 +88,33 @@
 
         display.innerHTML = `
             <div class="card p-6"><canvas id="chartMapel" height="100"></canvas></div>
+            <div class="card p-6"><canvas id="chartAvg" height="60"></canvas></div>
             
             <div class="card p-6 bg-gradient-to-r from-blue-700 to-blue-900 text-white">
                 <h3 class="text-xl font-bold uppercase mb-2">${isNaik ? '✅ Status: NAIK KELAS' : '⚠️ Status: PERLU EVALUASI'}</h3>
-                <p class="italic mb-4">"${isNaik ? 'Prestasi yang membanggakan! Pertahankan semangat juangmu di kelas berikutnya.' : 'Jangan menyerah, Nak. Mari kita tingkatkan frekuensi belajar di rumah demi hasil yang lebih baik.'}"</p>
+                <p class="italic mb-4">"${isNaik ? 'Prestasi yang membanggakan! Pertahankan semangat juangmu.' : 'Jangan menyerah, mari tingkatkan belajar di rumah.'}"</p>
                 <div class="border-t pt-4 border-blue-600">
                     <p class="font-bold text-yellow-300">Saran Wali Kelas:</p>
-                    <p class="text-sm">${isNaik ? 'Fokus pada pengembangan bakat non-akademik di semester depan.' : 'Mohon Bapak/Ibu memberikan pendampingan khusus pada mata pelajaran yang masih di bawah KKM.'}</p>
+                    <p class="text-sm">${isNaik ? 'Fokus pada pengembangan bakat non-akademik di kelas berikutnya.' : 'Mohon pendampingan khusus pada mapel yang belum tuntas.'}</p>
                 </div>
             </div>
 
             <div class="card p-6">
-                <h3 class="font-bold text-lg mb-4">Tabel Ketuntasan Per Mapel</h3>
+                <h3 class="font-bold text-lg mb-4">Rekapitulasi Kehadiran & Sikap</h3>
                 <table class="w-full text-sm text-center">
-                    <thead><tr class="border-b bg-gray-50"><th>Mapel</th><th>S1</th><th>S2</th><th>Ketuntasan</th></tr></thead>
+                    <thead><tr class="border-b bg-gray-50"><th>Semester</th><th>Sakit</th><th>Izin</th><th>Alpa</th></tr></thead>
+                    <tbody>
+                        <tr><td>S1</td><td>${s1 ? s1[15] : '-'}</td><td>${s1 ? s1[16] : '-'}</td><td>${s1 ? s1[17] : '-'}</td></tr>
+                        <tr><td>S2</td><td>${s2[14]}</td><td>${s2[15]}</td><td>${s2[16]}</td></tr>
+                    </tbody>
+                </table>
+                <p class="mt-4 font-bold">Penilaian Sikap (S2): <span class="text-blue-900">${s2[23] || 'Baik'}</span></p>
+            </div>
+
+            <div class="card p-6">
+                <h3 class="font-bold text-lg mb-4">Tabel Ketuntasan</h3>
+                <table class="w-full text-sm text-center">
+                    <thead><tr class="border-b"><th>Mapel</th><th>S1</th><th>S2</th><th>Status</th></tr></thead>
                     <tbody>
                         ${mapelLabels.map((m, i) => `
                             <tr class="border-b"><td>${m}</td><td>${nilaiS1[i]}</td><td>${nilaiS2[i]}</td>
@@ -115,6 +129,12 @@
             type: 'bar',
             data: { labels: mapelLabels, datasets: [{ label: 'S1', data: nilaiS1, backgroundColor: '#cbd5e1' }, { label: 'S2', data: nilaiS2, backgroundColor: '#1e40af' }] },
             options: { plugins: { datalabels: { anchor: 'end', align: 'top', font: { size: 9 } } }, scales: { y: { max: 100 } } }
+        });
+
+        new Chart(document.getElementById('chartAvg'), {
+            type: 'bar',
+            data: { labels: ['Rata-rata S1', 'Rata-rata S2'], datasets: [{ data: [avgS1, avgS2], backgroundColor: ['#94a3b8', '#fbbf24'] }] },
+            options: { indexAxis: 'y', plugins: { datalabels: { anchor: 'end', align: 'right', font: { weight: 'bold' } } } }
         });
     });
 
