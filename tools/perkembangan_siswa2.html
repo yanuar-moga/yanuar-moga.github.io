@@ -3,69 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Perkembangan Hasil Belajar</title>
+    <title>E-Rapor Digital SMPN 1 Moga</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
-        .dashboard-card { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f1f5f9; }
+        
+        /* Fixed for Desktop, Responsive for Mobile/Tablet */
+        .nav-container {
+            position: fixed;
+            bottom: 30px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            z-index: 50;
+            padding: 0 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .nav-container {
+                position: static;
+                margin-top: 30px;
+                padding-bottom: 50px;
+            }
+        }
+
+        .animate-card { animation: fadeInUp 0.6s ease-out; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="p-6">
+<body class="p-4 md:p-10">
 
-<div class="max-w-6xl mx-auto">
-    <div class="mb-8 flex flex-col md:flex-row gap-4 items-center justify-between bg-white p-6 rounded-xl shadow-sm border">
-        <h1 class="text-xl font-bold text-gray-800">Dashboard Hasil Belajar Siswa</h1>
-        <input type="file" id="fileInput" class="text-sm border p-2 rounded-lg" accept=".xlsx">
-        <select id="selectSiswa" class="p-2 border rounded-lg w-full md:w-64 font-medium"></select>
+<div class="max-w-5xl mx-auto pb-20">
+    <div class="bg-blue-900 text-white p-8 rounded-3xl mb-8 shadow-2xl text-center">
+        <h1 class="text-3xl font-extrabold">E-Rapor Digital 7H</h1>
+        <p class="text-blue-200">Laporan Komprehensif Semester 1 & 2</p>
     </div>
 
-    <div id="mainContent" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-1 space-y-6">
-            <div class="dashboard-card p-6">
-                <h2 id="namaSiswa" class="text-lg font-bold text-blue-900">Nama Siswa</h2>
-                <p id="nisInfo" class="text-sm text-gray-500 mb-4">NIS / NISN</p>
-                <div class="grid grid-cols-2 gap-2 text-center">
-                    <div class="bg-blue-50 p-2 rounded">Rank S1<p id="rankS1" class="font-bold">0</p></div>
-                    <div class="bg-blue-50 p-2 rounded">Rank S2<p id="rankS2" class="font-bold">0</p></div>
-                </div>
-            </div>
-            
-            <div class="dashboard-card p-6">
-                <h3 class="font-bold mb-3 text-gray-700">Kehadiran</h3>
-                <table class="w-full text-sm text-center">
-                    <tr class="text-gray-400"><th>Ket</th><th>S</th><th>I</th><th>A</th></tr>
-                    <tr id="rowS1"><td>S1</td><td colspan="3">-</td></tr>
-                    <tr id="rowS2"><td>S2</td><td colspan="3">-</td></tr>
-                </table>
-            </div>
-        </div>
+    <div class="bg-white p-6 rounded-3xl shadow-sm border mb-8 text-center animate-card">
+        <label class="block text-sm font-bold mb-2 text-blue-900">Upload File Excel Rapor:</label>
+        <input type="file" id="fileInput" class="block w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer" accept=".xlsx">
+    </div>
 
-        <div class="lg:col-span-2 space-y-6">
-            <div class="dashboard-card p-6">
-                <canvas id="chartMapel" height="150"></canvas>
-            </div>
-            
-            <div class="dashboard-card p-6 grid grid-cols-2 gap-4">
-                <div><p class="text-gray-500 text-sm">Rata-rata S1 / S2</p><p id="avgInfo" class="font-bold">0 / 0</p></div>
-                <div><p class="text-gray-500 text-sm">Status Ketuntasan</p><p id="statusInfo" class="font-bold">--</p></div>
-            </div>
-
-            <div class="bg-blue-900 text-white p-6 rounded-xl">
-                <h3 class="font-bold mb-2">Catatan Wali Kelas</h3>
-                <p id="catatanWali" class="italic text-sm text-blue-100"></p>
-            </div>
-        </div>
+    <div id="mainContent" class="hidden animate-card">
+        <select id="selectSiswa" class="w-full p-4 mb-6 rounded-2xl border-2 border-blue-200 font-bold text-lg shadow-lg"></select>
+        <div id="displayArea" class="space-y-6"></div>
     </div>
 </div>
 
+<div class="nav-container">
+    <button onclick="navigasi(-1)" class="bg-white px-8 py-4 rounded-full shadow-xl hover:bg-gray-100 font-bold border">◀ Sebelumnya</button>
+    <button onclick="navigasi(1)" class="bg-blue-600 text-white px-8 py-4 rounded-full shadow-xl hover:bg-blue-700 font-bold">Next ▶</button>
+</div>
+
 <script>
+    Chart.register(ChartDataLabels);
     let d1, d2, dCatatan;
-    const mapels = ["Agama", "Pancasila", "B. Indo", "Matematika", "IPA", "IPS", "B. Inggris", "Prakarya", "PJOK", "Informatika", "B. Daerah"];
+    const mapels = ["Agama", "Pancasila", "B. Indo", "Matematika", "IPA", "IPS", "B.Inggris", "Prakarya", "PJOK", "Informatika", "B.Daerah"];
 
     document.getElementById('fileInput').addEventListener('change', (e) => {
         const reader = new FileReader();
@@ -76,7 +75,10 @@
             dCatatan = XLSX.utils.sheet_to_json(wb.Sheets["CatatanWaliKelas"], {header: 1});
             
             const sel = document.getElementById('selectSiswa');
+            sel.innerHTML = '<option>-- Pilih Nama Siswa --</option>';
             d2.forEach((r, i) => { if(i > 0 && r[1]) sel.innerHTML += `<option value="${i}">${r[1]}</option>`; });
+            
+            Swal.fire({ title: 'Berhasil!', text: 'Data rapor siap digunakan.', icon: 'success', confirmButtonColor: '#1e3a8a' });
             document.getElementById('mainContent').classList.remove('hidden');
         };
         reader.readAsArrayBuffer(e.target.files[0]);
@@ -85,26 +87,57 @@
     document.getElementById('selectSiswa').addEventListener('change', (e) => {
         const i = e.target.value;
         const s2 = d2[i], s1 = d1[i];
+        const isTuntas = s2[26] >= 75;
         
-        document.getElementById('namaSiswa').innerText = s2[1];
-        document.getElementById('nisInfo').innerText = `NIS: ${s2[4]} | NISN: ${s2[3]}`;
-        document.getElementById('rankS1').innerText = s1[2];
-        document.getElementById('rankS2').innerText = s2[27];
-        document.getElementById('rowS1').innerHTML = `<td>S1</td><td>${s1[16]}</td><td>${s1[17]}</td><td>${s1[18]}</td>`;
-        document.getElementById('rowS2').innerHTML = `<td>S2</td><td>${s2[16]}</td><td>${s2[17]}</td><td>${s2[18]}</td>`;
-        document.getElementById('avgInfo').innerText = `${parseFloat(s1[26]).toFixed(2)} / ${parseFloat(s2[26]).toFixed(2)}`;
-        document.getElementById('statusInfo').innerText = s2[26] >= 75 ? "TUNTAS" : "BELUM TUNTAS";
-        document.getElementById('catatanWali').innerText = dCatatan.find(r=>r[0]==s2[28])?.[3] || "Siswa berkembang dengan baik.";
+        document.getElementById('displayArea').innerHTML = `
+            <div class="bg-white p-6 rounded-2xl shadow-lg border-l-8 border-blue-600">
+                <h2 class="text-2xl font-bold">${s2[1]}</h2>
+                <p class="text-gray-600">NIS: ${s2[4]} | Rank: S1 (#${s1[2]}) / S2 (#${s2[27]})</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-lg">
+                <canvas id="chartMapel" height="80"></canvas>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-2xl shadow-lg">
+                    <h3 class="font-bold mb-3 text-blue-900">Rekapitulasi Kehadiran</h3>
+                    <table class="w-full text-center text-sm">
+                        <tr class="bg-gray-100"><th>Semester</th><th>S</th><th>I</th><th>A</th></tr>
+                        <tr><td>S1</td><td>${s1[16]}</td><td>${s1[17]}</td><td>${s1[18]}</td></tr>
+                        <tr><td>S2</td><td>${s2[16]}</td><td>${s2[17]}</td><td>${s2[18]}</td></tr>
+                    </table>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-lg">
+                    <h3 class="font-bold mb-3 text-blue-900">Rata-rata & Status</h3>
+                    <p>S1: ${parseFloat(s1[26]).toFixed(2)} | S2: ${parseFloat(s2[26]).toFixed(2)}</p>
+                    <p class="font-bold text-lg ${isTuntas?'text-green-600':'text-red-600'}">
+                        Status: ${isTuntas?'TUNTAS':'BELUM TUNTAS'}
+                    </p>
+                    ${isTuntas ? '<p class="text-blue-700 font-extrabold mt-1">>> Naik Ke Kelas VIII</p>' : ''}
+                </div>
+            </div>
+        `;
 
         new Chart(document.getElementById('chartMapel'), {
             type: 'bar',
-            data: { labels: mapels, datasets: [
-                { label: 'S1', data: mapels.map((_, idx) => parseFloat(s1[idx+5]) || 0), backgroundColor: '#d1d5db' },
-                { label: 'S2', data: mapels.map((_, idx) => parseFloat(s2[idx+5]) || 0), backgroundColor: '#1e40af' }
-            ]},
-            options: { plugins: { datalabels: { anchor: 'end', align: 'top', color: '#111827', font: { weight: 'bold' } } } }
+            data: { 
+                labels: mapels, 
+                datasets: [
+                    { label: 'S1', data: mapels.map((_, idx) => parseFloat(s1[idx+5]) || 0), backgroundColor: '#cbd5e1' },
+                    { label: 'S2', data: mapels.map((_, idx) => parseFloat(s2[idx+5]) || 0), backgroundColor: '#2563eb' }
+                ]
+            }
         });
     });
+
+    function navigasi(step) {
+        const sel = document.getElementById('selectSiswa');
+        if(sel.selectedIndex + step > 0 && sel.selectedIndex + step < sel.options.length) {
+            sel.selectedIndex += step;
+            sel.dispatchEvent(new Event('change'));
+        }
+    }
 </script>
 </body>
 </html>
