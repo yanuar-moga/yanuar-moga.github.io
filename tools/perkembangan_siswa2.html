@@ -79,39 +79,42 @@
         const nilaiS2 = mapelLabels.map((_, i) => parseFloat(s2[i+4]) || 0);
         const nilaiS1 = s1 ? mapelLabels.map((_, i) => parseFloat(s1[i+5]) || 0) : mapelLabels.map(() => 0);
         
-        const avgS2 = parseFloat(s2[21]) || 0;
-        const avgS1 = s1 ? parseFloat(s1[s1.length - 1]) || 0 : 0; // Mengambil kolom rata-rata S1
+        const avgS2 = parseFloat(s2[21]);
+        const isNaik = avgS2 >= 75;
 
         const display = document.getElementById('displayArea');
         display.classList.remove('hidden');
 
         display.innerHTML = `
-            <div class="card p-6">
-                <h3 class="font-bold text-gray-500 mb-4">Grafik Perbandingan Nilai per Mata Pelajaran</h3>
-                <canvas id="chartMapel" height="100"></canvas>
+            <div class="card p-6"><canvas id="chartMapel" height="100"></canvas></div>
+            
+            <div class="card p-6 bg-gradient-to-r from-blue-700 to-blue-900 text-white">
+                <h3 class="text-xl font-bold uppercase mb-2">${isNaik ? '✅ Status: NAIK KELAS' : '⚠️ Status: PERLU EVALUASI'}</h3>
+                <p class="italic mb-4">"${isNaik ? 'Prestasi yang membanggakan! Pertahankan semangat juangmu di kelas berikutnya.' : 'Jangan menyerah, Nak. Mari kita tingkatkan frekuensi belajar di rumah demi hasil yang lebih baik.'}"</p>
+                <div class="border-t pt-4 border-blue-600">
+                    <p class="font-bold text-yellow-300">Saran Wali Kelas:</p>
+                    <p class="text-sm">${isNaik ? 'Fokus pada pengembangan bakat non-akademik di semester depan.' : 'Mohon Bapak/Ibu memberikan pendampingan khusus pada mata pelajaran yang masih di bawah KKM.'}</p>
+                </div>
             </div>
+
             <div class="card p-6">
-                <h3 class="font-bold text-gray-500 mb-4">Grafik Rata-rata Keseluruhan</h3>
-                <canvas id="chartAvg" height="50"></canvas>
-            </div>
-            <div class="card p-6 border-l-8 border-blue-600">
-                <h3 class="font-bold text-blue-900 mb-2">Pesan untuk Orang Tua</h3>
-                <p class="text-gray-700 italic">"Bapak/Ibu yang luar biasa, setiap anak memiliki kecepatan belajarnya masing-masing. Kehadiran dan dukungan kasih sayang Bapak/Ibu di rumah adalah bahan bakar utama bagi kesuksesan ananda. Mari kita terus bekerja sama membimbing langkah mereka menjadi pribadi yang lebih baik."</p>
+                <h3 class="font-bold text-lg mb-4">Tabel Ketuntasan Per Mapel</h3>
+                <table class="w-full text-sm text-center">
+                    <thead><tr class="border-b bg-gray-50"><th>Mapel</th><th>S1</th><th>S2</th><th>Ketuntasan</th></tr></thead>
+                    <tbody>
+                        ${mapelLabels.map((m, i) => `
+                            <tr class="border-b"><td>${m}</td><td>${nilaiS1[i]}</td><td>${nilaiS2[i]}</td>
+                            <td class="font-bold ${nilaiS2[i] >= 75 ? 'text-green-600' : 'text-red-600'}">${nilaiS2[i] >= 75 ? 'Tuntas' : 'Belum'}</td></tr>
+                        `).join('')}
+                    </tbody>
+                </table>
             </div>
         `;
 
-        // Grafik Mapel
         new Chart(document.getElementById('chartMapel'), {
             type: 'bar',
             data: { labels: mapelLabels, datasets: [{ label: 'S1', data: nilaiS1, backgroundColor: '#cbd5e1' }, { label: 'S2', data: nilaiS2, backgroundColor: '#1e40af' }] },
-            options: { plugins: { datalabels: { anchor: 'end', align: 'top', font: { weight: 'bold', size: 10 } } }, scales: { y: { max: 100 } } }
-        });
-
-        // Grafik Rata-rata
-        new Chart(document.getElementById('chartAvg'), {
-            type: 'bar',
-            data: { labels: ['Rata-rata S1', 'Rata-rata S2'], datasets: [{ data: [avgS1, avgS2], backgroundColor: ['#94a3b8', '#fbbf24'] }] },
-            options: { indexAxis: 'y', plugins: { datalabels: { anchor: 'end', align: 'right', font: { weight: 'bold' } } } }
+            options: { plugins: { datalabels: { anchor: 'end', align: 'top', font: { size: 9 } } }, scales: { y: { max: 100 } } }
         });
     });
 
