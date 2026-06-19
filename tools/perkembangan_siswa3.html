@@ -2,43 +2,47 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Rapor Digital 7H - Professional</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Rapor Digital SMPN 1 Moga</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f1f5f9; }
         .float-btn { position: fixed; bottom: 30px; z-index: 50; transition: all 0.3s; }
-        .animate-fade { animation: fadeIn 0.5s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-card { animation: fadeInUp 0.6s ease-out; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="p-4 md:p-10">
 
 <div class="max-w-5xl mx-auto">
     <div class="bg-blue-900 text-white p-8 rounded-3xl mb-8 shadow-2xl text-center">
-        <h1 class="text-3xl font-extrabold">E-Rapor Digital SMPN 1 Moga</h1>
-        <p class="text-blue-200">Kelas 7H - Laporan Komprehensif</p>
+        <h1 class="text-3xl font-extrabold">E-Rapor Digital 7H</h1>
+        <p class="text-blue-200">Laporan Komprehensif Semester 1 & 2</p>
     </div>
 
-    <div class="bg-white p-8 rounded-3xl shadow-sm border mb-8 text-center animate-fade">
-        <input type="file" id="fileInput" class="block w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:bg-blue-600 file:text-white cursor-pointer" accept=".xlsx">
+    <div class="bg-white p-6 rounded-3xl shadow-sm border mb-8 text-center animate-card">
+        <label class="block text-sm font-bold mb-2 text-blue-900">Upload File Excel Rapor:</label>
+        <input type="file" id="fileInput" class="block w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer" accept=".xlsx">
     </div>
 
-    <div id="mainContent" class="hidden animate-fade">
-        <select id="selectSiswa" class="w-full p-4 mb-6 rounded-2xl border-2 border-blue-200 font-bold text-lg shadow-sm"></select>
+    <div id="mainContent" class="hidden animate-card">
+        <select id="selectSiswa" class="w-full p-4 mb-6 rounded-2xl border-2 border-blue-200 font-bold text-lg shadow-lg"></select>
         <div id="displayArea" class="space-y-6"></div>
     </div>
 </div>
 
-<button onclick="navigasi(-1)" class="float-btn left-10 bg-white p-4 rounded-full shadow-xl hover:bg-gray-100 font-bold">◀ Prev</button>
+<button onclick="navigasi(-1)" class="float-btn left-10 bg-white p-4 rounded-full shadow-xl hover:bg-gray-100 font-bold">◀ Sebelumnya</button>
 <button onclick="navigasi(1)" class="float-btn right-10 bg-blue-600 text-white p-4 rounded-full shadow-xl hover:bg-blue-700 font-bold">Next ▶</button>
 
 <script>
+    Chart.register(ChartDataLabels);
     let d1, d2, dCatatan;
-    const mapels = ["Agama", "Pend. Pancasila", "B. Indo", "Matematika", "IPA", "IPS", "B. Inggris", "Prakarya", "PJOK", "Informatika", "B. Daerah"];
+    const mapels = ["Agama", "Pancasila", "B. Indo", "Matematika", "IPA", "IPS", "B.Inggris", "Prakarya", "PJOK", "Informatika", "B.Daerah"];
 
     document.getElementById('fileInput').addEventListener('change', (e) => {
         const reader = new FileReader();
@@ -49,16 +53,18 @@
             dCatatan = XLSX.utils.sheet_to_json(wb.Sheets["CatatanWaliKelas"], {header: 1});
             
             const sel = document.getElementById('selectSiswa');
+            sel.innerHTML = '<option>-- Pilih Nama Siswa --</option>';
             d2.forEach((r, i) => { if(i > 0 && r[1]) sel.innerHTML += `<option value="${i}">${r[1]}</option>`; });
-            Swal.fire('Data Termuat!', 'Silakan pilih siswa.', 'success');
+            
+            Swal.fire({ title: 'Berhasil!', text: 'Data rapor siap digunakan.', icon: 'success', confirmButtonColor: '#1e3a8a' });
             document.getElementById('mainContent').classList.remove('hidden');
         };
         reader.readAsArrayBuffer(e.target.files[0]);
     });
 
-    function getSikap(predikat) {
-        const desk = { 'A': 'Sangat Baik', 'B': 'Baik', 'C': 'Cukup', 'D': 'Kurang' };
-        return `${desk[predikat] || 'Perlu Pendampingan'} (Karakter dan kepribadian siswa selama di lingkungan sekolah).`;
+    function getSikap(p) {
+        const desc = { 'A': 'Sangat Baik', 'B': 'Baik', 'C': 'Cukup', 'D': 'Kurang' };
+        return `<strong>${desc[p] || 'Perlu Pendampingan'}</strong>. Artinya: Karakter dan kepribadian siswa selama di lingkungan sekolah dinilai sangat positif.`;
     }
 
     document.getElementById('selectSiswa').addEventListener('change', (e) => {
@@ -68,7 +74,7 @@
         document.getElementById('displayArea').innerHTML = `
             <div class="bg-white p-6 rounded-2xl shadow-lg border-l-8 border-blue-600">
                 <h2 class="text-2xl font-bold">${s2[1]}</h2>
-                <p>NIS: ${s2[4]} | Ranking: S1 (#${s1[2]}) | S2 (#${s2[27]})</p>
+                <p class="text-gray-600">NIS: ${s2[4]} | Rank: S1 (#${s1[2]}) / S2 (#${s2[27]})</p>
             </div>
 
             <div class="bg-white p-6 rounded-2xl shadow-lg">
@@ -77,25 +83,25 @@
 
             <div class="grid md:grid-cols-2 gap-6">
                 <div class="bg-white p-6 rounded-2xl shadow-lg">
-                    <h3 class="font-bold mb-3">Rekapitulasi Kehadiran</h3>
-                    <table class="w-full text-center text-sm border">
+                    <h3 class="font-bold mb-3 text-blue-900">Rekapitulasi Kehadiran</h3>
+                    <table class="w-full text-center text-sm">
                         <tr class="bg-gray-100"><th>Semester</th><th>S</th><th>I</th><th>A</th></tr>
                         <tr><td>S1</td><td>${s1[16]}</td><td>${s1[17]}</td><td>${s1[18]}</td></tr>
                         <tr><td>S2</td><td>${s2[16]}</td><td>${s2[17]}</td><td>${s2[18]}</td></tr>
                     </table>
                 </div>
                 <div class="bg-white p-6 rounded-2xl shadow-lg">
-                    <h3 class="font-bold mb-3">Rata-rata & Ketuntasan</h3>
+                    <h3 class="font-bold mb-3 text-blue-900">Rata-rata & Status</h3>
                     <p>S1: ${parseFloat(s1[26]).toFixed(2)} | S2: ${parseFloat(s2[26]).toFixed(2)}</p>
-                    <p class="font-bold text-blue-600">Status: ${s2[26] >= 75 ? 'TUNTAS' : 'BELUM TUNTAS'}</p>
+                    <p class="font-bold ${s2[26]>=75?'text-green-600':'text-red-600'}">Status: ${s2[26]>=75?'TUNTAS':'BELUM TUNTAS'}</p>
                 </div>
             </div>
 
             <div class="bg-blue-900 text-white p-6 rounded-2xl shadow-xl">
                 <h3 class="font-bold mb-2">Penilaian Sikap: ${s2[28]}</h3>
                 <p class="mb-4">${getSikap(s2[28])}</p>
-                <h3 class="font-bold border-t pt-4">Catatan & Saran untuk Orang Tua:</h3>
-                <p class="italic">"Bapak/Ibu, mohon terus dampingi ananda di rumah. ${dCatatan.find(r=>r[0]==s2[28])?.[3] || 'Mari terus bersinergi demi masa depan ananda.'}"</p>
+                <h3 class="font-bold border-t border-blue-700 pt-4">Saran untuk Orang Tua:</h3>
+                <p class="italic text-blue-100">"Bapak/Ibu, mohon dampingi ananda di rumah. ${dCatatan.find(r=>r[0]==s2[28])?.[3] || 'Mari terus bersinergi demi masa depan ananda.'}"</p>
             </div>
         `;
 
@@ -108,7 +114,11 @@
                     { label: 'S2', data: mapels.map((_, idx) => parseFloat(s2[idx+5]) || 0), backgroundColor: '#2563eb' }
                 ]
             },
-            options: { plugins: { datalabels: { anchor: 'end', align: 'top', color: '#000', font: { weight: 'bold' } } } }
+            options: {
+                plugins: {
+                    datalabels: { anchor: 'end', align: 'top', color: '#1e3a8a', font: { weight: 'bold', size: 10 } }
+                }
+            }
         });
     });
 
