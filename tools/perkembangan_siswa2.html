@@ -37,6 +37,12 @@
     let dataS1 = [], dataS2 = [];
     Chart.register(ChartDataLabels);
 
+    // Pemetaan label baru sesuai permintaan
+    const mapelLabels = [
+        "Agama", "Pendidikan Pancasila", "Bahasa Indonesia", "Matematika", 
+        "IPA", "IPS", "Bahasa Inggris", "Prakarya", "PJOK", "Informatika", "Bahasa Daerah"
+    ];
+
     function process(e, type) {
         const reader = new FileReader();
         reader.onload = (ev) => {
@@ -55,18 +61,18 @@
     }
 
     document.getElementById('selectSiswa').addEventListener('change', (e) => {
+        if(!e.target.value) return;
         const s2 = dataS2[e.target.value];
         const s1 = dataS1.find(r => r[1] === s2[1]);
         const display = document.getElementById('displayArea');
         display.classList.remove('hidden');
 
-        // Logic Mapel (asumsi kolom 4-14)
-        const mapels = ['PAIDBP', 'PP', 'BI', 'MU', 'IPAI', 'IPSI', 'BI', 'P', 'PJODK', 'I', 'MLBD'];
-        const nilaiS2 = mapels.map((_, i) => s2[i+4] || 0);
-        const nilaiS1 = s1 ? mapels.map((_, i) => s1[i+4] || 0) : mapels.map(() => 0);
+        // Nilai mapel asumsi kolom 4 sampai 14
+        const nilaiS2 = mapelLabels.map((_, i) => s2[i+4] || 0);
+        const nilaiS1 = s1 ? mapelLabels.map((_, i) => s1[i+4] || 0) : mapelLabels.map(() => 0);
 
         display.innerHTML = `
-            <div class="card p-6"><canvas id="chartMapel"></canvas></div>
+            <div class="card p-6"><canvas id="chartMapel" height="100"></canvas></div>
             <div class="grid grid-cols-2 gap-4">
                 <div class="card p-6">
                     <h3 class="font-bold text-gray-500 uppercase text-xs">Kehadiran (Alpa)</h3>
@@ -80,18 +86,21 @@
             <div class="card p-6 border-l-8 border-blue-600">
                 <h3 class="font-bold text-blue-900 mb-2">Analisis Wali Kelas</h3>
                 <p class="text-lg font-bold italic mb-4">${s2[21] >= 75 ? '✅ NAIK KELAS' : '⚠️ PERLU EVALUASI'}</p>
-                <p class="text-gray-700">${s2[21] >= 75 ? 'Pertahankan prestasi ananda, tingkatkan semangat di semester depan.' : 'Mohon Bapak/Ibu memberikan pendampingan belajar lebih di rumah.'}</p>
+                <p class="text-gray-700">${s2[21] >= 75 ? 'Prestasi ananda sudah baik. Pertahankan semangat belajar di semester depan.' : 'Diperlukan pendampingan lebih intensif di rumah agar hasil belajar ananda meningkat.'}</p>
             </div>
         `;
 
         new Chart(document.getElementById('chartMapel'), {
             type: 'bar',
-            data: { labels: mapels, datasets: [
+            data: { labels: mapelLabels, datasets: [
                 { label: 'S1', data: nilaiS1, backgroundColor: '#cbd5e1' },
                 { label: 'S2', data: nilaiS2, backgroundColor: '#1e40af' }
             ]},
             options: { 
-                plugins: { datalabels: { anchor: 'end', align: 'top', font: { weight: 'bold' } } },
+                plugins: { 
+                    datalabels: { anchor: 'end', align: 'top', font: { weight: 'bold', size: 10 } },
+                    legend: { position: 'bottom' }
+                },
                 scales: { y: { max: 100 } }
             }
         });
