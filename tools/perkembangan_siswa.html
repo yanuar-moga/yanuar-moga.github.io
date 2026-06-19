@@ -3,38 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Rapor Digital - SMPN 1 Moga</title>
+    <title>Sistem Rapor Digital SMPN 1 Moga</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: 'Poppins', sans-serif; background: #f8fafc; }
         .gradient-smp { background: linear-gradient(135deg, #1e40af, #1e3a8a); }
-        .card-custom { border-radius: 2rem; background: white; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        .card-custom { border-radius: 2rem; background: white; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
     </style>
 </head>
-<body class="p-4 md:p-6">
+<body class="p-4 md:p-8">
 
 <div class="max-w-4xl mx-auto">
     <div class="gradient-smp p-6 rounded-3xl text-white text-center mb-6 shadow-xl">
         <h1 class="text-2xl font-bold">Laporan Perkembangan Anak</h1>
-        <p class="text-yellow-300 font-medium">SMP NEGERI 1 MOGA - KELAS 7H</p>
+        <p class="text-yellow-300 font-semibold">SMP NEGERI 1 MOGA - KELAS 7H</p>
     </div>
 
-    <div class="card-custom p-6 border-b-8 border-yellow-400">
+    <div class="card-custom p-8 border-b-8 border-yellow-400">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div>
-                <label class="text-xs font-bold text-gray-500 uppercase">Upload Leger Sem. 1</label>
-                <input type="file" id="fileS1" class="w-full p-2 border rounded-lg mt-1">
+                <label class="text-xs font-bold text-gray-500 uppercase">Upload Leger S1</label>
+                <input type="file" id="fileS1" class="w-full p-2 border rounded-xl mt-1">
             </div>
             <div>
-                <label class="text-xs font-bold text-gray-500 uppercase">Upload Leger Sem. 2</label>
-                <input type="file" id="fileS2" class="w-full p-2 border rounded-lg mt-1">
+                <label class="text-xs font-bold text-gray-500 uppercase">Upload Leger S2</label>
+                <input type="file" id="fileS2" class="w-full p-2 border rounded-xl mt-1">
             </div>
         </div>
         
-        <select id="selectSiswa" class="w-full p-4 bg-gray-50 rounded-2xl mb-6 font-bold text-center border-2 border-blue-100 outline-none">
-            <option>-- Pilih Nama Siswa untuk Melihat Laporan --</option>
+        <select id="selectSiswa" class="w-full p-4 bg-gray-50 rounded-2xl mb-6 font-bold text-lg outline-none border-2 border-blue-100">
+            <option value="">-- Pilih Nama Siswa --</option>
         </select>
 
         <div id="displayArea" class="hidden space-y-6"></div>
@@ -47,69 +47,59 @@
     function process(e, type) {
         const reader = new FileReader();
         reader.onload = (ev) => {
-            const data = XLSX.utils.sheet_to_json(XLSX.read(ev.target.result, {type:'array'}).Sheets[0], {header: 1});
-            if(type === 1) dataS1 = data; else { dataS2 = data; initDropdown(); }
+            const data = XLSX.utils.sheet_to_json(XLSX.read(ev.target.result, {type:'array'}).Sheets[Object.keys(XLSX.read(ev.target.result).Sheets)[0]], {header: 1});
+            if(type === 1) dataS1 = data; 
+            else { 
+                dataS2 = data; 
+                initDropdown(); 
+            }
         };
         reader.readAsArrayBuffer(e.target.files[0]);
     }
 
     function initDropdown() {
         const select = document.getElementById('selectSiswa');
-        select.innerHTML = '<option>-- Pilih Nama Siswa --</option>';
-        dataS2.forEach((row, i) => { if(i >= 7 && i <= 38 && row[1]) { let opt = document.createElement('option'); opt.value = i; opt.text = row[1]; select.appendChild(opt); } });
+        select.innerHTML = '<option value="">-- Pilih Nama Siswa --</option>';
+        // Data dimulai dari baris ke-8 (index 7)
+        dataS2.forEach((row, i) => {
+            if(i >= 7 && row[1]) { 
+                let opt = document.createElement('option');
+                opt.value = i; opt.text = row[1];
+                select.appendChild(opt); 
+            } 
+        });
     }
 
     document.getElementById('selectSiswa').addEventListener('change', (e) => {
+        if(!e.target.value) return;
         const s2 = dataS2[e.target.value];
         const s1 = dataS1.find(r => r[1] === s2[1]);
         
-        const r2 = parseFloat(s2[21]) || 0;
-        const r1 = s1 ? parseFloat(s1[27]) || 0 : 0;
+        const r2 = parseFloat(s2[21]) || 0; // Kolom RATA-RATA di S2 adalah index 21
+        const r1 = s1 ? parseFloat(s1[27]) || 0 : 0; // Asumsi index 27 untuk S1
         const alpa = parseInt(s2[17]) || 0;
         const selisih = r2 - r1;
 
-        const tren = selisih >= 0.5 ? "Meningkat" : (selisih > -0.5 ? "Stabil" : "Perlu Perhatian");
-        const karakter = r2 >= 80 ? "Sangat Positif" : "Perlu Bimbingan";
-        const saran = alpa > 0 ? `Kehadiran perlu ditingkatkan (${alpa} hari alpa). Mohon Bapak/Ibu berikan motivasi lebih di rumah.` : `Kedisiplinan ananda sangat baik. Pertahankan terus kebiasaan positif ini.`;
-
         document.getElementById('displayArea').classList.remove('hidden');
         document.getElementById('displayArea').innerHTML = `
-            <div class="border-b pb-4">
-                <h2 class="text-3xl font-extrabold text-blue-900">${s2[1]}</h2>
+            <div class="border-b pb-4"><h2 class="text-3xl font-extrabold text-blue-900">${s2[1]}</h2></div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-blue-50 p-4 rounded-2xl"><p class="text-xs font-bold text-blue-600">Tren Nilai</p><p class="text-lg font-bold">${selisih >= 0 ? 'Meningkat' : 'Perlu Perhatian'} (${selisih.toFixed(1)} Poin)</p></div>
+                <div class="bg-yellow-50 p-4 rounded-2xl"><p class="text-xs font-bold text-yellow-700">Kedisiplinan</p><p class="text-lg font-bold">${alpa === 0 ? 'Sangat Disiplin' : alpa + ' Hari Alpa'}</p></div>
             </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-blue-50 p-4 rounded-2xl">
-                    <p class="text-xs font-bold text-blue-600 uppercase">Tren Akademik</p>
-                    <p class="text-lg font-bold">${tren} (${selisih.toFixed(1)} poin)</p>
-                </div>
-                <div class="bg-yellow-50 p-4 rounded-2xl">
-                    <p class="text-xs font-bold text-yellow-700 uppercase">Kedisiplinan</p>
-                    <p class="text-lg font-bold">${alpa === 0 ? "Sangat Disiplin" : alpa + " Hari Absen"}</p>
-                </div>
-            </div>
-
-            <div class="bg-white p-4 rounded-2xl border">
-                <canvas id="grafikNilai"></canvas>
-            </div>
-
-            <div class="bg-gray-50 p-4 rounded-2xl italic">
-                "Penilaian Karakter: ${karakter}. Ananda menunjukkan perilaku yang ${r2 >= 80 ? 'sangat kooperatif' : 'berpotensi berkembang'}."
-            </div>
-
+            <div class="bg-white p-4 rounded-2xl border"><canvas id="grafikNilai"></canvas></div>
             <div class="bg-blue-900 text-white p-6 rounded-2xl shadow-lg">
-                <p class="font-bold text-yellow-400 uppercase text-sm mb-2">Saran Wali Kelas</p>
-                <p class="text-sm leading-relaxed">${saran}</p>
+                <p class="text-yellow-400 font-bold uppercase text-sm mb-2">Saran Wali Kelas</p>
+                <p class="text-sm">${alpa > 0 ? "Kehadiran perlu dijaga. Mohon dampingi ananda di rumah." : "Kedisiplinan ananda sangat baik. Pertahankan!"}</p>
             </div>
         `;
 
-        // Render Grafik
         const ctx = document.getElementById('grafikNilai').getContext('2d');
         if(myChart) myChart.destroy();
         myChart = new Chart(ctx, {
             type: 'bar',
-            data: { labels: ['Sem. 1', 'Sem. 2'], datasets: [{ data: [r1, r2], backgroundColor: ['#94a3b8', '#1e40af'], borderRadius: 8 }] },
-            options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } }
+            data: { labels: ['S1', 'S2'], datasets: [{ data: [r1, r2], backgroundColor: ['#94a3b8', '#1e40af'], borderRadius: 8 }] },
+            options: { scales: { y: { beginAtZero: true, max: 100 } } }
         });
     });
 
