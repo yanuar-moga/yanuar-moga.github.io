@@ -81,22 +81,28 @@
         
         const avgS2 = parseFloat(s2[21]);
         const avgS1 = parseFloat(s1 ? s1[28] : 0);
+        const rankS2 = s2[22] || '-';
+        const rankS1 = s1 ? s1[2] : '-';
         const isNaik = avgS2 >= 75;
 
         const display = document.getElementById('displayArea');
         display.classList.remove('hidden');
 
         display.innerHTML = `
+            <div class="bg-white p-6 rounded-2xl shadow-md text-center">
+                <h2 class="text-3xl font-bold text-blue-900">${s2[1]}</h2>
+                <div class="flex justify-center gap-6 mt-2 text-sm font-bold">
+                    <span class="text-gray-500">Peringkat S1: <span class="text-blue-600">${rankS1}</span></span>
+                    <span class="text-gray-500">Peringkat S2: <span class="text-blue-600">${rankS2}</span></span>
+                </div>
+            </div>
+
             <div class="card p-6"><canvas id="chartMapel" height="100"></canvas></div>
             <div class="card p-6"><canvas id="chartAvg" height="60"></canvas></div>
             
             <div class="card p-6 bg-gradient-to-r from-blue-700 to-blue-900 text-white">
                 <h3 class="text-xl font-bold uppercase mb-2">${isNaik ? '✅ Status: NAIK KELAS' : '⚠️ Status: PERLU EVALUASI'}</h3>
                 <p class="italic mb-4">"${isNaik ? 'Prestasi yang membanggakan! Pertahankan semangat juangmu.' : 'Jangan menyerah, mari tingkatkan belajar di rumah.'}"</p>
-                <div class="border-t pt-4 border-blue-600">
-                    <p class="font-bold text-yellow-300">Saran Wali Kelas:</p>
-                    <p class="text-sm">${isNaik ? 'Fokus pada pengembangan bakat non-akademik di kelas berikutnya.' : 'Mohon pendampingan khusus pada mapel yang belum tuntas.'}</p>
-                </div>
             </div>
 
             <div class="card p-6">
@@ -109,19 +115,6 @@
                     </tbody>
                 </table>
                 <p class="mt-4 font-bold">Penilaian Sikap (S2): <span class="text-blue-900">${s2[23] || 'Baik'}</span></p>
-            </div>
-
-            <div class="card p-6">
-                <h3 class="font-bold text-lg mb-4">Tabel Ketuntasan</h3>
-                <table class="w-full text-sm text-center">
-                    <thead><tr class="border-b"><th>Mapel</th><th>S1</th><th>S2</th><th>Status</th></tr></thead>
-                    <tbody>
-                        ${mapelLabels.map((m, i) => `
-                            <tr class="border-b"><td>${m}</td><td>${nilaiS1[i]}</td><td>${nilaiS2[i]}</td>
-                            <td class="font-bold ${nilaiS2[i] >= 75 ? 'text-green-600' : 'text-red-600'}">${nilaiS2[i] >= 75 ? 'Tuntas' : 'Belum'}</td></tr>
-                        `).join('')}
-                    </tbody>
-                </table>
             </div>
         `;
 
