@@ -12,27 +12,8 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f1f5f9; }
-        
-        /* Fixed for Desktop, Responsive for Mobile/Tablet */
-        .nav-container {
-            position: fixed;
-            bottom: 30px;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            z-index: 50;
-            padding: 0 20px;
-        }
-
-        @media (max-width: 1024px) {
-            .nav-container {
-                position: static;
-                margin-top: 30px;
-                padding-bottom: 50px;
-            }
-        }
-
+        .nav-container { position: fixed; bottom: 30px; width: 100%; display: flex; justify-content: center; gap: 20px; z-index: 50; padding: 0 20px; }
+        @media (max-width: 1024px) { .nav-container { position: static; margin-top: 30px; padding-bottom: 50px; } }
         .animate-card { animation: fadeInUp 0.6s ease-out; }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -84,6 +65,11 @@
         reader.readAsArrayBuffer(e.target.files[0]);
     });
 
+    function getSikap(p) {
+        const desc = { 'A': 'Sangat Baik', 'B': 'Baik', 'C': 'Cukup', 'D': 'Kurang' };
+        return `<strong>${desc[p] || 'Perlu Pendampingan'}</strong>. Artinya: Karakter dan kepribadian siswa selama di lingkungan sekolah dinilai ${desc[p] ? desc[p].toLowerCase() : 'perlu pendampingan'}.`;
+    }
+
     document.getElementById('selectSiswa').addEventListener('change', (e) => {
         const i = e.target.value;
         const s2 = d2[i], s1 = d1[i];
@@ -111,11 +97,16 @@
                 <div class="bg-white p-6 rounded-2xl shadow-lg">
                     <h3 class="font-bold mb-3 text-blue-900">Rata-rata & Status</h3>
                     <p>S1: ${parseFloat(s1[26]).toFixed(2)} | S2: ${parseFloat(s2[26]).toFixed(2)}</p>
-                    <p class="font-bold text-lg ${isTuntas?'text-green-600':'text-red-600'}">
-                        Status: ${isTuntas?'TUNTAS':'BELUM TUNTAS'}
-                    </p>
+                    <p class="font-bold text-lg ${isTuntas?'text-green-600':'text-red-600'}">Status: ${isTuntas?'TUNTAS':'BELUM TUNTAS'}</p>
                     ${isTuntas ? '<p class="text-blue-700 font-extrabold mt-1">>> Naik Ke Kelas VIII</p>' : ''}
                 </div>
+            </div>
+
+            <div class="bg-blue-900 text-white p-6 rounded-2xl shadow-xl">
+                <h3 class="font-bold mb-2">Penilaian Sikap: ${s2[28]}</h3>
+                <p class="mb-4">${getSikap(s2[28])}</p>
+                <h3 class="font-bold border-t border-blue-700 pt-4">Saran untuk Orang Tua:</h3>
+                <p class="italic text-blue-100">"${dCatatan.find(r=>r[0]==s2[28])?.[3] || 'Mari terus bersinergi demi masa depan ananda.'}"</p>
             </div>
         `;
 
@@ -127,6 +118,11 @@
                     { label: 'S1', data: mapels.map((_, idx) => parseFloat(s1[idx+5]) || 0), backgroundColor: '#cbd5e1' },
                     { label: 'S2', data: mapels.map((_, idx) => parseFloat(s2[idx+5]) || 0), backgroundColor: '#2563eb' }
                 ]
+            },
+            options: {
+                plugins: {
+                    datalabels: { anchor: 'end', align: 'top', color: '#000000', font: { weight: 'bold', size: 11 } }
+                }
             }
         });
     });
