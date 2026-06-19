@@ -25,9 +25,15 @@
             <input type="file" id="fileS1" class="p-2 border rounded-xl" title="Semester 1">
             <input type="file" id="fileS2" class="p-2 border rounded-xl" title="Semester 2">
         </div>
-        <select id="selectSiswa" class="w-full mt-4 p-4 bg-gray-100 rounded-2xl font-bold text-lg">
-            <option value="">-- Pilih Nama Siswa --</option>
-        </select>
+        <div class="mt-4 flex flex-col gap-2">
+            <select id="selectSiswa" class="w-full p-4 bg-gray-100 rounded-2xl font-bold text-lg">
+                <option value="">-- Pilih Nama Siswa --</option>
+            </select>
+            <div class="flex gap-2">
+                <button onclick="navigasi(-1)" class="flex-1 bg-gray-500 text-white p-3 rounded-xl font-bold">◀ Sebelumnya</button>
+                <button onclick="navigasi(1)" class="flex-1 bg-blue-600 text-white p-3 rounded-xl font-bold">Selanjutnya ▶</button>
+            </div>
+        </div>
     </div>
 
     <div id="displayArea" class="hidden space-y-6"></div>
@@ -36,17 +42,13 @@
 <script>
     let dataS1 = [], dataS2 = [];
     Chart.register(ChartDataLabels);
-
-    // Pemetaan label baru sesuai permintaan
-    const mapelLabels = [
-        "Agama", "Pendidikan Pancasila", "Bahasa Indonesia", "Matematika", 
-        "IPA", "IPS", "Bahasa Inggris", "Prakarya", "PJOK", "Informatika", "Bahasa Daerah"
-    ];
+    const mapelLabels = ["Agama", "Pend. Pancasila", "B. Indonesia", "Matematika", "IPA", "IPS", "B. Inggris", "Prakarya", "PJOK", "Informatika", "B. Daerah"];
 
     function process(e, type) {
         const reader = new FileReader();
         reader.onload = (ev) => {
-            const data = XLSX.utils.sheet_to_json(XLSX.read(ev.target.result, {type:'array'}).Sheets[Object.keys(XLSX.read(ev.target.result).Sheets)[0]], {header: 1});
+            const wb = XLSX.read(ev.target.result, {type: 'array'});
+            const data = XLSX.utils.sheet_to_json(wb.Sheets[Object.keys(wb.Sheets)[0]], {header: 1});
             if(type === 1) dataS1 = data; else { dataS2 = data; initDropdown(); }
         };
         reader.readAsArrayBuffer(e.target.files[0]);
@@ -60,49 +62,56 @@
         }});
     }
 
+    function navigasi(step) {
+        const select = document.getElementById('selectSiswa');
+        let nextIndex = select.selectedIndex + step;
+        if (nextIndex > 0 && nextIndex < select.options.length) {
+            select.selectedIndex = nextIndex;
+            select.dispatchEvent(new Event('change'));
+        }
+    }
+
     document.getElementById('selectSiswa').addEventListener('change', (e) => {
         if(!e.target.value) return;
         const s2 = dataS2[e.target.value];
-        const s1 = dataS1.find(r => r[1] === s2[1]);
+        const s1 = dataS1.find(r => r && r[1] && r[1].trim() === s2[1].trim());
+        
+        const nilaiS2 = mapelLabels.map((_, i) => parseFloat(s2[i+4]) || 0);
+        const nilaiS1 = s1 ? mapelLabels.map((_, i) => parseFloat(s1[i+5]) || 0) : mapelLabels.map(() => 0);
+        
+        const avgS2 = parseFloat(s2[21]) || 0;
+        const avgS1 = s1 ? parseFloat(s1[s1.length - 1]) || 0 : 0; // Mengambil kolom rata-rata S1
+
         const display = document.getElementById('displayArea');
         display.classList.remove('hidden');
 
-        // Nilai mapel asumsi kolom 4 sampai 14
-        const nilaiS2 = mapelLabels.map((_, i) => s2[i+4] || 0);
-        const nilaiS1 = s1 ? mapelLabels.map((_, i) => s1[i+4] || 0) : mapelLabels.map(() => 0);
-
         display.innerHTML = `
-            <div class="card p-6"><canvas id="chartMapel" height="100"></canvas></div>
-            <div class="grid grid-cols-2 gap-4">
-                <div class="card p-6">
-                    <h3 class="font-bold text-gray-500 uppercase text-xs">Kehadiran (Alpa)</h3>
-                    <p class="text-2xl font-bold text-red-600">S1: ${s1 ? (s1[17] || 0) : '-'} | S2: ${s2[17] || 0} hari</p>
-                </div>
-                <div class="card p-6">
-                    <h3 class="font-bold text-gray-500 uppercase text-xs">Nilai Ekstrakurikuler</h3>
-                    <p class="text-2xl font-bold text-green-600">${s2[18] || 'Aktif'}</p>
-                </div>
+            <div class="card p-6">
+                <h3 class="font-bold text-gray-500 mb-4">Grafik Perbandingan Nilai per Mata Pelajaran</h3>
+                <canvas id="chartMapel" height="100"></canvas>
+            </div>
+            <div class="card p-6">
+                <h3 class="font-bold text-gray-500 mb-4">Grafik Rata-rata Keseluruhan</h3>
+                <canvas id="chartAvg" height="50"></canvas>
             </div>
             <div class="card p-6 border-l-8 border-blue-600">
-                <h3 class="font-bold text-blue-900 mb-2">Analisis Wali Kelas</h3>
-                <p class="text-lg font-bold italic mb-4">${s2[21] >= 75 ? '✅ NAIK KELAS' : '⚠️ PERLU EVALUASI'}</p>
-                <p class="text-gray-700">${s2[21] >= 75 ? 'Prestasi ananda sudah baik. Pertahankan semangat belajar di semester depan.' : 'Diperlukan pendampingan lebih intensif di rumah agar hasil belajar ananda meningkat.'}</p>
+                <h3 class="font-bold text-blue-900 mb-2">Pesan untuk Orang Tua</h3>
+                <p class="text-gray-700 italic">"Bapak/Ibu yang luar biasa, setiap anak memiliki kecepatan belajarnya masing-masing. Kehadiran dan dukungan kasih sayang Bapak/Ibu di rumah adalah bahan bakar utama bagi kesuksesan ananda. Mari kita terus bekerja sama membimbing langkah mereka menjadi pribadi yang lebih baik."</p>
             </div>
         `;
 
+        // Grafik Mapel
         new Chart(document.getElementById('chartMapel'), {
             type: 'bar',
-            data: { labels: mapelLabels, datasets: [
-                { label: 'S1', data: nilaiS1, backgroundColor: '#cbd5e1' },
-                { label: 'S2', data: nilaiS2, backgroundColor: '#1e40af' }
-            ]},
-            options: { 
-                plugins: { 
-                    datalabels: { anchor: 'end', align: 'top', font: { weight: 'bold', size: 10 } },
-                    legend: { position: 'bottom' }
-                },
-                scales: { y: { max: 100 } }
-            }
+            data: { labels: mapelLabels, datasets: [{ label: 'S1', data: nilaiS1, backgroundColor: '#cbd5e1' }, { label: 'S2', data: nilaiS2, backgroundColor: '#1e40af' }] },
+            options: { plugins: { datalabels: { anchor: 'end', align: 'top', font: { weight: 'bold', size: 10 } } }, scales: { y: { max: 100 } } }
+        });
+
+        // Grafik Rata-rata
+        new Chart(document.getElementById('chartAvg'), {
+            type: 'bar',
+            data: { labels: ['Rata-rata S1', 'Rata-rata S2'], datasets: [{ data: [avgS1, avgS2], backgroundColor: ['#94a3b8', '#fbbf24'] }] },
+            options: { indexAxis: 'y', plugins: { datalabels: { anchor: 'end', align: 'right', font: { weight: 'bold' } } } }
         });
     });
 
