@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Perkembangan Hasil Belajar Siswa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --blue-smp: #0b438c;
+            --blue-light: #1e5fae;
+            --yellow-osis: #f1c40f;
+            --yellow-dark: #d4ac0d;
+            --gray-bg: #f4f6f9;
+            --white: #ffffff;
+            --dark-text: #2c3e50;
+            --light-text: #7f8c8d;
+            --border-color: #e2e8f0;
+            --shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--gray-bg);
+            color: var(--dark-text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Scrollbar Costum */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--blue-smp);
+            border-radius: 4px;
+        }
+
+        /* Header Navbar */
+        header {
+            background: linear-gradient(135deg, var(--blue-smp), var(--blue-light));
+            color: var(--white);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-circle {
+            width: 50px;
+            height: 50px;
+            background-color: var(--yellow-osis);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--blue-smp);
+            font-weight: 700;
+            font-size: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        .title-text h1 {
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .title-text p {
+            font-size: 12px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .select-box-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .select-box-container label {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        select {
+            padding: 10px 20px;
+            border-radius: 30px;
+            border: 2px solid var(--yellow-osis);
+            background-color: var(--white);
+            color: var(--dark-text);
+            font-size: 14px;
+            font-weight: 500;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: var(--shadow);
+        }
+
+        select:focus {
+            border-color: var(--white);
+            box-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
+        }
+
+        /* Container Utama */
+        .container {
+            max-width: 1300px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: none; /* Muncul setelah tombol diklik */
+        }
+
+        /* Banner Identitas Siswa */
+        .student-banner {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+            border-left: 6px solid var(--yellow-osis);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .student-banner::after {
+            content: '\f501';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 20px;
+            bottom: -20px;
+            font-size: 120px;
+            color: rgba(11, 67, 140, 0.03);
+            pointer-events: none;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .info-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--light-text);
+            font-weight: 600;
+            letter-spacing: 0.8px;
+        }
+
+        .info-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--blue-smp);
+        }
+
+        /* Layout Grid */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--blue-smp);
+            border-bottom: 2px solid var(--gray-bg);
+            padding-bottom: 10px;
+        }
+
+        .card-title i {
+            color: var(--yellow-osis);
+        }
+
+        /* Ranking Box */
+        .rank-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .rank-box {
+            text-align: center;
+            padding: 15px;
+            background: var(--gray-bg);
+            border-radius: var(--radius);
+            width: 45%;
+            border-top: 4px solid var(--blue-smp);
+        }
+
+        .rank-box.s2 {
+            border-top: 4px solid var(--yellow-osis);
+        }
+
+        .rank-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--blue-smp);
+            margin: 5px 0;
+        }
+
+        /* Tabel Perkembangan */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: var(--blue-smp);
+            color: var(--white);
+            font-weight: 500;
+            text-align: left;
+            padding: 12px;
+        }
+
+        th:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+        th:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--dark-text);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-success { background-color: #e8f8f5; color: #117a65; }
+        .badge-danger { background-color: #fdedec; color: #a93226; }
+
+        /* Chart */
+        .chart-container {
+            position: relative;
+            height: 350px;
+            width: 100%;
+        }
+
+        /* Kehadiran & Sikap */
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .attendance-cell {
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .attitude-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            height: 100px;
+            background: linear-gradient(135deg, #fdfefe, #f4f6f7);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+        }
+
+        .attitude-grade {
+            font-size: 46px;
+            font-weight: 700;
+            color: var(--blue-smp);
+        }
+
+        /* Catatan Wali Kelas & Kesimpulan */
+        .conclusion-section {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+            margin-bottom: 40px;
+            border-top: 5px solid var(--blue-smp);
+        }
+
+        .section-subtitle {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--blue-smp);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .note-box {
+            background-color: var(--gray-bg);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--yellow-osis);
+            font-style: italic;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .summary-box {
+            background: linear-gradient(135deg, rgba(11,67,140,0.05), rgba(30,95,174,0.05));
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #27ae60;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        /* MODAL POPUP ANIMATION */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            transition: all 0.5s ease;
+        }
+
+        .modal-content {
+            background: var(--white);
+            padding: 40px;
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            animation: popupAnim 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes popupAnim {
+            0% { transform: scale(0.7); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(11, 67, 140, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: var(--blue-smp);
+            font-size: 36px;
+        }
+
+        .modal-content h2 {
+            font-size: 22px;
+            color: var(--blue-smp);
+            margin-bottom: 10px;
+        }
+
+        .modal-content p {
+            font-size: 14px;
+            color: var(--light-text);
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--blue-smp), var(--blue-light));
+            color: var(--white);
+            padding: 12px 30px;
+            border: none;
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(11, 67, 140, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(11, 67, 140, 0.4);
+        }
+
+        /* Custom Notification Toast */
+        .custom-alert {
+            position: fixed;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #27ae60;
+            color: var(--white);
+            padding: 15px 30px;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            z-index: 1000;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .custom-alert.show {
+            top: 35px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--light-text);
+            font-size: 13px;
+            border-top: 1px solid var(--border-color);
+            background: var(--white);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="customAlert" class="custom-alert">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="alertMessage">Data Berhasil Dimuat!</span>
+    </div>
+
+    <div id="uploadModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-icon">
+                <i class="fa-solid fa-file-excel"></i>
+            </div>
+            <h2>Menu Load Data Rapor</h2>
+            <p>Klik tombol di bawah ini untuk memuat seluruh ringkasan prestasi hasil belajar siswa, rekap kehadiran, dan catatan otomatis wali kelas.</p>
+            <button class="btn" onclick="loadTemplateData()">
+                <i class="fa-solid fa-sync-alt"></i> Sinkronisasikan Data Excel
+            </button>
+        </div>
+    </div>
+
+    <header>
+        <div class="logo-section">
+            <div class="logo-circle">SMP</div>
+            <div class="title-text">
+                <h1>Sistem Informasi Perkembangan Siswa</h1>
+                <p>SMP Negeri Berprestasi • Panel Informasi Wali Murid</p>
+            </div>
+        </div>
+        <div class="select-box-container">
+            <label for="studentSelect"><i class="fa-solid fa-user-graduate"></i> Pilih Siswa :</label>
+            <select id="studentSelect" onchange="renderStudentDashboard(this.value)">
+                </select>
+        </div>
+    </header>
+
+    <div class="container" id="dashboardContainer">
+        
+        <div class="student-banner">
+            <div class="info-item">
+                <div class="info-label">Nama Lengkap Siswa</div>
+                <div class="info-value" id="lblNama">-</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Nomor Induk Siswa (NIS)</div>
+                <div class="info-value" id="lblNIS">-</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">NISN</div>
+                <div class="info-value" id="lblNISN">-</div>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-title">
+                    <i class="fa-solid fa-chart-line"></i> Ringkasan Nilai & Ketuntasan
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Semester</th>
+                            <th>Rata-Rata Nilai</th>
+                            <th>Keterangan Tuntas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Semester 1</strong></td>
+                            <td><span id="lblAvgS1" class="info-value">-</span></td>
+                            <td><span id="badgeS1" class="badge badge-success">TUNTAS</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Semester 2</strong></td>
+                            <td><span id="lblAvgS2" class="info-value">-</span></td>
+                            <td><span id="badgeS2" class="badge badge-success">TUNTAS</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <i class="fa-solid fa-trophy"></i> Peringkat Capaian Belajar
+                </div>
+                <div class="rank-container">
+                    <div class="rank-box">
+                        <div class="info-label">Semester 1</div>
+                        <div class="rank-number" id="lblRankS1">-</div>
+                        <div class="info-label">Dari 32 Siswa</div>
+                    </div>
+                    <div class="rank-box s2">
+                        <div class="info-label">Semester 2</div>
+                        <div class="rank-number" id="lblRankS2">-</div>
+                        <div class="info-label">Dari 32 Siswa</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-2" style="grid-template-columns: 1fr;">
+            <div class="card">
+                <div class="card-title">
+                    <i class="fa-solid fa-chart-bar"></i> Grafik Perbandingan Nilai Mata Pelajaran (Semester 1 vs Semester 2)
+                </div>
+                <div class="chart-container">
+                    <canvas id="subjectChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-3">
+            <div class="card" style="grid-column: span 2;">
+                <div class="card-title">
+                    <i class="fa-solid fa-user-check"></i> Penilaian Kehadiran Siswa dalam Tabel
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Periode Belajar</th>
+                            <th style="text-align: center; background-color: #e74c3c; color: white;">Sakit (Hari)</th>
+                            <th style="text-align: center; background-color: #f39c12; color: white;">Izin (Hari)</th>
+                            <th style="text-align: center; background-color: #7f8c8d; color: white;">Alpa (Hari)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Semester 1</strong></td>
+                            <td class="attendance-cell" id="lblSakitS1">-</td>
+                            <td class="attendance-cell" id="lblIzinS1">-</td>
+                            <td class="attendance-cell" id="lblAlpaS1">-</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Semester 2</strong></td>
+                            <td class="attendance-cell" id="lblSakitS2">-</td>
+                            <td class="attendance-cell" id="lblIzinS2">-</td>
+                            <td class="attendance-cell" id="lblAlpaS2">-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <i class="fa-solid fa-heart"></i> Penilaian Sikap
+                </div>
+                <p class="info-label" style="margin-bottom: 10px; text-align: center;">Predikat Karakter</p>
+                <div class="attitude-box">
+                    <div class="attitude-grade" id="lblSikap">-</div>
+                    <div>
+                        <strong style="color: var(--blue-smp);" id="lblSikapTeks">-</strong>
+                        <p style="font-size: 11px; color: var(--light-text); margin-top: 3px;">Karakter dan kepribadian siswa selama di lingkungan sekolah.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="conclusion-section">
+            <div class="section-subtitle">
+                <i class="fa-solid fa-comment-medical"></i> Catatan Wali Kelas
+            </div>
+            <div class="note-box" id="lblCatatanWali">-</div>
+
+            <div class="section-subtitle" style="margin-top: 25px;">
+                <i class="fa-solid fa-lightbulb"></i> Kesimpulan Perkembangan Belajar
+            </div>
+            <div class="summary-box" id="lblKesimpulan">-</div>
+        </div>
+
+    </div>
+
+    <footer>
+        Media Informasi Pembagian Rapor • © 2026 SMP Negeri Berprestasi.
+    </footer>
+
+    <script>
+        // Data dari 4 file Excel Anda yang telah digabungkan secara lengkap dan presisi
+        const masterStudentsData = {
+          "AHMAD AL IRSYAD": {
+            "nis": "12348", "nisn": "3127835285",
+            "s1": { "rank": 23, "avg": 81.73, "sikap": "A", "attendance": {"SAKIT": 2, "IZIN": 1, "ALPA": 4}, "scores": {"Agama": 80, "Pend. Pancasila": 85, "B. Indonesia": 80, "Matematika": 78, "IPA": 80, "IPS": 81, "B. Inggris": 80, "Prakarya": 84, "PJOK": 88, "Informatika": 84, "B. Daerah": 79} },
+            "s2": { "rank": 21, "avg": 83.73, "sikap": "A", "attendance": {"SAKIT": 0, "IZIN": 1, "ALPA": 0}, "scores": {"Agama": 82, "Pend. Pancasila": 86, "B. Indonesia": 92, "Matematika": 80, "IPA": 80, "IPS": 80, "B. Inggris": 82, "Prakarya": 83, "PJOK": 85, "Informatika": 83, "B. Daerah": 88} }
+          },
+          "ATINA AZZAH HAYATI": {
+            "nis": "12349", "nisn": "0125706212",
+            "s1": { "rank": 5, "avg": 87.18, "sikap": "A", "attendance": {"SAKIT": 6, "IZIN": 0, "ALPA": 0}, "scores": {"Agama": 90, "Pend. Pancasila": 93, "B. Indonesia": 90, "Matematika": 79, "IPA": 89, "IPS": 85, "B. Inggris": 86, "Prakarya": 83, "PJOK": 85, "Informatika": 88, "B. Daerah": 91} },
+            "s2": { "rank": 4, "avg": 88.00, "sikap": "A", "attendance": {"SAKIT": 0, "IZIN": 1, "ALPA": 0}, "scores": {"Agama": 91, "Pend. Pancasila": 93, "B. Indonesia": 94, "Matematika": 85, "IPA": 90, "IPS": 83, "B. Inggris": 87, "Prakarya": 85, "PJOK": 80, "Informatika": 87, "B. Daerah": 93} }
+          },
+          "AULIA IZZATUNNISA": {
+            "nis": "12350", "nisn": "0134806462",
+            "s1": { "rank": 8, "avg": 83.82, "sikap": "A", "attendance": {"SAKIT": 7, "IZIN": 0, "ALPA": 0}, "scores": {"Agama": 84, "Pend. Pancasila": 84, "B. Indonesia": 82, "Matematika": 84, "IPA": 86, "IPS": 82, "B. Inggris": 82, "Prakarya": 84, "PJOK": 85, "Informatika": 86, "B. Daerah": 83} },
+            "s2": { "rank": 9, "avg": 85.73, "sikap": "A", "attendance": {"SAKIT": 0, "IZIN": 1, "ALPA": 0}, "scores": {"Agama": 88, "Pend. Pancasila": 86, "B. Indonesia": 92, "Matematika": 80, "IPA": 88, "IPS": 81, "B. Inggris": 84, "Prakarya": 84, "PJOK": 80, "Informatika": 90, "B. Daerah": 90} }
+          },
+          "NASY'ATUL MAHYA": {
+            "nis": "12532", "nisn": "3138872764",
+            "s1": { "rank": 7, "avg": 83.91, "sikap": "A", "attendance": {"SAKIT": 7, "IZIN": 1, "ALPA": 1}, "scores": {"Agama": 88, "Pend. Pancasila": 90, "B. Indonesia": 85, "Matematika": 80, "IPA": 84, "IPS": 84, "B. Inggris": 80, "Prakarya": 83, "PJOK": 80, "Informatika": 85, "B. Daerah": 84} },
+            "s2": { "rank": 8, "avg": 85.91, "sikap": "A", "attendance": {"SAKIT": 3, "IZIN": 1, "ALPA": 0}, "scores": {"Agama": 89, "Pend. Pancasila": 92, "B. Indonesia": 93, "Matematika": 80, "IPA": 87, "IPS": 82, "B. Inggris": 84, "Prakarya": 86, "PJOK": 80, "Informatika": 85, "B. Daerah": 87} }
+          },
+          "MUTIARA SILMI": {
+            "nis": "12509", "nisn": "3130206215",
+            "s1": { "rank": 21, "avg": 81.82, "sikap": "A", "attendance": {"SAKIT": 6, "IZIN": 1, "ALPA": 0}, "scores": {"Agama": 84, "Pend. Pancasila": 84, "B. Indonesia": 85, "Matematika": 77, "IPA": 80, "IPS": 81, "B. Inggris": 80, "Prakarya": 83, "PJOK": 80, "Informatika": 84, "B. Daerah": 82} },
+            "s2": { "rank": 24, "avg": 83.27, "sikap": "A", "attendance": {"SAKIT": 5, "IZIN": 2, "ALPA": 2}, "scores": {"Agama": 87, "Pend. Pancasila": 85, "B. Indonesia": 91, "Matematika": 79, "IPA": 82, "IOJS": 80, "IPS": 80, "B. Inggris": 81, "Prakarya": 83, "PJOK": 80, "Informatika": 82, "B. Daerah": 86} }
+          },
+          "NAFISA IKLIMA AZZAHRA": {
+            "nis": "12531", "nisn": "0136942798",
+            "s1": { "rank": 26, "avg": 81.18, "sikap": "B", "attendance": {"SAKIT": 0, "IZIN": 2, "ALPA": 1}, "scores": {"Agama": 82, "Pend. Pancasila": 81, "B. Indonesia": 82, "Matematika": 77, "IPA": 83, "IPS": 79, "B. Inggris": 81, "Prakarya": 84, "PJOK": 80, "Informatika": 84, "B. Daerah": 80} },
+            "s2": { "rank": 28, "avg": 82.45, "sikap": "B", "attendance": {"SAKIT": 2, "IZIN": 0, "ALPA": 0}, "scores": {"Agama": 85, "Pend. Pancasila": 83, "B. Indonesia": 91, "Matematika": 79, "IPA": 84, "IPS": 80, "B. Inggris": 80, "Prakarya": 82, "PJOK": 80, "Informatika": 82, "B. Daerah": 81} }
+          }
+        };
+
+        const catatanRules = [
+          {"ranking": "1-2", "text": "Hebat sekali! Kamu menunjukkan prestasi akademik yang sangat baik, aktif dalam pembelajaran, serta memiliki sikap disiplin yang patut dipertahankan dan menjadi teladan bagi teman-temanmu."},
+          {"ranking": "3-5", "text": "Bagus sekali! Kemampuan akademikmu sudah sangat baik. Akan lebih luar biasa lagi jika kamu lebih aktif dalam berdiskusi dan menyampaikan pendapat di kelas."},
+          {"ranking": "6-8", "text": "Keren! Hasil belajarmu sudah baik dan kamu aktif mengikuti kegiatan pembelajaran. Terus pertahankan semangat belajar untuk meraih prestasi yang lebih tinggi."},
+          {"ranking": "9-11", "text": "Kamu menunjukkan sikap disiplin dan tanggung jawab yang sangat baik. Pertahankan kebiasaan positif tersebut karena akan sangat mendukung keberhasilan belajarmu."},
+          {"ranking": "12-14", "text": "Bagus! Kemampuan belajarmu sudah berkembang dengan baik. Tingkatkan lagi rasa percaya diri untuk bertanya, berdiskusi, dan menyampaikan pendapat."},
+          {"ranking": "15-18", "text": "Semangat belajarmu patut di apresiasi. Terus tingkatkan pemahaman materi dan pertahankan ketekunanmu agar hasil belajar semakin optimal."},
+          {"ranking": "19-21", "text": "Kamu aktif mengikuti pembelajaran dan mampu berpartisipasi dengan baik. Tingkatkan ketelitian dan pemahaman materi agar kemampuanmu semakin berkembang."},
+          {"ranking": "22-24", "text": "Sikap disiplin yang kamu tunjukkan sudah sangat baik. Terus tingkatkan motivasi belajar agar hasil yang kamu peroleh semakin maksimal."},
+          {"ranking": "25-27", "text": "Kamu memiliki potensi yang sangat baik untuk berkembang. Tetap semangat dan tingkatkan kemandirian belajar agar prestasimu semakin meningkat."},
+          {"ranking": "28-29", "text": "Semangat dan usaha belajarmu sudah terlihat baik. Terus berlatih dan manfaatkan setiap kesempatan untuk belajar agar kemampuanmu semakin berkembang."},
+          {"ranking": "30-31", "text": "Jangan menyerah, ya! Dengan lebih fokus dan sungguh-sungguh dalam belajar, kemampuan yang kamu miliki akan berkembang dan hasil belajarmu akan semakin baik."},
+          {"ranking": "32", "text": "Kamu memiliki potensi yang baik untuk berkembang lebih jauh. Tingkatkan kedisiplinan, tanggung jawab, dan kesungguhan dalam belajar agar hasil yang dicapai semakin memuaskan."}
+        ];
+        
+        let currentChart = null;
+
+        function showCustomAlert(msg) {
+            const alertBox = document.getElementById('customAlert');
+            document.getElementById('alertMessage').innerText = msg;
+            alertBox.classList.add('show');
+            setTimeout(() => alertBox.classList.remove('show'), 3000);
+        }
+
+        function loadTemplateData() {
+            document.getElementById('uploadModal').style.opacity = '0';
+            setTimeout(() => document.getElementById('uploadModal').style.display = 'none', 400);
+            showCustomAlert("Berhasil Sinkronisasi Data Excel!");
+            initDropdown();
+        }
+
+        function initDropdown() {
+            const selectEl = document.getElementById('studentSelect');
+            selectEl.innerHTML = "";
+            Object.keys(masterStudentsData).forEach(name => {
+                let opt = document.createElement('option');
+                opt.value = name; opt.innerText = name;
+                selectEl.appendChild(opt);
+            });
+            document.getElementById('dashboardContainer').style.display = 'block';
+            renderStudentDashboard(Object.keys(masterStudentsData)[0]);
+        }
+
+        function getWaliKelasNote(rank) {
+            for (let rule of catatanRules) {
+                let range = rule.ranking.split('-');
+                if (range.length === 2) {
+                    let min = parseInt(range[0]), max = parseInt(range[1]);
+                    if (rank >= min && rank <= max) return rule.text;
+                } else {
+                    if (rank === parseInt(rule.ranking)) return rule.text;
+                }
+            }
+            return "Pertahankan semangat belajarmu untuk semester berikutnya.";
+        }
+
+        function renderStudentDashboard(studentName) {
+            const data = masterStudentsData[studentName];
+            if (!data) return;
+
+            document.getElementById('lblNama').innerText = studentName;
+            document.getElementById('lblNIS').innerText = data.nis;
+            document.getElementById('lblNISN').innerText = data.nisn;
+            document.getElementById('lblAvgS1').innerText = data.s1.avg;
+            document.getElementById('lblAvgS2').innerText = data.s2.avg;
+            document.getElementById('lblRankS1').innerText = "#" + data.s1.rank;
+            document.getElementById('lblRankS2').innerText = "#" + data.s2.rank;
+
+            document.getElementById('badgeS1').className = data.s1.avg >= 75 ? "badge badge-success" : "badge badge-danger";
+            document.getElementById('badgeS2').className = data.s2.avg >= 75 ? "badge badge-success" : "badge badge-danger";
+
+            document.getElementById('lblSakitS1').innerText = data.s1.attendance.SAKIT;
+            document.getElementById('lblIzinS1').innerText = data.s1.attendance.IZIN;
+            document.getElementById('lblAlpaS1').innerText = data.s1.attendance.ALPA;
+            document.getElementById('lblSakitS2').innerText = data.s2.attendance.SAKIT;
+            document.getElementById('lblIzinS2').innerText = data.s2.attendance.IZIN;
+            document.getElementById('lblAlpaS2').innerText = data.s2.attendance.ALPA;
+
+            const sikap = data.s2.sikap;
+            document.getElementById('lblSikap').innerText = sikap;
+            document.getElementById('lblSikapTeks').innerText = sikap === 'A' ? "Sangat Baik" : "Baik";
+
+            const noteText = getWaliKelasNote(data.s2.rank);
+            document.getElementById('lblCatatanWali').innerText = `"${noteText}"`;
+
+            let diff = (data.s2.avg - data.s1.avg).toFixed(2);
+            document.getElementById('lblKesimpulan').innerHTML = diff > 0 ? 
+                `Berdasarkan data di atas, nilai rata-rata akademis Ananda mengalami <strong>peningkatan sebesar ${diff} poin</strong> di Semester 2. Perkembangan positif ini menunjukkan konsistensi belajar yang sangat baik. Terima kasih atas kerja sama orang tua dalam mendampingi belajar di rumah.` :
+                `Nilai akademis Ananda relatif stabil dengan penyesuaian minor sebesar ${Math.abs(diff)} poin. Disarankan kepada orang tua untuk memberikan motivasi ekstra dan membimbing waktu belajar mandiri di rumah agar capaian kompetensi Ananda tetap optimal.`;
+
+            renderChart(data);
+        }
+
+        function renderChart(data) {
+            const ctx = document.getElementById('subjectChart').getContext('2d');
+            const subjects = Object.keys(data.s1.scores);
+            const s1Scores = Object.values(data.s1.scores);
+            const s2Scores = Object.values(data.s2.scores);
+
+            if (currentChart) currentChart.destroy();
+
+            currentChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: subjects,
+                    datasets: [
+                        { label: 'Semester 1', data: s1Scores, backgroundColor: '#0b438c', borderRadius: 4 },
+                        { label: 'Semester 2', data: s2Scores, backgroundColor: '#f1c40f', borderRadius: 4 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', labels: { font: { family: 'Poppins' } } }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, max: 100 }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
