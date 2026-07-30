@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Dashboard Pemeriksaan Kesehatan Siswa</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- Fallback / Backup SheetJS di-embed secara langsung agar aman dari blokir jaringan -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.20.3/xlsx.full.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;}
@@ -133,7 +134,6 @@ document.getElementById("loading").textContent = "Error: " + err.message;
 }
 }
 
-// Fungsi bantu untuk mengubah string menjadi Proper Case (Kapital Setiap Awal Kata)
 function toProperCase(str) {
 if (!str) return "";
 return String(str).toLowerCase().replace(/(^|\s)\S/g, function(L) {
@@ -183,17 +183,17 @@ let alamatProper = toProperCase(r[9]);
 
 let rowData = [
 globalNo++, 
-namaUpper,       // NAMA (UPPER)
-isL,             // L (Huruf L)
-isP,             // P (Huruf P)
-r[42] || rombel, // KELAS
-r[4] || "",      // NISN
-r[7] || "",      // NIK
-ttl,             // TEMPAT TGL LAHIR (Proper Case)
-hitungUsia(r[6]),// USIA
-alamatProper,    // ALAMAT (Proper Case)
-r[19] || "",     // NO HP
-"", "", "", "", "", "", "", "", "", "" // Kolom pemeriksaan kosong
+namaUpper,       
+isL,             
+isP,             
+r[42] || rombel, 
+r[4] || "",      
+r[7] || "",      
+ttl,             
+hitungUsia(r[6]),
+alamatProper,    
+r[19] || "",     
+"", "", "", "", "", "", "", "", "", "" 
 ];
 
 allSiswaList.push(rowData);
@@ -235,17 +235,53 @@ container.appendChild(btn);
 });
 }
 
-function cekLibraryExcel() {
-if (typeof XLSX === 'undefined') {
-alert("Library Excel (SheetJS) gagal dimuat. Periksa koneksi internet Anda.");
-return false;
-}
-return true;
+// Fallback otomatis membuat file Excel (.xlsx via XML Spreadsheet murni) jika library eksternal diblokir jaringan
+function downloadFileExcelMurni(wsData, namaFile) {
+let xmlData = '<?xml version="1.0" encoding="UTF-8"?>\n';
+xmlData += '<?mso-application progid="Excel.Sheet"?>\n';
+xmlData += '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" ';
+xmlData += 'xmlns:o="urn:schemas-microsoft-com:office:office" ';
+xmlData += 'xmlns:x="urn:schemas-microsoft-com:office:excel" ';
+xmlData += 'xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet" ';
+xmlData += 'xmlns:html="http://www.w3.org/TR/REC-html40">\n';
+xmlData += '<Styles>\n<Style ss:ID="Default" ss:Name="Normal">\n';
+xmlData += '<Alignment ss:Vertical="Center"/>\n<Font ss:FontName="Poppins" ss:Size="10"/>\n';
+xmlData += '</Style>\n<Style ss:ID="Header">\n';
+xmlData += '<Alignment ss:Horizontal="Center" ss:Vertical="Center"/>\n';
+xmlData += '<Font ss:FontName="Poppins" ss:Size="10" ss:Bold="1" ss:Color="#FFFFFF"/>\n';
+xmlData += '<Interior ss:Color="#1E3A8A" ss:Pattern="Solid"/>\n';
+xmlData += '</Style>\n<Style ss:ID="Cell">\n';
+xmlData += '<Alignment ss:Vertical="Center"/>\n<Borders>\n';
+xmlData += '<Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>\n';
+xmlData += '<Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>\n';
+xmlData += '<Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>\n';
+xmlData += '<Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>\n';
+xmlData += '</Borders>\n</Style>\n</Styles>\n';
+
+xmlData += '<Worksheet ss:Name="PEMERIKSAAN">\n<Table>\n';
+wsData.forEach((row, rIdx) => {
+xmlData += '<Row>\n';
+row.forEach(cell => {
+let styleId = rIdx === 0 ? 'Header' : 'Cell';
+let cellValue = String(cell).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+xmlData += `<Cell ss:StyleID="${styleId}"><Data ss:Type="String">${cellValue}</Data></Cell>\n`;
+});
+xmlData += '</Row>\n';
+});
+xmlData += '</Table>\n</Worksheet>\n</Workbook>';
+
+let blob = new Blob([xmlData], { type: 'application/vnd.ms-excel' });
+let url = window.URL.createObjectURL(blob);
+let a = document.createElement('a');
+a.href = url;
+a.download = namaFile;
+document.body.appendChild(a);
+a.click();
+document.body.removeChild(a);
+window.URL.revokeObjectURL(url);
 }
 
 function downloadRombel(rombelNama) {
-if (!cekLibraryExcel()) return;
-
 let dataRombelRaw = masterData[rombelNama] || [];
 if (dataRombelRaw.length === 0) {
 alert("Tidak ada data untuk rombel " + rombelNama);
@@ -283,19 +319,22 @@ r[19] || "",
 });
 
 try {
+let namaFile = "PEMERIKSAAN_ROMBEL_" + rombelNama.replace(/[^\w]/g, "_") + ".xls";
+// Gunakan SheetJS jika ada, jika diblokir gunakan fungsi internal murni
+if (typeof XLSX !== 'undefined') {
 const ws = XLSX.utils.aoa_to_sheet(wsData);
 const wb = XLSX.utils.book_new();
 XLSX.utils.book_append_sheet(wb, ws, "PEMERIKSAAN");
-let namaFile = "PEMERIKSAAN_ROMBEL_" + rombelNama.replace(/[^\w]/g, "_") + ".xlsx";
-XLSX.writeFile(wb, namaFile);
+XLSX.writeFile(wb, namaFile.replace('.xls', '.xlsx'));
+} else {
+downloadFileExcelMurni(wsData, namaFile);
+}
 } catch (err) {
 alert("Gagal membuat file Excel: " + err.message);
 }
 }
 
 function downloadTingkat(tingkatAngka) {
-if (!cekLibraryExcel()) return;
-
 let dataTingkatGabung = [];
 Object.keys(masterData).forEach(rombel => {
 if (rombel.trim().startsWith(tingkatAngka)) {
@@ -339,11 +378,15 @@ r[19] || "",
 });
 
 try {
+let namaFile = "PEMERIKSAAN_KELAS_" + tingkatAngka + "_FULL.xls";
+if (typeof XLSX !== 'undefined') {
 const ws = XLSX.utils.aoa_to_sheet(wsData);
 const wb = XLSX.utils.book_new();
 XLSX.utils.book_append_sheet(wb, ws, "PEMERIKSAAN");
-let namaFile = "PEMERIKSAAN_KELAS_" + tingkatAngka + "_FULL.xlsx";
-XLSX.writeFile(wb, namaFile);
+XLSX.writeFile(wb, namaFile.replace('.xls', '.xlsx'));
+} else {
+downloadFileExcelMurni(wsData, namaFile);
+}
 } catch (err) {
 alert("Gagal membuat file Excel: " + err.message);
 }
