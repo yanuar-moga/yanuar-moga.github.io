@@ -52,7 +52,7 @@ tbody tr:hover{background:#dbeafe;}
 <h2>📂 Upload File Excel Dapodik</h2>
 <input type="file" id="excelFile" accept=".xlsx,.xls">
 <div class="loading" id="loading">Membaca File Excel...</div>
-<div class="success" id="success">File berhasil dibaca.</div>
+<div class="success" id="success">File berhasil dibaca & Rombel dimuat!</div>
 </div>
 
 <div class="card">
@@ -136,35 +136,50 @@ document.getElementById("loading").style.display="block";
 document.getElementById("success").style.display="none";
 const file = e.target.files[0];
 const reader = new FileReader();
+
 reader.onload = function(evt){
 const data = new Uint8Array(evt.target.result);
 workbook = XLSX.read(data, {type:"array"});
 sheet = workbook.Sheets[workbook.SheetNames[0]];
 rawData = XLSX.utils.sheet_to_json(sheet, {header:1, raw:true});
 
-// Header Dapodik berada di baris ke-5 (index 4)
-header = rawData[4];
-// Data siswa mulai dari baris ke-7 (index 6), karena index 5 adalah sub-header nama ayah/ibu
-let isi = rawData.slice(6);
+// Deteksi otomatis letak baris header utama yang memiliki kolom "NAMA" dan "ROMBEL SAAT INI"
+let headerIndex = -1;
+for(let i=0; i<rawData.length; i++){
+let rowStr = rawData[i].map(c => String(c).toUpperCase()).join(" ");
+if(rowStr.includes("NAMA") && (rowStr.includes("ROMBEL") || rowStr.includes("KELAS"))){
+headerIndex = i;
+break;
+}
+}
 
-// Filter hanya baris yang memiliki nomor urut di kolom pertama
-isi = isi.filter(r => r && r.length > 0 && !isNaN(Number(r[0])) && String(r[0]).trim() !== "");
-rawData = isi;
+if(headerIndex === -1) headerIndex = 4; // Default baris ke-5
+
+header = rawData[headerIndex];
+// Ambil baris setelah header, saring hanya baris yang memiliki nama siswa valid (kolom Nama tidak kosong)
+let cNamaIdx = cariKolom("NAMA PESERTA DIDIK", "NAMA");
+if(cNamaIdx === -1) cNamaIdx = 1; // Default kolom B (index 1)
+
+let isi = rawData.slice(headerIndex + 1);
+rawData = isi.filter(r => r && r[cNamaIdx] !== undefined && String(r[cNamaIdx]).trim() !== "" && String(r[cNamaIdx]).toUpperCase() !== "NAMA");
 
 isiDropdown();
 document.getElementById("loading").style.display="none";
 document.getElementById("success").style.display="block";
 };
+
 reader.readAsArrayBuffer(file);
 }
 
 function isiDropdown(){
 kelasSelect.innerHTML="<option value=''>-- Pilih Kelas --</option>";
-// Kolom AQ adalah indeks ke-42
-const idxKelas = 42; 
+// Cari kolom rombel secara dinamis atau pastikan ke kolom AQ (index 42)
+let idxKelas = cariKolom("ROMBEL SAAT INI", "KELAS", "ROMBEL");
+if(idxKelas === -1) idxKelas = 42; 
 
 let daftar = [...new Set(rawData.map(r => r[idxKelas]))].filter(Boolean);
 daftar.sort((a,b) => String(a).localeCompare(String(b), "id"));
+
 daftar.forEach(k => {
 let op = document.createElement("option");
 op.value = k;
@@ -181,7 +196,9 @@ if(kelas===""){ alert("Pilih kelas terlebih dahulu."); return; }
 
 const cNama = cariKolom("NAMA PESERTA DIDIK", "NAMA");
 const cJK = cariKolom("JENIS KELAMIN", "JK");
-const cRombel = 42; // Kolom AQ
+let cRombel = cariKolom("ROMBEL SAAT INI", "KELAS", "ROMBEL");
+if(cRombel === -1) cRombel = 42;
+
 const cNISN = cariKolom("NISN");
 const cNIK = cariKolom("NIK");
 const cTempat = cariKolom("TEMPAT LAHIR");
@@ -197,7 +214,7 @@ document.getElementById("jmlP").innerText = filtered.filter(r => String(r[cJK]).
 
 filtered.forEach((r, no) => {
 let ttl = "";
-if(cTempat !== -1) ttl = r[cTempat] || "";
+if(cTempat !== -1 && r[cTempat]) ttl = r[cTempat];
 if(cTanggal !== -1 && r[cTanggal]) {
 ttl += (ttl ? " , " : "") + formatTanggal(r[cTanggal]);
 }
