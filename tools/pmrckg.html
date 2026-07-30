@@ -26,7 +26,8 @@ button:disabled{opacity:0.4;cursor:not-allowed;}
 .stat p{font-size:13px;color:#64748b;}
 table{width:100%;border-collapse:collapse;margin-top:15px;white-space:nowrap;}
 thead{background:#1e3a8a;color:white;position:sticky;top:0;}
-th,td{padding:10px 12px;border:1px solid #e2e8f0;font-size:13px;}
+th,td{padding:10px 12px;border:1px solid #e2e8f0;font-size:13px;text-align:center;}
+th:nth-child(2), td:nth-child(2), th:nth-child(9), td:nth-child(9){text-align:left;}
 tbody tr:nth-child(even){background:#f8fafc;}
 tbody tr:hover{background:#dbeafe;}
 .search{margin:15px 0;display:flex;gap:10px;}
@@ -68,7 +69,7 @@ tbody tr:hover{background:#dbeafe;}
 <table id="previewTable">
 <thead>
 <tr>
-<th>NO</th><th>NAMA</th><th>JENIS KELAMIN</th><th>KELAS</th><th>NISN</th><th>NIK</th><th>TEMPAT TGL LAHIR</th><th>USIA</th><th>ALAMAT</th><th>NO HP</th><th>BB</th><th>TB</th><th>TENSI</th><th>TEST SNELLEN</th><th>MATA</th><th>CARIES</th><th>SERUMEN</th><th>MEROKOK / TIDAK</th><th>HB</th><th>GDS</th>
+<th>NO</th><th>NAMA</th><th>L</th><th>P</th><th>KELAS</th><th>NISN</th><th>NIK</th><th>TEMPAT TGL LAHIR</th><th>USIA</th><th>ALAMAT</th><th>NO HP</th><th>BB</th><th>TB</th><th>TENSI</th><th>TEST SNELLEN</th><th>MATA</th><th>CARIES</th><th>SERUMEN</th><th>MEROKOK / TIDAK</th><th>HB</th><th>GDS</th>
 </tr>
 </thead>
 <tbody></tbody>
@@ -82,7 +83,7 @@ tbody tr:hover{background:#dbeafe;}
 
 <script>
 // MASUKKAN URL WEB APP GOOGLE APPS SCRIPT ANDA DI SINI
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEG37_INsqhMJgUIdWY2k-PDI4oO2IcPZT1r31_iqIeL5z5dz7HtvpOXAW6AxsS-t6/exec";
+const WEB_APP_URL = "GANTI_DENGAN_URL_WEB_APP_GAS_ANDA_DISINI";
 
 let masterData = {};
 let hasilData = [], filtered = [];
@@ -132,7 +133,7 @@ kelasSelect.appendChild(op);
 function formatTanggal(tanggal) {
 if (!tanggal) return "";
 let d = new Date(tanggal);
-if (isNaN(d)) return tanggal; // Jika sudah format string
+if (isNaN(d)) return tanggal;
 return ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear();
 }
 
@@ -159,6 +160,9 @@ let jmlL = 0, jmlP = 0;
 
 filtered.forEach((r, no) => {
 let jk = String(r[3]).trim().toUpperCase(); // Kolom D: Jenis Kelamin
+let isL = jk === "L" ? "✓" : "";
+let isP = jk === "P" ? "✓" : "";
+
 if(jk === "L") jmlL++;
 if(jk === "P") jmlP++;
 
@@ -166,11 +170,11 @@ let tempatLahir = r[5] ? String(r[5]) : "";
 let tglLahirStr = formatTanggal(r[6]);
 let ttl = tempatLahir + (tempatLahir && tglLahirStr ? " , " : "") + tglLahirStr;
 
-// Mapping kolom sesuai urutan tabel Anda (A sampai M diambil dari Dapodik)
 let row = [
 no + 1, 
 r[1] || "",     // Nama
-jk,             // Jenis Kelamin
+isL,            // Kolom L
+isP,            // Kolom P
 r[42] || "",    // Kelas / Rombel
 r[4] || "",     // NISN
 r[7] || "",     // NIK
@@ -178,7 +182,7 @@ ttl,            // Tempat Tgl Lahir
 hitungUsia(r[6]),// Usia
 r[9] || "",     // Alamat
 r[19] || "",    // No HP
-// Kolom kosong untuk diisi pemeriksaan manual
+// Kolom pemeriksaan manual kosong
 "", "", "", "", "", "", "", "", "", ""
 ];
 
@@ -212,7 +216,7 @@ r.style.display = r.innerText.toLowerCase().includes(key) ? "" : "none";
 function exportExcel() {
 if (hasilData.length === 0) return;
 const wsData = [
-["NO", "NAMA", "JENIS KELAMIN", "KELAS", "NISN", "NIK", "TEMPAT TGL LAHIR", "USIA", "ALAMAT", "NO HP", "BB", "TB", "TENSI", "TEST SNELLEN", "MATA", "CARIES", "SERUMEN", "MEROKOK / TIDAK", "HB", "GDS"]
+["NO", "NAMA", "L", "P", "KELAS", "NISN", "NIK", "TEMPAT TGL LAHIR", "USIA", "ALAMAT", "NO HP", "BB", "TB", "TENSI", "TEST SNELLEN", "MATA", "CARIES", "SERUMEN", "MEROKOK / TIDAK", "HB", "GDS"]
 ];
 hasilData.forEach(r => wsData.push(r));
 
