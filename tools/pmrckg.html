@@ -164,8 +164,18 @@ allSiswaList = [];
 let totalL = 0, totalP = 0;
 let globalNo = 1;
 
-Object.keys(masterData).sort((a, b) => a.localeCompare(b, "id")).forEach(rombel => {
-let siswaArray = masterData[rombel];
+// Urutkan rombel abjad (7A, 7B, 7C, dst)
+let daftarRombel = Object.keys(masterData).sort((a, b) => a.localeCompare(b, "id", {numeric: true}));
+
+daftarRombel.forEach(rombel => {
+let siswaArray = [...masterData[rombel]];
+// Urutkan siswa di dalam rombel berdasarkan abjad nama (Absen A-Z)
+siswaArray.sort((a, b) => {
+let namaA = a[1] ? String(a[1]).trim() : "";
+let namaB = b[1] ? String(b[1]).trim() : "";
+return namaA.localeCompare(namaB, "id");
+});
+
 siswaArray.forEach(r => {
 let jk = String(r[3]).trim().toUpperCase();
 let isL = jk === "L" ? "L" : "";
@@ -174,11 +184,11 @@ let isP = jk === "P" ? "P" : "";
 if(jk === "L") totalL++;
 if(jk === "P") totalP++;
 
-let namaUpper = r[1] ? String(r[1]).toUpperCase() : ""; // NAMA = UPPER
-let tempatLahirProper = toProperCase(r[5]); // TEMPAT LAHIR = Proper Case
+let namaUpper = r[1] ? String(r[1]).toUpperCase() : ""; 
+let tempatLahirProper = toProperCase(r[5]); 
 let tglLahirStr = formatTanggal(r[6]);
 let ttl = tempatLahirProper + (tempatLahirProper && tglLahirStr ? " , " : "") + tglLahirStr;
-let alamatProper = toProperCase(r[9]); // ALAMAT = Proper Case
+let alamatProper = toProperCase(r[9]); 
 
 let rowData = [
 globalNo++, 
@@ -218,7 +228,7 @@ tbody.appendChild(tr);
 function buatTombolRombel() {
 let container = document.getElementById("rombelButtons");
 container.innerHTML = "";
-let daftarRombel = Object.keys(masterData).sort((a, b) => a.localeCompare(b, "id"));
+let daftarRombel = Object.keys(masterData).sort((a, b) => a.localeCompare(b, "id", {numeric: true}));
 
 if (daftarRombel.length === 0) {
 container.innerHTML = "<span style='font-size:12px; color:#ef4444;'>Tidak ada rombel ditemukan.</span>";
@@ -284,11 +294,18 @@ alert("Tidak ada data untuk rombel " + rombelNama);
 return;
 }
 
+// Urutkan siswa per rombel berdasarkan abjad nama
+let sortedRombel = [...dataRombelRaw].sort((a, b) => {
+let namaA = a[1] ? String(a[1]).trim() : "";
+let namaB = b[1] ? String(b[1]).trim() : "";
+return namaA.localeCompare(namaB, "id");
+});
+
 const wsData = [
 ["NO", "NAMA", "L", "P", "KELAS", "NISN", "NIK", "TEMPAT TGL LAHIR", "USIA", "ALAMAT", "NO HP", "BB", "TB", "TENSI", "TEST SNELLEN", "MATA", "CARIES", "SERUMEN", "MEROKOK / TIDAK", "HB", "GDS"]
 ];
 
-dataRombelRaw.forEach((r, idx) => {
+sortedRombel.forEach((r, idx) => {
 let jk = String(r[3]).trim().toUpperCase();
 let isL = jk === "L" ? "L" : "";
 let isP = jk === "P" ? "P" : "";
@@ -320,12 +337,27 @@ unduhExcel(wsData, namaFile);
 
 function downloadTingkat(tingkatAngka) {
 try {
+// Ambil daftar rombel yang sesuai dengan tingkat (misal mengandung angka '7')
+let daftarRombelTingkat = Object.keys(masterData).filter(rombel => {
+return String(rombel).trim().includes(String(tingkatAngka));
+});
+
+// Urutkan rombel abjad (7A, 7B, 7C, dst)
+daftarRombelTingkat.sort((a, b) => a.localeCompare(b, "id", {numeric: true}));
+
 let dataTingkatGabung = [];
-Object.keys(masterData).forEach(rombel => {
-let cleanRombel = String(rombel).trim();
-if (cleanRombel.includes(String(tingkatAngka))) {
-dataTingkatGabung = dataTingkatGabung.concat(masterData[rombel]);
-}
+daftarRombelTingkat.forEach(rombel => {
+let siswaRombel = [...masterData[rombel]];
+// Urutkan siswa dalam rombel berdasarkan abjad nama (Absen A-Z)
+siswaRombel.sort((a, b) => {
+let namaA = a[1] ? String(a[1]).trim() : "";
+let namaB = b[1] ? String(b[1]).trim() : "";
+return namaA.localeCompare(namaB, "id");
+});
+
+siswaRombel.forEach(s => {
+dataTingkatGabung.push({ rombelAsli: rombel, dataSiswa: s });
+});
 });
 
 if (dataTingkatGabung.length === 0) {
@@ -337,7 +369,10 @@ const wsData = [
 ["NO", "NAMA", "L", "P", "KELAS", "NISN", "NIK", "TEMPAT TGL LAHIR", "USIA", "ALAMAT", "NO HP", "BB", "TB", "TENSI", "TEST SNELLEN", "MATA", "CARIES", "SERUMEN", "MEROKOK / TIDAK", "HB", "GDS"]
 ];
 
-dataTingkatGabung.forEach((r, idx) => {
+dataTingkatGabung.forEach((item, idx) => {
+let r = item.dataSiswa;
+let rombelNama = item.rombelAsli;
+
 let jk = String(r[3]).trim().toUpperCase();
 let isL = jk === "L" ? "L" : "";
 let isP = jk === "P" ? "P" : "";
@@ -352,7 +387,7 @@ idx + 1,
 namaUpper,
 isL,
 isP,
-r[42] || "",
+r[42] || rombelNama,
 r[4] || "",
 r[7] || "",
 ttl,
