@@ -47,7 +47,7 @@ button.dl-tingkat:hover{background:#0f766e;}
 <div class="logo">🏥</div>
 <div class="title">
 <h1>Dashboard Pemeriksaan Kesehatan Siswa</h1>
-<p>Semua Data Ditampilkan — Unduh Instan Berdasarkan Rombel atau Tingkat Kelas</p>
+<p>Format Data: Nama UPPER, Tempat Lahir & Alamat Proper, Kolom L/P Terisi Huruf</p>
 </div>
 </div>
 
@@ -66,7 +66,6 @@ button.dl-tingkat:hover{background:#0f766e;}
 <div class="card">
 <h2>Pusat Download Berkas Excel</h2>
 <p style="font-size:13px; color:#64748b; margin-bottom:15px;">Klik salah satu tombol di bawah untuk langsung mengunduh file Excel pemeriksaan sesuai Rombel atau Tingkat yang diinginkan:</p>
-
 
 <div class="download-section">
 <div class="download-box">
@@ -134,6 +133,14 @@ document.getElementById("loading").textContent = "Error: " + err.message;
 }
 }
 
+// Fungsi bantu untuk mengubah string menjadi Proper Case (Kapital Setiap Awal Kata)
+function toProperCase(str) {
+if (!str) return "";
+return String(str).toLowerCase().replace(/(^|\s)\S/g, function(L) {
+return L.toUpperCase();
+});
+}
+
 function formatTanggal(tanggal) {
 if (!tanggal) return "";
 let d = new Date(tanggal);
@@ -158,34 +165,35 @@ allSiswaList = [];
 let totalL = 0, totalP = 0;
 let globalNo = 1;
 
-// Loop melalui setiap rombel di masterData
 Object.keys(masterData).sort((a, b) => a.localeCompare(b, "id")).forEach(rombel => {
 let siswaArray = masterData[rombel];
 siswaArray.forEach(r => {
 let jk = String(r[3]).trim().toUpperCase();
-let isL = jk === "L" ? "✓" : "";
-let isP = jk === "P" ? "✓" : "";
+let isL = jk === "L" ? "L" : "";
+let isP = jk === "P" ? "P" : "";
 
 if(jk === "L") totalL++;
 if(jk === "P") totalP++;
 
-let tempatLahir = r[5] ? String(r[5]) : "";
+let namaUpper = r[1] ? String(r[1]).toUpperCase() : "";
+let tempatLahirProper = toProperCase(r[5]);
 let tglLahirStr = formatTanggal(r[6]);
-let ttl = tempatLahir + (tempatLahir && tglLahirStr ? " , " : "") + tglLahirStr;
+let ttl = tempatLahirProper + (tempatLahirProper && tglLahirStr ? " , " : "") + tglLahirStr;
+let alamatProper = toProperCase(r[9]);
 
 let rowData = [
 globalNo++, 
-r[1] || "",     // Nama
-isL,            // L
-isP,            // P
-r[42] || rombel,// Kelas / Rombel
-r[4] || "",     // NISN
-r[7] || "",     // NIK
-ttl,            // Tempat Tgl Lahir
-hitungUsia(r[6]),// Usia
-r[9] || "",     // Alamat
-r[19] || "",    // No HP
-"", "", "", "", "", "", "", "", "", "" // Kolom kosong pemeriksaan
+namaUpper,       // NAMA (UPPER)
+isL,             // L (Huruf L)
+isP,             // P (Huruf P)
+r[42] || rombel, // KELAS
+r[4] || "",      // NISN
+r[7] || "",      // NIK
+ttl,             // TEMPAT TGL LAHIR (Proper Case)
+hitungUsia(r[6]),// USIA
+alamatProper,    // ALAMAT (Proper Case)
+r[19] || "",     // NO HP
+"", "", "", "", "", "", "", "", "", "" // Kolom pemeriksaan kosong
 ];
 
 allSiswaList.push(rowData);
@@ -227,7 +235,17 @@ container.appendChild(btn);
 });
 }
 
+function cekLibraryExcel() {
+if (typeof XLSX === 'undefined') {
+alert("Library Excel (SheetJS) gagal dimuat. Periksa koneksi internet Anda.");
+return false;
+}
+return true;
+}
+
 function downloadRombel(rombelNama) {
+if (!cekLibraryExcel()) return;
+
 let dataRombelRaw = masterData[rombelNama] || [];
 if (dataRombelRaw.length === 0) {
 alert("Tidak ada data untuk rombel " + rombelNama);
@@ -240,15 +258,17 @@ const wsData = [
 
 dataRombelRaw.forEach((r, idx) => {
 let jk = String(r[3]).trim().toUpperCase();
-let isL = jk === "L" ? "✓" : "";
-let isP = jk === "P" ? "✓" : "";
-let tempatLahir = r[5] ? String(r[5]) : "";
+let isL = jk === "L" ? "L" : "";
+let isP = jk === "P" ? "P" : "";
+let namaUpper = r[1] ? String(r[1]).toUpperCase() : "";
+let tempatLahirProper = toProperCase(r[5]);
 let tglLahirStr = formatTanggal(r[6]);
-let ttl = tempatLahir + (tempatLahir && tglLahirStr ? " , " : "") + tglLahirStr;
+let ttl = tempatLahirProper + (tempatLahirProper && tglLahirStr ? " , " : "") + tglLahirStr;
+let alamatProper = toProperCase(r[9]);
 
 wsData.push([
 idx + 1,
-r[1] || "",
+namaUpper,
 isL,
 isP,
 r[42] || rombelNama,
@@ -256,20 +276,26 @@ r[4] || "",
 r[7] || "",
 ttl,
 hitungUsia(r[6]),
-r[9] || "",
+alamatProper,
 r[19] || "",
 "", "", "", "", "", "", "", "", "", ""
 ]);
 });
 
+try {
 const ws = XLSX.utils.aoa_to_sheet(wsData);
 const wb = XLSX.utils.book_new();
 XLSX.utils.book_append_sheet(wb, ws, "PEMERIKSAAN");
 let namaFile = "PEMERIKSAAN_ROMBEL_" + rombelNama.replace(/[^\w]/g, "_") + ".xlsx";
 XLSX.writeFile(wb, namaFile);
+} catch (err) {
+alert("Gagal membuat file Excel: " + err.message);
+}
 }
 
 function downloadTingkat(tingkatAngka) {
+if (!cekLibraryExcel()) return;
+
 let dataTingkatGabung = [];
 Object.keys(masterData).forEach(rombel => {
 if (rombel.trim().startsWith(tingkatAngka)) {
@@ -288,15 +314,17 @@ const wsData = [
 
 dataTingkatGabung.forEach((r, idx) => {
 let jk = String(r[3]).trim().toUpperCase();
-let isL = jk === "L" ? "✓" : "";
-let isP = jk === "P" ? "✓" : "";
-let tempatLahir = r[5] ? String(r[5]) : "";
+let isL = jk === "L" ? "L" : "";
+let isP = jk === "P" ? "P" : "";
+let namaUpper = r[1] ? String(r[1]).toUpperCase() : "";
+let tempatLahirProper = toProperCase(r[5]);
 let tglLahirStr = formatTanggal(r[6]);
-let ttl = tempatLahir + (tempatLahir && tglLahirStr ? " , " : "") + tglLahirStr;
+let ttl = tempatLahirProper + (tempatLahirProper && tglLahirStr ? " , " : "") + tglLahirStr;
+let alamatProper = toProperCase(r[9]);
 
 wsData.push([
 idx + 1,
-r[1] || "",
+namaUpper,
 isL,
 isP,
 r[42] || "",
@@ -304,17 +332,21 @@ r[4] || "",
 r[7] || "",
 ttl,
 hitungUsia(r[6]),
-r[9] || "",
+alamatProper,
 r[19] || "",
 "", "", "", "", "", "", "", "", "", ""
 ]);
 });
 
+try {
 const ws = XLSX.utils.aoa_to_sheet(wsData);
 const wb = XLSX.utils.book_new();
 XLSX.utils.book_append_sheet(wb, ws, "PEMERIKSAAN");
 let namaFile = "PEMERIKSAAN_KELAS_" + tingkatAngka + "_FULL.xlsx";
 XLSX.writeFile(wb, namaFile);
+} catch (err) {
+alert("Gagal membuat file Excel: " + err.message);
+}
 }
 
 function cariData() {
