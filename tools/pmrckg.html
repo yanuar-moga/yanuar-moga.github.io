@@ -123,22 +123,24 @@ const file = e.target.files[0];
 const reader = new FileReader();
 
 reader.onload = function(evt){
+try {
 const data = new Uint8Array(evt.target.result);
 workbook = XLSX.read(data, {type:"array"});
 sheet = workbook.Sheets[workbook.SheetNames[0]];
 rawData = XLSX.utils.sheet_to_json(sheet, {header:1, raw:true});
 
-// Header utama ada di baris ke-5 (indeks 4)
 header = rawData[4] || [];
-
-// Data siswa mulai dari baris ke-7 (indeks 6) sampai habis
 rawData = rawData.slice(6).filter(r => r && r[1] !== undefined && String(r[1]).trim() !== "");
 
-// Isi dropdown dari kolom AQ (indeks 42)
 isiDropdown();
 
 document.getElementById("loading").style.display="none";
 document.getElementById("success").style.display="block";
+} catch(err) {
+console.error(err);
+alert("Gagal membaca file Excel. Pastikan format file benar.");
+document.getElementById("loading").style.display="none";
+}
 };
 
 reader.readAsArrayBuffer(file);
@@ -173,15 +175,15 @@ tbody.innerHTML="";
 let kelas = kelasSelect.value;
 if(kelas===""){ alert("Pilih kelas terlebih dahulu."); return; }
 
-const cNama = 1;      // Kolom Nama
-const cJK = 3;        // Kolom JK
-const cRombel = 42;   // Kolom AQ (Rombel Saat Ini)
-const cNISN = 4;      // Kolom NISN
-const cNIK = 7;       // Kolom NIK
-const cTempat = 5;    // Tempat Lahir
-const cTanggal = 6;   // Tanggal Lahir
-const cAlamat = 9;    // Alamat
-const cHP = 19;       // HP
+const cNama = 1;
+const cJK = 3;
+const cRombel = 42;
+const cNISN = 4;
+const cNIK = 7;
+const cTempat = 5;
+const cTanggal = 6;
+const cAlamat = 9;
+const cHP = 19;
 
 filtered = rawData.filter(r => String(r[cRombel]).trim() === kelas);
 
