@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Dashboard Pemeriksaan Kesehatan Siswa</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.20.3/xlsx.full.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;}
 body{background:linear-gradient(135deg,#0f172a,#1e3a8a);min-height:100vh;padding:25px;}
@@ -65,7 +64,7 @@ button.dl-tingkat:hover{background:#0f766e;}
 
 <div class="card">
 <h2>Pusat Download Berkas Excel</h2>
-<p style="font-size:13px; color:#64748b; margin-bottom:15px;">Klik salah satu tombol di bawah untuk langsung mengunduh file Excel (.xlsx) tabel pemeriksaan:</p>
+<p style="font-size:13px; color:#64748b; margin-bottom:15px;">Klik salah satu tombol di bawah untuk langsung mengunduh file Excel tabel pemeriksaan:</p>
 
 <div class="download-section">
 <div class="download-box">
@@ -241,30 +240,36 @@ container.appendChild(btn);
 });
 }
 
-// Fungsi Export Excel Berformat Tabel Asli (.xlsx) dengan Lebar Kolom Menyesuaikan Isinya
+// Fungsi Export Excel Murni Berbentuk Tabel (Tanpa Pustaka Eksternal)
 function unduhExcel(wsData, namaFile) {
 try {
-if (typeof XLSX === 'undefined') {
-throw new Error("Pustaka SheetJS belum termuat sempurna.");
-}
+let htmlTable = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
+htmlTable += '<head><meta charset="utf-8"></head><body>';
+htmlTable += '<table border="1"><thead><tr style="background-color:#1e3a8a; color:white; font-weight:bold;">';
 
-const wb = XLSX.utils.book_new();
-const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-// Otomatis menyesuaikan ukuran lebar kolom berdasarkan isi teks terpanjang
-let colWidths = [];
-wsData.forEach(row => {
-row.forEach((cell, colIdx) => {
-let cellLength = cell ? String(cell).length : 10;
-if (!colWidths[colIdx] || cellLength > colWidths[colIdx]) {
-colWidths[colIdx] = cellLength;
-}
+wsData[0].forEach(th => {
+htmlTable += `<th style="background:#1e3a8a; color:#ffffff; padding:8px;">${th}</th>`;
 });
-});
-ws['!cols'] = colWidths.map(w => ({ wch: Math.max(w + 3, 12) }));
+htmlTable += '</tr></thead><tbody>';
 
-XLSX.utils.book_append_sheet(wb, ws, "PEMERIKSAAN KESEHATAN");
-XLSX.writeFile(wb, namaFile, { bookType: 'xlsx', compression: true });
+for (let i = 1; i < wsData.length; i++) {
+htmlTable += '<tr>';
+wsData[i].forEach(td => {
+htmlTable += `<td style="padding:6px; mso-number-format:'\@';">${td !== undefined && td !== null ? td : ''}</td>`;
+});
+htmlTable += '</tr>';
+}
+htmlTable += '</tbody></table></body></html>';
+
+let blob = new Blob([htmlTable], { type: 'application/vnd.ms-excel' });
+let url = URL.createObjectURL(blob);
+let a = document.createElement('a');
+a.href = url;
+a.download = namaFile;
+document.body.appendChild(a);
+a.click();
+document.body.removeChild(a);
+URL.revokeObjectURL(url);
 
 } catch (err) {
 alert("Gagal mengunduh file Excel: " + err.message);
@@ -309,7 +314,7 @@ r[19] || "",
 ]);
 });
 
-let namaFile = "PEMERIKSAAN_ROMBEL_" + rombelNama.replace(/[^\w]/g, "_") + ".xlsx";
+let namaFile = "PEMERIKSAAN_ROMBEL_" + rombelNama.replace(/[^\w]/g, "_") + ".xls";
 unduhExcel(wsData, namaFile);
 }
 
@@ -358,7 +363,7 @@ r[19] || "",
 ]);
 });
 
-let namaFile = "PEMERIKSAAN_KELAS_" + tingkatAngka + "_FULL.xlsx";
+let namaFile = "PEMERIKSAAN_KELAS_" + tingkatAngka + "_FULL.xls";
 unduhExcel(wsData, namaFile);
 } catch(e) {
 alert("Gagal mengunduh kelas " + tingkatAngka + ": " + e.message);
