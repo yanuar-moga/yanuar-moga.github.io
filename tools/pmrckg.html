@@ -229,16 +229,23 @@ daftarRombel.forEach(rombel => {
 let btn = document.createElement("button");
 btn.className = "dl-btn";
 btn.textContent = rombel;
-btn.onclick = () => downloadRombel(rombel);
+// Menggunakan event listener langsung agar lebih aman dari konflik DOM
+btn.addEventListener("click", () => {
+try {
+downloadRombel(rombel);
+} catch(e) {
+alert("Terjadi kesalahan saat mengunduh rombel " + rombel + ": " + e.message);
+}
+});
 container.appendChild(btn);
 });
 }
 
+// Fungsi Unduh Menggunakan Pendekatan Ganda (SheetJS -> Fallback CSV Excel jika gagal total)
 function unduhExcel(wsData, namaFile) {
 try {
+if (typeof XLSX !== 'undefined') {
 const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-// Auto-fit Column Width
 let colWidths = [];
 wsData.forEach(row => {
 row.forEach((cell, colIdx) => {
@@ -252,13 +259,27 @@ ws['!cols'] = colWidths.map(w => ({ wch: Math.max(w + 3, 10) }));
 
 const wb = XLSX.utils.book_new();
 XLSX.utils.book_append_sheet(wb, ws, "PEMERIKSAAN");
+XLSX.writeFile(wb, namaFile);
+return;
+}
+} catch (sheetErr) {
+console.warn("SheetJS writeFile gagal, mengalihkan ke metode unduh alternatif...", sheetErr);
+}
 
-// Menggunakan metode Base64 Data URI agar aman dari pembatasan browser/webview
-XLSX.writeFile(wb, namaFile, { bookType: 'xlsx', cellStyles: true });
-} catch (e) {
-// Fallback aman jika terjadi kendala pada fungsi bawaan
-alert("Gagal mengunduh otomatis. Pastikan browser tidak memblokir unduhan situs ini.");
-console.error(e);
+// Fallback Utama: Unduh via HTML Table Blob / CSV berformat Excel jika SheetJS bermasalah
+try {
+let csvContent = "\uFEFF" + wsData.map(e => e.map(val => `"${String(val).replace(/"/g, '""')}"`).join("\t")).join("\n");
+let blob = new Blob([csvContent], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+let url = URL.createObjectURL(blob);
+let a = document.createElement('a');
+a.href = url;
+a.download = namaFile.replace('.xlsx', '.xls'); // Format Excel HTML/XML alternatif
+document.body.appendChild(a);
+a.click();
+document.body.removeChild(a);
+URL.revokeObjectURL(url);
+} catch (errFallback) {
+alert("Gagal total mengunduh file. Periksa izin unduhan browser Anda. Error: " + errFallback.message);
 }
 }
 
@@ -304,6 +325,7 @@ unduhExcel(wsData, namaFile);
 }
 
 function downloadTingkat(tingkatAngka) {
+try {
 let dataTingkatGabung = [];
 Object.keys(masterData).forEach(rombel => {
 let cleanRombel = String(rombel).trim();
@@ -349,6 +371,9 @@ r[19] || "",
 
 let namaFile = "PEMERIKSAAN_KELAS_" + tingkatAngka + "_FULL.xlsx";
 unduhExcel(wsData, namaFile);
+} catch(e) {
+alert("Gagal mengunduh kelas " + tingkatAngka + ": " + e.message);
+}
 }
 
 function cariData() {
