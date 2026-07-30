@@ -98,21 +98,6 @@ btnFilter.addEventListener("click", filterKelas);
 btnExport.addEventListener("click", exportExcel);
 document.getElementById("searchInput").addEventListener("keyup", cariData);
 
-function normalHeader(text){
-if(!text) return "";
-return String(text).trim().toUpperCase().replace(/\s+/g," ");
-}
-
-function cariKolom(...nama){
-for(let i=0; i<header.length; i++){
-let h = normalHeader(header[i]);
-for(let n of nama){
-if(h === normalHeader(n)) return i;
-}
-}
-return -1;
-}
-
 function umur(tanggal){
 if(!tanggal) return "";
 let lahir = (tanggal instanceof Date) ? tanggal : new Date(tanggal);
@@ -143,14 +128,13 @@ workbook = XLSX.read(data, {type:"array"});
 sheet = workbook.Sheets[workbook.SheetNames[0]];
 rawData = XLSX.utils.sheet_to_json(sheet, {header:1, raw:true});
 
-// Header utama Dapodik selalu berada di baris ke-5 (indeks 4)
+// Header utama ada di baris ke-5 (indeks 4)
 header = rawData[4] || [];
 
-// Data siswa mulai dari baris ke-7 (indeks 6)
-// Ambil semua baris yang kolom namanya (indeks 1) ada isinya
-rawData = rawData.slice(6).filter(r => r && r[1] !== undefined && String(r[1]).trim() !== "" && String(r[1]).toUpperCase() !== "NAMA");
+// Data siswa mulai dari baris ke-7 (indeks 6) sampai habis
+rawData = rawData.slice(6).filter(r => r && r[1] !== undefined && String(r[1]).trim() !== "");
 
-// Isi dropdown kelas
+// Isi dropdown dari kolom AQ (indeks 42)
 isiDropdown();
 
 document.getElementById("loading").style.display="none";
@@ -162,12 +146,13 @@ reader.readAsArrayBuffer(file);
 
 function isiDropdown(){
 kelasSelect.innerHTML="<option value=''>-- Pilih Kelas --</option>";
-const idxKelas = 42; // Kolom AQ (Rombel Saat Ini)
+const idxRombel = 42; // Kolom AQ
 
 let daftar = [];
 rawData.forEach(r => {
-if(r[idxKelas]) {
-daftar.push(String(r[idxKelas]).trim());
+let rombelVal = r[idxRombel];
+if(rombelVal) {
+daftar.push(String(rombelVal).trim());
 }
 });
 
@@ -188,15 +173,15 @@ tbody.innerHTML="";
 let kelas = kelasSelect.value;
 if(kelas===""){ alert("Pilih kelas terlebih dahulu."); return; }
 
-const cNama = 1; // Kolom Nama
-const cJK = 3;   // Kolom Jenis Kelamin
-const cRombel = 42; // Kolom AQ (Rombel Saat Ini)
-const cNISN = 4;
-const cNIK = 7;
-const cTempat = 5;
-const cTanggal = 6;
-const cAlamat = 9;
-const cHP = 19;
+const cNama = 1;      // Kolom Nama
+const cJK = 3;        // Kolom JK
+const cRombel = 42;   // Kolom AQ (Rombel Saat Ini)
+const cNISN = 4;      // Kolom NISN
+const cNIK = 7;       // Kolom NIK
+const cTempat = 5;    // Tempat Lahir
+const cTanggal = 6;   // Tanggal Lahir
+const cAlamat = 9;    // Alamat
+const cHP = 19;       // HP
 
 filtered = rawData.filter(r => String(r[cRombel]).trim() === kelas);
 
