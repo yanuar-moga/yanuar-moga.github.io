@@ -9,7 +9,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;}
 body{background:linear-gradient(135deg,#0f172a,#1e3a8a);min-height:100vh;padding:25px;}
-.container{max-width:1350px;margin:auto;background:rgba(255,255,255,0.1);backdrop-filter:blur(15px);border-radius:20px;padding:30px;box-shadow:0 20px 50px rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);}
+.container{max-width:1450px;margin:auto;background:rgba(255,255,255,0.1);backdrop-filter:blur(15px);border-radius:20px;padding:30px;box-shadow:0 20px 50px rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);}
 .header{display:flex;align-items:center;gap:20px;margin-bottom:25px;}
 .logo{width:65px;height:65px;border-radius:50%;background:white;display:flex;justify-content:center;align-items:center;font-size:30px;}
 .title h1{color:white;font-size:26px;font-weight:700;}
@@ -41,18 +41,18 @@ tbody tr:hover{background:#dbeafe;}
 <div class="logo">🏥</div>
 <div class="title">
 <h1>Dashboard Pemeriksaan Kesehatan Siswa</h1>
-<p>Data Dapodik Tersorting Berdasarkan Rombel / Kelas (Kolom AQ - Baris 7)</p>
+<p>Data Dapodik Diambil Langsung dari Spreadsheet via Google Apps Script</p>
 </div>
 </div>
 
 <div class="card">
 <h2>Pilih Kelas / Rombel</h2>
 <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
-<select id="kelasSelect"><option value="">-- Memuat Data dari GitHub... --</option></select>
+<select id="kelasSelect"><option value="">-- Menghubungkan ke Google Apps Script... --</option></select>
 <button id="btnFilter" disabled>Tampilkan Data</button>
 </div>
-<div class="loading" id="loading">Menghubungkan ke file Excel di GitHub...</div>
-<div class="success" id="success">Berhasil memuat data dari GitHub!</div>
+<div class="loading" id="loading">Mengambil data dari Spreadsheet Dapodik...</div>
+<div class="success" id="success">Berhasil terhubung ke Spreadsheet!</div>
 </div>
 
 <div class="stats">
@@ -68,7 +68,7 @@ tbody tr:hover{background:#dbeafe;}
 <table id="previewTable">
 <thead>
 <tr>
-<th>No</th><th>Nama</th><th>L</th><th>P</th><th>Kelas</th><th>NISN</th><th>NIK</th><th>TTL</th><th>Usia</th><th>Alamat</th><th>No HP</th><th>BB</th><th>TB</th><th>Tensi</th><th>Snellen</th><th>Mata</th><th>Caries</th><th>Serumen</th><th>Merokok</th><th>Jenis Rokok</th><th>HB</th><th>GDS</th>
+<th>NO</th><th>NAMA</th><th>JENIS KELAMIN</th><th>KELAS</th><th>NISN</th><th>NIK</th><th>TEMPAT TGL LAHIR</th><th>USIA</th><th>ALAMAT</th><th>NO HP</th><th>BB</th><th>TB</th><th>TENSI</th><th>TEST SNELLEN</th><th>MATA</th><th>CARIES</th><th>SERUMEN</th><th>MEROKOK / TIDAK</th><th>HB</th><th>GDS</th>
 </tr>
 </thead>
 <tbody></tbody>
@@ -81,36 +81,36 @@ tbody tr:hover{background:#dbeafe;}
 </div>
 
 <script>
-const GITHUB_URL = "https://raw.githubusercontent.com/yanuar-moga/tools/main/daftar_pd-SMPN%201%20MOGA-2026-07-30%2007_39_15.xlsx";
+// MASUKKAN URL WEB APP GOOGLE APPS SCRIPT ANDA DI SINI
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEG37_INsqhMJgUIdWY2k-PDI4oO2IcPZT1r31_iqIeL5z5dz7HtvpOXAW6AxsS-t6/exec";
 
-let rawData = [], hasilData = [], filtered = [];
+let masterData = {};
+let hasilData = [], filtered = [];
 
 const kelasSelect = document.getElementById("kelasSelect");
 const btnFilter = document.getElementById("btnFilter");
 const btnExport = document.getElementById("btnExport");
 const tbody = document.querySelector("#previewTable tbody");
 
-window.addEventListener("DOMContentLoaded", ambilDataGitHub);
+window.addEventListener("DOMContentLoaded", ambilDataDariGAS);
 btnFilter.addEventListener("click", filterKelas);
 btnExport.addEventListener("click", exportExcel);
 document.getElementById("searchInput").addEventListener("keyup", cariData);
 
-async function ambilDataGitHub() {
+async function ambilDataDariGAS() {
 try {
-let response = await fetch(GITHUB_URL);
-if (!response.ok) throw new Error("Gagal mengambil file dari GitHub.");
-let arrayBuffer = await response.arrayBuffer();
+let response = await fetch(WEB_APP_URL);
+let result = await response.json();
 
-let workbook = XLSX.read(new Uint8Array(arrayBuffer), {type: "array"});
-let sheet = workbook.Sheets[workbook.SheetNames[0]];
-let json = XLSX.utils.sheet_to_json(sheet, {header: 1, raw: true});
-
-rawData = json.slice(6).filter(r => r && r[1] !== undefined && String(r[1]).trim() !== "");
-
+if(result.status === "success") {
+masterData = result.data;
 isiDropdown();
 document.getElementById("loading").style.display = "none";
 document.getElementById("success").style.display = "block";
 btnFilter.disabled = false;
+} else {
+throw new Error("Gagal memuat data dari Apps Script.");
+}
 } catch (err) {
 document.getElementById("loading").style.color = "#f87171";
 document.getElementById("loading").textContent = "Error: " + err.message;
@@ -119,17 +119,9 @@ document.getElementById("loading").textContent = "Error: " + err.message;
 
 function isiDropdown() {
 kelasSelect.innerHTML = "<option value=''>-- Pilih Kelas / Rombel --</option>";
-const idxRombel = 42; // Kolom AQ
+let daftarKelas = Object.keys(masterData).sort((a, b) => a.localeCompare(b, "id"));
 
-let daftar = [];
-rawData.forEach(r => {
-let rombelVal = r[idxRombel];
-if (rombelVal) daftar.push(String(rombelVal).trim());
-});
-
-daftar = [...new Set(daftar)].sort((a, b) => a.localeCompare(b, "id"));
-
-daftar.forEach(k => {
+daftarKelas.forEach(k => {
 let op = document.createElement("option");
 op.value = k;
 op.textContent = k;
@@ -137,9 +129,16 @@ kelasSelect.appendChild(op);
 });
 }
 
-function umur(tanggal) {
+function formatTanggal(tanggal) {
 if (!tanggal) return "";
-let lahir = (tanggal instanceof Date) ? tanggal : new Date(tanggal);
+let d = new Date(tanggal);
+if (isNaN(d)) return tanggal; // Jika sudah format string
+return ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear();
+}
+
+function hitungUsia(tanggal) {
+if (!tanggal) return "";
+let lahir = new Date(tanggal);
 if (isNaN(lahir)) return "";
 let sekarang = new Date();
 let u = sekarang.getFullYear() - lahir.getFullYear();
@@ -148,43 +147,48 @@ if (m < 0 || (m === 0 && sekarang.getDate() < lahir.getDate())) u--;
 return u;
 }
 
-function formatTanggal(tanggal) {
-if (!tanggal) return "";
-let d = (tanggal instanceof Date) ? tanggal : new Date(tanggal);
-if (isNaN(d)) return "";
-return ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear();
-}
-
 function filterKelas() {
 hasilData = [];
 tbody.innerHTML = "";
 let kelas = kelasSelect.value;
 if (!kelas) { alert("Silakan pilih kelas terlebih dahulu."); return; }
 
-const cNama = 1, cJK = 3, cRombel = 42, cNISN = 4, cNIK = 7, cTempat = 5, cTanggal = 6, cAlamat = 9, cHP = 19;
+filtered = masterData[kelas] || [];
 
-filtered = rawData.filter(r => String(r[cRombel]).trim() === kelas);
-
-document.getElementById("jmlSiswa").innerText = filtered.length;
-document.getElementById("jmlL").innerText = filtered.filter(r => String(r[cJK]).toUpperCase() === "L").length;
-document.getElementById("jmlP").innerText = filtered.filter(r => String(r[cJK]).toUpperCase() === "P").length;
+let jmlL = 0, jmlP = 0;
 
 filtered.forEach((r, no) => {
-let ttl = "";
-if (r[cTempat]) ttl = r[cTempat];
-if (r[cTanggal]) ttl += (ttl ? " , " : "") + formatTanggal(r[cTanggal]);
+let jk = String(r[3]).trim().toUpperCase(); // Kolom D: Jenis Kelamin
+if(jk === "L") jmlL++;
+if(jk === "P") jmlP++;
 
+let tempatLahir = r[5] ? String(r[5]) : "";
+let tglLahirStr = formatTanggal(r[6]);
+let ttl = tempatLahir + (tempatLahir && tglLahirStr ? " , " : "") + tglLahirStr;
+
+// Mapping kolom sesuai urutan tabel Anda (A sampai M diambil dari Dapodik)
 let row = [
-no + 1, r[cNama] || "",
-String(r[cJK]).toUpperCase() === "L" ? "✓" : "",
-String(r[cJK]).toUpperCase() === "P" ? "✓" : "",
-r[cRombel] || "", r[cNISN] || "", r[cNIK] || "",
-ttl, umur(r[cTanggal]), r[cAlamat] || "", r[cHP] || "",
-"", "", "", "", "", "", "", "", "", "", ""
+no + 1, 
+r[1] || "",     // Nama
+jk,             // Jenis Kelamin
+r[42] || "",    // Kelas / Rombel
+r[4] || "",     // NISN
+r[7] || "",     // NIK
+ttl,            // Tempat Tgl Lahir
+hitungUsia(r[6]),// Usia
+r[9] || "",     // Alamat
+r[19] || "",    // No HP
+// Kolom kosong untuk diisi pemeriksaan manual
+"", "", "", "", "", "", "", "", "", ""
 ];
+
 hasilData.push(row);
 tambahBaris(row);
 });
+
+document.getElementById("jmlSiswa").innerText = filtered.length;
+document.getElementById("jmlL").innerText = jmlL;
+document.getElementById("jmlP").innerText = jmlP;
 btnExport.disabled = false;
 }
 
@@ -208,7 +212,7 @@ r.style.display = r.innerText.toLowerCase().includes(key) ? "" : "none";
 function exportExcel() {
 if (hasilData.length === 0) return;
 const wsData = [
-["NO", "NAMA", "L", "P", "KELAS", "NISN", "NIK", "TEMPAT TGL LAHIR", "USIA", "ALAMAT", "NO HP", "BB", "TB", "TENSI", "TEST SNELLEN", "MATA", "CARIES", "SERUMEN", "MEROKOK / TIDAK", "JENIS ROKOK", "HB", "GDS"]
+["NO", "NAMA", "JENIS KELAMIN", "KELAS", "NISN", "NIK", "TEMPAT TGL LAHIR", "USIA", "ALAMAT", "NO HP", "BB", "TB", "TENSI", "TEST SNELLEN", "MATA", "CARIES", "SERUMEN", "MEROKOK / TIDAK", "HB", "GDS"]
 ];
 hasilData.forEach(r => wsData.push(r));
 
