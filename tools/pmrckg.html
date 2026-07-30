@@ -16,7 +16,10 @@ body{background:linear-gradient(135deg,#0f172a,#1e3a8a);min-height:100vh;padding
 .title p{color:#dbeafe;font-size:13px;}
 .card{background:white;border-radius:15px;padding:20px;margin-bottom:25px;box-shadow:0 4px 15px rgba(0,0,0,0.05);}
 .card h2{font-size:18px;margin-bottom:12px;color:#1e3a8a;}
-select{padding:12px;border-radius:8px;border:1px solid #cbd5e1;width:280px;font-size:14px;outline:none;}
+.filter-group{display:flex;gap:15px;align-items:center;flex-wrap:wrap;margin-bottom:15px;}
+.filter-item{display:flex;flex-direction:column;gap:5px;}
+.filter-item label{font-size:12px;font-weight:600;color:#475569;}
+select{padding:12px;border-radius:8px;border:1px solid #cbd5e1;width:240px;font-size:14px;outline:none;}
 button{padding:12px 22px;background:#2563eb;border:none;border-radius:8px;color:white;font-weight:600;cursor:pointer;transition:0.3s;}
 button:hover{background:#1d4ed8;}
 button:disabled{opacity:0.4;cursor:not-allowed;}
@@ -27,13 +30,14 @@ button:disabled{opacity:0.4;cursor:not-allowed;}
 table{width:100%;border-collapse:collapse;margin-top:15px;white-space:nowrap;}
 thead{background:#1e3a8a;color:white;position:sticky;top:0;}
 th,td{padding:10px 12px;border:1px solid #e2e8f0;font-size:13px;text-align:center;}
-th:nth-child(2), td:nth-child(2), th:nth-child(9), td:nth-child(9){text-align:left;}
+th:nth-child(2), td:nth-child(2), th:nth-child(10), td:nth-child(10){text-align:left;}
 tbody tr:nth-child(even){background:#f8fafc;}
 tbody tr:hover{background:#dbeafe;}
 .search{margin:15px 0;display:flex;gap:10px;}
 .search input{flex:1;padding:12px;border-radius:8px;border:1px solid #cbd5e1;outline:none;}
 .loading{margin-top:10px;font-size:14px;font-weight:600;color:#facc15;}
 .success{background:#dcfce7;color:#166534;padding:10px 15px;border-radius:8px;margin-top:15px;display:none;font-size:13px;}
+.button-group{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap;}
 </style>
 </head>
 <body>
@@ -42,17 +46,34 @@ tbody tr:hover{background:#dbeafe;}
 <div class="logo">🏥</div>
 <div class="title">
 <h1>Dashboard Pemeriksaan Kesehatan Siswa</h1>
-<p>Data Dapodik Diambil Langsung dari Spreadsheet via Google Apps Script</p>
+<p>Filter & Download Berdasarkan Tingkat Kelas atau Rombel Detail</p>
 </div>
 </div>
 
 <div class="card">
-<h2>Pilih Kelas / Rombel</h2>
-<div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
-<select id="kelasSelect"><option value="">-- Menghubungkan ke Google Apps Script... --</option></select>
+<h2>Pilih Berdasarkan Tingkat atau Rombel</h2>
+<div class="filter-group">
+<div class="filter-item">
+<label>1. Pilih Berdasarkan Tingkat</label>
+<select id="tingkatSelect">
+<option value="">-- Semua / Pilih Tingkat --</option>
+<option value="7">Kelas 7 (Semua Rombel)</option>
+<option value="8">Kelas 8 (Semua Rombel)</option>
+<option value="9">Kelas 9 (Semua Rombel)</option>
+</select>
+</div>
+<div style="font-weight:600; color:#94a3b8; align-self:flex-end; padding-bottom:12px;">ATAU</div>
+<div class="filter-item">
+<label>2. Pilih Rombel Detail</label>
+<select id="rombelSelect">
+<option value="">-- Pilih Rombel Detail --</option>
+</select>
+</div>
+<div style="align-self:flex-end;">
 <button id="btnFilter" disabled>Tampilkan Data</button>
 </div>
-<div class="loading" id="loading">Mengambil data dari Spreadsheet Dapodik...</div>
+</div>
+<div class="loading" id="loading">Menghubungkan ke Google Apps Script...</div>
 <div class="success" id="success">Berhasil terhubung ke Spreadsheet!</div>
 </div>
 
@@ -75,28 +96,38 @@ tbody tr:hover{background:#dbeafe;}
 <tbody></tbody>
 </table>
 </div>
-<div style="margin-top:20px;">
-<button id="btnExport" disabled>📥 Download Excel Kelas Ini</button>
+<div class="button-group">
+<button id="btnExportRombel" disabled>📥 Download Excel Rombel Ini</button>
+<button id="btnExportTingkat" style="background:#0d9488;" disabled>📥 Download Excel 1 Tingkat Penuh</button>
 </div>
 </div>
 </div>
 
 <script>
-// MASUKKAN URL WEB APP GOOGLE APPS SCRIPT ANDA DI SINI
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEG37_INsqhMJgUIdWY2k-PDI4oO2IcPZT1r31_iqIeL5z5dz7HtvpOXAW6AxsS-t6/exec";
 
 let masterData = {};
 let hasilData = [], filtered = [];
 
-const kelasSelect = document.getElementById("kelasSelect");
+const tingkatSelect = document.getElementById("tingkatSelect");
+const rombelSelect = document.getElementById("rombelSelect");
 const btnFilter = document.getElementById("btnFilter");
-const btnExport = document.getElementById("btnExport");
+const btnExportRombel = document.getElementById("btnExportRombel");
+const btnExportTingkat = document.getElementById("btnExportTingkat");
 const tbody = document.querySelector("#previewTable tbody");
 
 window.addEventListener("DOMContentLoaded", ambilDataDariGAS);
-btnFilter.addEventListener("click", filterKelas);
-btnExport.addEventListener("click", exportExcel);
-document.getElementById("searchInput").addEventListener("keyup", cariData);
+btnFilter.addEventListener("click", tampilkanData);
+btnExportRombel.addEventListener(() => exportExcel("rombel"));
+btnExportTingkat.addEventListener(() => exportExcel("tingkat"));
+
+// Event listener agar jika pilih tingkat, rombel di-reset, dan sebaliknya
+tingkatSelect.addEventListener("change", () => {
+  if(tingkatSelect.value) rombelSelect.value = "";
+});
+rombelSelect.addEventListener("change", () => {
+  if(rombelSelect.value) tingkatSelect.value = "";
+});
 
 async function ambilDataDariGAS() {
 try {
@@ -105,7 +136,7 @@ let result = await response.json();
 
 if(result.status === "success") {
 masterData = result.data;
-isiDropdown();
+isiDropdownRombel();
 document.getElementById("loading").style.display = "none";
 document.getElementById("success").style.display = "block";
 btnFilter.disabled = false;
@@ -118,15 +149,15 @@ document.getElementById("loading").textContent = "Error: " + err.message;
 }
 }
 
-function isiDropdown() {
-kelasSelect.innerHTML = "<option value=''>-- Pilih Kelas / Rombel --</option>";
+function isiDropdownRombel() {
+rombelSelect.innerHTML = "<option value=''>-- Pilih Rombel Detail --</option>";
 let daftarKelas = Object.keys(masterData).sort((a, b) => a.localeCompare(b, "id"));
 
 daftarKelas.forEach(k => {
 let op = document.createElement("option");
 op.value = k;
 op.textContent = k;
-kelasSelect.appendChild(op);
+rombelSelect.appendChild(op);
 });
 }
 
@@ -148,18 +179,40 @@ if (m < 0 || (m === 0 && sekarang.getDate() < lahir.getDate())) u--;
 return u;
 }
 
-function filterKelas() {
-hasilData = [];
-tbody.innerHTML = "";
-let kelas = kelasSelect.value;
-if (!kelas) { alert("Silakan pilih kelas terlebih dahulu."); return; }
+function tampilkanData() {
+let tingkat = tingkatSelect.value;
+let rombel = rombelSelect.value;
 
-filtered = masterData[kelas] || [];
+if (!tingkat && !rombel) {
+  alert("Silakan pilih salah satu: Tingkat Kelas atau Rombel Detail.");
+  return;
+}
+
+hasilData = [];
+filtered = [];
+tbody.innerHTML = "";
+
+if (rombel) {
+  // Jika memilih rombel spesifik
+  filtered = masterData[rombel] || [];
+  btnExportRombel.disabled = false;
+  btnExportTingkat.disabled = true;
+} else if (tingkat) {
+  // Jika memilih tingkat (misal: 7, gabungkan semua rombel yang diawali angka 7 atau mengandung tingkat tersebut)
+  Object.keys(masterData).forEach(k => {
+    // Cek apakah nama rombel dimulai dengan angka tingkat (cth: "7A", "7-B", "Kelas 7")
+    if (k.trim().startsWith(tingkat)) {
+      filtered = filtered.concat(masterData[k]);
+    }
+  });
+  btnExportRombel.disabled = true;
+  btnExportTingkat.disabled = false;
+}
 
 let jmlL = 0, jmlP = 0;
 
 filtered.forEach((r, no) => {
-let jk = String(r[3]).trim().toUpperCase(); // Kolom D: Jenis Kelamin
+let jk = String(r[3]).trim().toUpperCase();
 let isL = jk === "L" ? "✓" : "";
 let isP = jk === "P" ? "✓" : "";
 
@@ -173,8 +226,8 @@ let ttl = tempatLahir + (tempatLahir && tglLahirStr ? " , " : "") + tglLahirStr;
 let row = [
 no + 1, 
 r[1] || "",     // Nama
-isL,            // Kolom L
-isP,            // Kolom P
+isL,            // L
+isP,            // P
 r[42] || "",    // Kelas / Rombel
 r[4] || "",     // NISN
 r[7] || "",     // NIK
@@ -193,7 +246,6 @@ tambahBaris(row);
 document.getElementById("jmlSiswa").innerText = filtered.length;
 document.getElementById("jmlL").innerText = jmlL;
 document.getElementById("jmlP").innerText = jmlP;
-btnExport.disabled = false;
 }
 
 function tambahBaris(data) {
@@ -213,18 +265,34 @@ r.style.display = r.innerText.toLowerCase().includes(key) ? "" : "none";
 });
 }
 
-function exportExcel() {
-if (hasilData.length === 0) return;
+document.getElementById("searchInput").addEventListener("keyup", cariData);
+
+function exportExcel(tipe) {
+if (hasilData.length === 0) {
+  alert("Tidak ada data untuk diunduh.");
+  return;
+}
+
 const wsData = [
 ["NO", "NAMA", "L", "P", "KELAS", "NISN", "NIK", "TEMPAT TGL LAHIR", "USIA", "ALAMAT", "NO HP", "BB", "TB", "TENSI", "TEST SNELLEN", "MATA", "CARIES", "SERUMEN", "MEROKOK / TIDAK", "HB", "GDS"]
 ];
+
 hasilData.forEach(r => wsData.push(r));
 
 const ws = XLSX.utils.aoa_to_sheet(wsData);
 const wb = XLSX.utils.book_new();
 XLSX.utils.book_append_sheet(wb, ws, "PEMERIKSAAN");
-let kelas = kelasSelect.value.replace(/[^\w]/g, "_");
-XLSX.writeFile(wb, "PEMERIKSAAN_" + kelas + ".xlsx");
+
+let namaFile = "";
+if (tipe === "rombel") {
+  let rombel = rombelSelect.value.replace(/[^\w]/g, "_");
+  namaFile = "PEMERIKSAAN_ROMBEL_" + rombel + ".xlsx";
+} else {
+  let tingkat = tingkatSelect.value;
+  namaFile = "PEMERIKSAAN_KELAS_" + tingkat + "_FULL.xlsx";
+}
+
+XLSX.writeFile(wb, namaFile);
 }
 </script>
 </body>
