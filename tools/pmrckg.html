@@ -318,7 +318,7 @@ dataTingkatGabung.forEach((r, idx) => {
 let jk = String(r[3]).trim().toUpperCase();
 let isL = jk === "L" ? "L" : "";
 let isP = jk === "P" ? "P" : "";
-let namaUpper = r[1] ? String(r[1]").toUpperCase() : "";
+let namaUpper = r[1] ? String(r[1]).toUpperCase() : "";
 let tempatLahirProper = toProperCase(r[5]);
 let tglLahirStr = formatTanggal(r[6]);
 let ttl = tempatLahirProper + (tempatLahirProper && tglLahirStr ? " , " : "") + tglLahirStr;
