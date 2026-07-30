@@ -65,7 +65,7 @@ button.dl-tingkat:hover{background:#0f766e;}
 
 <div class="card">
 <h2>Pusat Download Berkas Excel</h2>
-<p style="font-size:13px; color:#64748b; margin-bottom:15px;">Klik salah satu tombol di bawah untuk langsung mengunduh file Excel pemeriksaan sesuai Rombel atau Tingkat yang diinginkan:</p>
+<p style="font-size:13px; color:#64748b; margin-bottom:15px;">Klik salah satu tombol di bawah untuk langsung mengunduh file Excel (.xlsx) tabel pemeriksaan:</p>
 
 <div class="download-section">
 <div class="download-box">
@@ -133,6 +133,7 @@ document.getElementById("loading").textContent = "Error: " + err.message;
 }
 }
 
+// Fungsi Proper Case: Huruf depan tiap kata menjadi kapital
 function toProperCase(str) {
 if (!str) return "";
 return String(str).toLowerCase().replace(/(^|\s)\S/g, function(L) {
@@ -174,11 +175,11 @@ let isP = jk === "P" ? "P" : "";
 if(jk === "L") totalL++;
 if(jk === "P") totalP++;
 
-let namaUpper = r[1] ? String(r[1]).toUpperCase() : "";
-let tempatLahirProper = toProperCase(r[5]);
+let namaUpper = r[1] ? String(r[1]).toUpperCase() : ""; // NAMA = UPPER
+let tempatLahirProper = toProperCase(r[5]); // TEMPAT LAHIR = Proper Case
 let tglLahirStr = formatTanggal(r[6]);
 let ttl = tempatLahirProper + (tempatLahirProper && tglLahirStr ? " , " : "") + tglLahirStr;
-let alamatProper = toProperCase(r[9]);
+let alamatProper = toProperCase(r[9]); // ALAMAT = Proper Case
 
 let rowData = [
 globalNo++, 
@@ -229,7 +230,6 @@ daftarRombel.forEach(rombel => {
 let btn = document.createElement("button");
 btn.className = "dl-btn";
 btn.textContent = rombel;
-// Menggunakan event listener langsung agar lebih aman dari konflik DOM
 btn.addEventListener("click", () => {
 try {
 downloadRombel(rombel);
@@ -241,11 +241,17 @@ container.appendChild(btn);
 });
 }
 
-// Fungsi Unduh Menggunakan Pendekatan Ganda (SheetJS -> Fallback CSV Excel jika gagal total)
+// Fungsi Export Excel Berformat Tabel Asli (.xlsx) dengan Lebar Kolom Menyesuaikan Isinya
 function unduhExcel(wsData, namaFile) {
 try {
-if (typeof XLSX !== 'undefined') {
+if (typeof XLSX === 'undefined') {
+throw new Error("Pustaka SheetJS belum termuat sempurna.");
+}
+
+const wb = XLSX.utils.book_new();
 const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+// Otomatis menyesuaikan ukuran lebar kolom berdasarkan isi teks terpanjang
 let colWidths = [];
 wsData.forEach(row => {
 row.forEach((cell, colIdx) => {
@@ -255,31 +261,14 @@ colWidths[colIdx] = cellLength;
 }
 });
 });
-ws['!cols'] = colWidths.map(w => ({ wch: Math.max(w + 3, 10) }));
+ws['!cols'] = colWidths.map(w => ({ wch: Math.max(w + 3, 12) }));
 
-const wb = XLSX.utils.book_new();
-XLSX.utils.book_append_sheet(wb, ws, "PEMERIKSAAN");
-XLSX.writeFile(wb, namaFile);
-return;
-}
-} catch (sheetErr) {
-console.warn("SheetJS writeFile gagal, mengalihkan ke metode unduh alternatif...", sheetErr);
-}
+XLSX.utils.book_append_sheet(wb, ws, "PEMERIKSAAN KESEHATAN");
+XLSX.writeFile(wb, namaFile, { bookType: 'xlsx', compression: true });
 
-// Fallback Utama: Unduh via HTML Table Blob / CSV berformat Excel jika SheetJS bermasalah
-try {
-let csvContent = "\uFEFF" + wsData.map(e => e.map(val => `"${String(val).replace(/"/g, '""')}"`).join("\t")).join("\n");
-let blob = new Blob([csvContent], { type: 'application/vnd.ms-excel;charset=utf-8;' });
-let url = URL.createObjectURL(blob);
-let a = document.createElement('a');
-a.href = url;
-a.download = namaFile.replace('.xlsx', '.xls'); // Format Excel HTML/XML alternatif
-document.body.appendChild(a);
-a.click();
-document.body.removeChild(a);
-URL.revokeObjectURL(url);
-} catch (errFallback) {
-alert("Gagal total mengunduh file. Periksa izin unduhan browser Anda. Error: " + errFallback.message);
+} catch (err) {
+alert("Gagal mengunduh file Excel: " + err.message);
+console.error(err);
 }
 }
 
