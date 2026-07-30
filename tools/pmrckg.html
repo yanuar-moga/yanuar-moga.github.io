@@ -46,7 +46,7 @@ button.dl-tingkat:hover{background:#0f766e;}
 <div class="logo">🏥</div>
 <div class="title">
 <h1>Dashboard Pemeriksaan Kesehatan Siswa</h1>
-<p>Format Data: Nama UPPER, Tempat Lahir & Alamat Proper, Kolom L/P Terisi Huruf</p>
+<p>Format Data: Nama UPPER, Tempat Lahir & Alamat Proper, Kolom L/P Terisi Huruf, BB & TB Otomatis</p>
 </div>
 </div>
 
@@ -164,12 +164,10 @@ allSiswaList = [];
 let totalL = 0, totalP = 0;
 let globalNo = 1;
 
-// Urutkan rombel abjad (7A, 7B, 7C, dst)
 let daftarRombel = Object.keys(masterData).sort((a, b) => a.localeCompare(b, "id", {numeric: true}));
 
 daftarRombel.forEach(rombel => {
 let siswaArray = [...masterData[rombel]];
-// Urutkan siswa di dalam rombel berdasarkan abjad nama (Absen A-Z)
 siswaArray.sort((a, b) => {
 let namaA = a[1] ? String(a[1]).trim() : "";
 let namaB = b[1] ? String(b[1]).trim() : "";
@@ -190,6 +188,10 @@ let tglLahirStr = formatTanggal(r[6]);
 let ttl = tempatLahirProper + (tempatLahirProper && tglLahirStr ? " , " : "") + tglLahirStr;
 let alamatProper = toProperCase(r[9]); 
 
+// Mengambil Berat Badan (Kolom BJ / indeks 61) dan Tinggi Badan (Kolom BK / indeks 62)
+let beratBadan = r[61] !== undefined && r[61] !== null ? r[61] : "";
+let tinggiBadan = r[62] !== undefined && r[62] !== null ? r[62] : "";
+
 let rowData = [
 globalNo++, 
 namaUpper,       
@@ -202,7 +204,9 @@ ttl,
 hitungUsia(r[6]),
 alamatProper,    
 r[19] || "",     
-"", "", "", "", "", "", "", "", "", "" 
+beratBadan,      // BB dari kolom BJ (indeks 61)
+tinggiBadan,     // TB dari kolom BK (indeks 62)
+"", "", "", "", "", "", "", "" 
 ];
 
 allSiswaList.push(rowData);
@@ -294,7 +298,6 @@ alert("Tidak ada data untuk rombel " + rombelNama);
 return;
 }
 
-// Urutkan siswa per rombel berdasarkan abjad nama
 let sortedRombel = [...dataRombelRaw].sort((a, b) => {
 let namaA = a[1] ? String(a[1]).trim() : "";
 let namaB = b[1] ? String(b[1]).trim() : "";
@@ -314,6 +317,8 @@ let tempatLahirProper = toProperCase(r[5]);
 let tglLahirStr = formatTanggal(r[6]);
 let ttl = tempatLahirProper + (tempatLahirProper && tglLahirStr ? " , " : "") + tglLahirStr;
 let alamatProper = toProperCase(r[9]);
+let beratBaru = r[61] !== undefined && r[61] !== null ? r[61] : "";
+let tinggiBaru = r[62] !== undefined && r[62] !== null ? r[62] : "";
 
 wsData.push([
 idx + 1,
@@ -327,7 +332,9 @@ ttl,
 hitungUsia(r[6]),
 alamatProper,
 r[19] || "",
-"", "", "", "", "", "", "", "", "", ""
+beratBaru,
+tinggiBaru,
+"", "", "", "", "", "", "", ""
 ]);
 });
 
@@ -337,18 +344,15 @@ unduhExcel(wsData, namaFile);
 
 function downloadTingkat(tingkatAngka) {
 try {
-// Ambil daftar rombel yang sesuai dengan tingkat (misal mengandung angka '7')
 let daftarRombelTingkat = Object.keys(masterData).filter(rombel => {
 return String(rombel).trim().includes(String(tingkatAngka));
 });
 
-// Urutkan rombel abjad (7A, 7B, 7C, dst)
 daftarRombelTingkat.sort((a, b) => a.localeCompare(b, "id", {numeric: true}));
 
 let dataTingkatGabung = [];
 daftarRombelTingkat.forEach(rombel => {
 let siswaRombel = [...masterData[rombel]];
-// Urutkan siswa dalam rombel berdasarkan abjad nama (Absen A-Z)
 siswaRombel.sort((a, b) => {
 let namaA = a[1] ? String(a[1]).trim() : "";
 let namaB = b[1] ? String(b[1]).trim() : "";
@@ -381,20 +385,24 @@ let tempatLahirProper = toProperCase(r[5]);
 let tglLahirStr = formatTanggal(r[6]);
 let ttl = tempatLahirProper + (tempatLahirProper && tglLahirStr ? " , " : "") + tglLahirStr;
 let alamatProper = toProperCase(r[9]);
+let beratBaru = r[61] !== undefined && r[61] !== null ? r[61] : "";
+let tinggiBaru = r[62] !== undefined && r[62] !== null ? r[62] : "";
 
 wsData.push([
 idx + 1,
 namaUpper,
 isL,
 isP,
-r[42] || rombelNama,
+r[42] || "",
 r[4] || "",
 r[7] || "",
 ttl,
 hitungUsia(r[6]),
 alamatProper,
 r[19] || "",
-"", "", "", "", "", "", "", "", "", ""
+beratBaru,
+tinggiBaru,
+"", "", "", "", "", "", "", ""
 ]);
 });
 
