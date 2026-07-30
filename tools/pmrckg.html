@@ -235,6 +235,7 @@ container.appendChild(btn);
 }
 
 function unduhExcel(wsData, namaFile) {
+try {
 const ws = XLSX.utils.aoa_to_sheet(wsData);
 
 // Auto-fit Column Width
@@ -252,17 +253,15 @@ ws['!cols'] = colWidths.map(w => ({ wch: Math.max(w + 3, 10) }));
 const wb = XLSX.utils.book_new();
 XLSX.utils.book_append_sheet(wb, ws, "PEMERIKSAAN");
 
-// Menggunakan metode binary blob agar file langsung terdownload dengan aman di browser
-const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-const blob = new Blob([wbout], { type: 'application/octet-stream' });
-const url = window.URL.createObjectURL(blob);
-const a = document.createElement('a');
-a.href = url;
-a.download = namaFile;
-document.body.appendChild(a);
-a.click();
-document.body.removeChild(a);
-window.URL.revokeObjectURL(url);
+// Menggunakan XLSX.writeFile langsung jika didukung, atau fallback ke metode trigger klik
+XLSX.writeFile(wb, namaFile);
+} catch (err) {
+// Fallback metode manual jika writeFile diblokir browser
+const wb = XLSX.utils.book_new();
+const ws = XLSX.utils.aoa_to_sheet(wsData);
+XLSX.utils.book_append_sheet(wb, ws, "PEMERIKSAAN");
+XLSX.writeFile(wb, namaFile);
+}
 }
 
 function downloadRombel(rombelNama) {
