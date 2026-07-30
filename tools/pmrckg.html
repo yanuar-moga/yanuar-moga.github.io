@@ -3,74 +3,68 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Konverter Dapodik → Format Pemeriksaan Siswa</title>
+<title>Dashboard Pemeriksaan Kesehatan Siswa</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.20.3/xlsx.full.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;}
-body{background:linear-gradient(135deg,#0f172a,#1e3a8a);min-height:100vh;padding:30px;}
-.container{max-width:1400px;margin:auto;background:rgba(255,255,255,.12);backdrop-filter:blur(15px);border-radius:20px;padding:30px;box-shadow:0 20px 50px rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.2);}
-.header{display:flex;align-items:center;gap:20px;margin-bottom:30px;}
-.logo{width:70px;height:70px;border-radius:50%;background:white;display:flex;justify-content:center;align-items:center;font-size:32px;}
-.title h1{color:white;font-size:28px;font-weight:700;}
-.title p{color:#dbeafe;font-size:14px;}
-.card{background:white;border-radius:15px;padding:20px;margin-bottom:25px;}
-.card h2{font-size:20px;margin-bottom:15px;color:#1e3a8a;}
-input[type=file]{width:100%;padding:12px;border:2px dashed #1e40af;border-radius:10px;background:#eff6ff;cursor:pointer;}
-select{padding:12px;border-radius:8px;border:1px solid #ccc;width:250px;font-size:15px;}
-button{padding:12px 22px;background:#2563eb;border:none;border-radius:10px;color:white;font-weight:600;cursor:pointer;transition:.3s;}
-button:hover{background:#1d4ed8;transform:translateY(-2px);}
-button:disabled{opacity:.4;cursor:not-allowed;}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px;margin-bottom:25px;}
-.stat{background:white;padding:20px;border-radius:15px;text-align:center;}
-.stat h3{font-size:34px;color:#2563eb;}
-.stat p{font-size:14px;color:#666;}
-table{width:100%;border-collapse:collapse;margin-top:20px;}
-thead{background:#2563eb;color:white;position:sticky;top:0;}
-th,td{padding:10px;border:1px solid #ddd;font-size:14px;}
+body{background:linear-gradient(135deg,#0f172a,#1e3a8a);min-height:100vh;padding:25px;}
+.container{max-width:1350px;margin:auto;background:rgba(255,255,255,0.1);backdrop-filter:blur(15px);border-radius:20px;padding:30px;box-shadow:0 20px 50px rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);}
+.header{display:flex;align-items:center;gap:20px;margin-bottom:25px;}
+.logo{width:65px;height:65px;border-radius:50%;background:white;display:flex;justify-content:center;align-items:center;font-size:30px;}
+.title h1{color:white;font-size:26px;font-weight:700;}
+.title p{color:#dbeafe;font-size:13px;}
+.card{background:white;border-radius:15px;padding:20px;margin-bottom:25px;box-shadow:0 4px 15px rgba(0,0,0,0.05);}
+.card h2{font-size:18px;margin-bottom:12px;color:#1e3a8a;}
+select{padding:12px;border-radius:8px;border:1px solid #cbd5e1;width:280px;font-size:14px;outline:none;}
+button{padding:12px 22px;background:#2563eb;border:none;border-radius:8px;color:white;font-weight:600;cursor:pointer;transition:0.3s;}
+button:hover{background:#1d4ed8;}
+button:disabled{opacity:0.4;cursor:not-allowed;}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px;margin-bottom:25px;}
+.stat{background:white;padding:20px;border-radius:15px;text-align:center;box-shadow:0 4px 15px rgba(0,0,0,0.05);}
+.stat h3{font-size:32px;color:#2563eb;}
+.stat p{font-size:13px;color:#64748b;}
+table{width:100%;border-collapse:collapse;margin-top:15px;white-space:nowrap;}
+thead{background:#1e3a8a;color:white;position:sticky;top:0;}
+th,td{padding:10px 12px;border:1px solid #e2e8f0;font-size:13px;}
 tbody tr:nth-child(even){background:#f8fafc;}
 tbody tr:hover{background:#dbeafe;}
-.search{margin:20px 0;display:flex;gap:10px;}
-.search input{flex:1;padding:12px;border-radius:10px;border:1px solid #ccc;}
-.footer-btn{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;}
-.loading{display:none;margin-top:20px;font-size:15px;font-weight:600;color:#2563eb;}
-.success{background:#dcfce7;padding:10px;border-radius:10px;margin-top:15px;display:none;}
-@media(max-width:768px){.header{flex-direction:column;text-align:center;}.container{padding:15px;}}
+.search{margin:15px 0;display:flex;gap:10px;}
+.search input{flex:1;padding:12px;border-radius:8px;border:1px solid #cbd5e1;outline:none;}
+.loading{margin-top:10px;font-size:14px;font-weight:600;color:#facc15;}
+.success{background:#dcfce7;color:#166534;padding:10px 15px;border-radius:8px;margin-top:15px;display:none;font-size:13px;}
 </style>
 </head>
 <body>
 <div class="container">
 <div class="header">
-<div class="logo">📋</div>
+<div class="logo">🏥</div>
 <div class="title">
-<h1>Konverter Excel Dapodik</h1>
-<p>Menjadi Format Pemeriksaan Kesehatan Siswa</p>
+<h1>Dashboard Pemeriksaan Kesehatan Siswa</h1>
+<p>Data Dapodik Tersorting Berdasarkan Rombel / Kelas (Kolom AQ - Baris 7)</p>
 </div>
 </div>
 
 <div class="card">
-<h2>📂 Upload File Excel Dapodik</h2>
-<input type="file" id="excelFile" accept=".xlsx,.xls">
-<div class="loading" id="loading">Membaca File Excel...</div>
-<div class="success" id="success">File berhasil dibaca & Rombel dimuat!</div>
+<h2>Pilih Kelas / Rombel</h2>
+<div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+<select id="kelasSelect"><option value="">-- Memuat Data dari GitHub... --</option></select>
+<button id="btnFilter" disabled>Tampilkan Data</button>
 </div>
-
-<div class="card">
-<h2>🎓 Pilih Kelas / Rombel</h2>
-<select id="kelasSelect"><option value="">-- Pilih Kelas --</option></select>
-<button id="btnFilter">Tampilkan Data</button>
+<div class="loading" id="loading">Menghubungkan ke file Excel di GitHub...</div>
+<div class="success" id="success">Berhasil memuat data dari GitHub!</div>
 </div>
 
 <div class="stats">
-<div class="stat"><h3 id="jmlSiswa">0</h3><p>Jumlah Siswa</p></div>
-<div class="stat"><h3 id="jmlL">0</h3><p>Laki-laki</p></div>
-<div class="stat"><h3 id="jmlP">0</h3><p>Perempuan</p></div>
+<div class="stat"><h3 id="jmlSiswa">0</h3><p>Total Siswa</p></div>
+<div class="stat"><h3 id="jmlL">0</h3><p>Laki-laki (L)</p></div>
+<div class="stat"><h3 id="jmlP">0</h3><p>Perempuan (P)</p></div>
 </div>
 
 <div class="card">
-<h2>Preview Data</h2>
-<div class="search"><input type="text" id="searchInput" placeholder="Cari Nama..."></div>
-<div style="overflow:auto;">
+<h2>Tabel Data Pemeriksaan</h2>
+<div class="search"><input type="text" id="searchInput" placeholder="Cari nama siswa..."></div>
+<div style="overflow:auto; max-height:450px;">
 <table id="previewTable">
 <thead>
 <tr>
@@ -80,86 +74,60 @@ tbody tr:hover{background:#dbeafe;}
 <tbody></tbody>
 </table>
 </div>
-<div class="footer-btn"><button id="btnExport" disabled>📥 Export Excel</button></div>
+<div style="margin-top:20px;">
+<button id="btnExport" disabled>📥 Download Excel Kelas Ini</button>
+</div>
 </div>
 </div>
 
 <script>
-let workbook, sheet, rawData=[], hasilData=[], header=[], filtered=[];
+const GITHUB_URL = "https://raw.githubusercontent.com/yanuar-moga/tools/main/daftar_pd-SMPN%201%20MOGA-2026-07-30%2007_39_15.xlsx";
 
+let rawData = [], hasilData = [], filtered = [];
+
+const kelasSelect = document.getElementById("kelasSelect");
 const btnFilter = document.getElementById("btnFilter");
 const btnExport = document.getElementById("btnExport");
-const excelFile = document.getElementById("excelFile");
-const kelasSelect = document.getElementById("kelasSelect");
 const tbody = document.querySelector("#previewTable tbody");
 
-excelFile.addEventListener("change", bacaExcel);
+window.addEventListener("DOMContentLoaded", ambilDataGitHub);
 btnFilter.addEventListener("click", filterKelas);
 btnExport.addEventListener("click", exportExcel);
 document.getElementById("searchInput").addEventListener("keyup", cariData);
 
-function umur(tanggal){
-if(!tanggal) return "";
-let lahir = (tanggal instanceof Date) ? tanggal : new Date(tanggal);
-if(isNaN(lahir)) return "";
-let sekarang = new Date();
-let u = sekarang.getFullYear() - lahir.getFullYear();
-let m = sekarang.getMonth() - lahir.getMonth();
-if(m < 0 || (m === 0 && sekarang.getDate() < lahir.getDate())) u--;
-return u;
-}
-
-function formatTanggal(tanggal){
-if(!tanggal) return "";
-let d = (tanggal instanceof Date) ? tanggal : new Date(tanggal);
-if(isNaN(d)) return "";
-return ("0"+d.getDate()).slice(-2)+"/"+("0"+(d.getMonth()+1)).slice(-2)+"/"+d.getFullYear();
-}
-
-function bacaExcel(e){
-document.getElementById("loading").style.display="block";
-document.getElementById("success").style.display="none";
-const file = e.target.files[0];
-const reader = new FileReader();
-
-reader.onload = function(evt){
+async function ambilDataGitHub() {
 try {
-const data = new Uint8Array(evt.target.result);
-workbook = XLSX.read(data, {type:"array"});
-sheet = workbook.Sheets[workbook.SheetNames[0]];
-rawData = XLSX.utils.sheet_to_json(sheet, {header:1, raw:true});
+let response = await fetch(GITHUB_URL);
+if (!response.ok) throw new Error("Gagal mengambil file dari GitHub.");
+let arrayBuffer = await response.arrayBuffer();
 
-header = rawData[4] || [];
-rawData = rawData.slice(6).filter(r => r && r[1] !== undefined && String(r[1]).trim() !== "");
+let workbook = XLSX.read(new Uint8Array(arrayBuffer), {type: "array"});
+let sheet = workbook.Sheets[workbook.SheetNames[0]];
+let json = XLSX.utils.sheet_to_json(sheet, {header: 1, raw: true});
+
+rawData = json.slice(6).filter(r => r && r[1] !== undefined && String(r[1]).trim() !== "");
 
 isiDropdown();
-
-document.getElementById("loading").style.display="none";
-document.getElementById("success").style.display="block";
-} catch(err) {
-console.error(err);
-alert("Gagal membaca file Excel. Pastikan format file benar.");
-document.getElementById("loading").style.display="none";
+document.getElementById("loading").style.display = "none";
+document.getElementById("success").style.display = "block";
+btnFilter.disabled = false;
+} catch (err) {
+document.getElementById("loading").style.color = "#f87171";
+document.getElementById("loading").textContent = "Error: " + err.message;
 }
-};
-
-reader.readAsArrayBuffer(file);
 }
 
-function isiDropdown(){
-kelasSelect.innerHTML="<option value=''>-- Pilih Kelas --</option>";
+function isiDropdown() {
+kelasSelect.innerHTML = "<option value=''>-- Pilih Kelas / Rombel --</option>";
 const idxRombel = 42; // Kolom AQ
 
 let daftar = [];
 rawData.forEach(r => {
 let rombelVal = r[idxRombel];
-if(rombelVal) {
-daftar.push(String(rombelVal).trim());
-}
+if (rombelVal) daftar.push(String(rombelVal).trim());
 });
 
-daftar = [...new Set(daftar)];
-daftar.sort((a,b) => a.localeCompare(b, "id"));
+daftar = [...new Set(daftar)].sort((a, b) => a.localeCompare(b, "id"));
 
 daftar.forEach(k => {
 let op = document.createElement("option");
@@ -169,21 +137,31 @@ kelasSelect.appendChild(op);
 });
 }
 
-function filterKelas(){
-hasilData=[];
-tbody.innerHTML="";
-let kelas = kelasSelect.value;
-if(kelas===""){ alert("Pilih kelas terlebih dahulu."); return; }
+function umur(tanggal) {
+if (!tanggal) return "";
+let lahir = (tanggal instanceof Date) ? tanggal : new Date(tanggal);
+if (isNaN(lahir)) return "";
+let sekarang = new Date();
+let u = sekarang.getFullYear() - lahir.getFullYear();
+let m = sekarang.getMonth() - lahir.getMonth();
+if (m < 0 || (m === 0 && sekarang.getDate() < lahir.getDate())) u--;
+return u;
+}
 
-const cNama = 1;
-const cJK = 3;
-const cRombel = 42;
-const cNISN = 4;
-const cNIK = 7;
-const cTempat = 5;
-const cTanggal = 6;
-const cAlamat = 9;
-const cHP = 19;
+function formatTanggal(tanggal) {
+if (!tanggal) return "";
+let d = (tanggal instanceof Date) ? tanggal : new Date(tanggal);
+if (isNaN(d)) return "";
+return ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear();
+}
+
+function filterKelas() {
+hasilData = [];
+tbody.innerHTML = "";
+let kelas = kelasSelect.value;
+if (!kelas) { alert("Silakan pilih kelas terlebih dahulu."); return; }
+
+const cNama = 1, cJK = 3, cRombel = 42, cNISN = 4, cNIK = 7, cTempat = 5, cTanggal = 6, cAlamat = 9, cHP = 19;
 
 filtered = rawData.filter(r => String(r[cRombel]).trim() === kelas);
 
@@ -193,24 +171,16 @@ document.getElementById("jmlP").innerText = filtered.filter(r => String(r[cJK]).
 
 filtered.forEach((r, no) => {
 let ttl = "";
-if(r[cTempat]) ttl = r[cTempat];
-if(r[cTanggal]) {
-ttl += (ttl ? " , " : "") + formatTanggal(r[cTanggal]);
-}
+if (r[cTempat]) ttl = r[cTempat];
+if (r[cTanggal]) ttl += (ttl ? " , " : "") + formatTanggal(r[cTanggal]);
 
 let row = [
-no+1,
-r[cNama] || "",
+no + 1, r[cNama] || "",
 String(r[cJK]).toUpperCase() === "L" ? "✓" : "",
 String(r[cJK]).toUpperCase() === "P" ? "✓" : "",
-r[cRombel] || "",
-r[cNISN] || "",
-r[cNIK] || "",
-ttl,
-umur(r[cTanggal]),
-r[cAlamat] || "",
-r[cHP] || "",
-"","","","","","","","","","",""
+r[cRombel] || "", r[cNISN] || "", r[cNIK] || "",
+ttl, umur(r[cTanggal]), r[cAlamat] || "", r[cHP] || "",
+"", "", "", "", "", "", "", "", "", "", ""
 ];
 hasilData.push(row);
 tambahBaris(row);
@@ -218,7 +188,7 @@ tambahBaris(row);
 btnExport.disabled = false;
 }
 
-function tambahBaris(data){
+function tambahBaris(data) {
 let tr = document.createElement("tr");
 data.forEach(v => {
 let td = document.createElement("td");
@@ -228,28 +198,25 @@ tr.appendChild(td);
 tbody.appendChild(tr);
 }
 
-function cariData(){
+function cariData() {
 let key = this.value.toLowerCase();
 tbody.querySelectorAll("tr").forEach(r => {
 r.style.display = r.innerText.toLowerCase().includes(key) ? "" : "none";
 });
 }
 
-function exportExcel(){
-if(hasilData.length === 0){ alert("Tidak ada data."); return; }
+function exportExcel() {
+if (hasilData.length === 0) return;
 const wsData = [
 ["NO", "NAMA", "L", "P", "KELAS", "NISN", "NIK", "TEMPAT TGL LAHIR", "USIA", "ALAMAT", "NO HP", "BB", "TB", "TENSI", "TEST SNELLEN", "MATA", "CARIES", "SERUMEN", "MEROKOK / TIDAK", "JENIS ROKOK", "HB", "GDS"]
 ];
 hasilData.forEach(r => wsData.push(r));
 
 const ws = XLSX.utils.aoa_to_sheet(wsData);
-ws["!cols"] = [{wch:5},{wch:35},{wch:4},{wch:4},{wch:12},{wch:18},{wch:20},{wch:28},{wch:8},{wch:45},{wch:18},{wch:8},{wch:8},{wch:10},{wch:15},{wch:15},{wch:15},{wch:15},{wch:18},{wch:18},{wch:10},{wch:10}];
-ws["!freeze"] = {xSplit:0, ySplit:1};
-
 const wb = XLSX.utils.book_new();
 XLSX.utils.book_append_sheet(wb, ws, "PEMERIKSAAN");
 let kelas = kelasSelect.value.replace(/[^\w]/g, "_");
-XLSX.writeFile(wb, "PEMERIKSAAN_"+kelas+".xlsx");
+XLSX.writeFile(wb, "PEMERIKSAAN_" + kelas + ".xlsx");
 }
 </script>
 </body>
